@@ -1,0 +1,3352 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>向日葵班班 · 學習存摺與親師生聯絡系統</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome 圖示庫 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- QRCode.js 生成庫 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      .print-only {
+        display: block !important;
+      }
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .page-break {
+        page-break-inside: avoid;
+      }
+    }
+    .print-only {
+      display: none;
+    }
+    /* 自訂平滑捲軸 */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="bg-amber-50/40 text-slate-800 min-h-screen font-sans antialiased flex flex-col">
+
+  <!-- 頂部導航列 (列印時隱藏) -->
+  <header class="no-print bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-3">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('student')">
+        <!-- 班級專屬 Logo -->
+        <div class="w-11 h-11 rounded-2xl overflow-hidden bg-white shadow-md border-2 border-white flex items-center justify-center flex-shrink-0">
+          <img src="0716-1.png" alt="向日葵班班" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='_e48fa19a-4efd-4d92-b5e4-99ca56628130.jpg';">
+        </div>
+        <div>
+          <h1 class="text-lg font-black tracking-wide flex items-center gap-1.5 drop-shadow-sm">
+            🌻 向日葵班班 · 學習存摺
+          </h1>
+          <div class="flex items-center gap-2">
+            <p class="text-xs text-amber-100 font-medium">個人專屬查詢 · 獎勵兌換 · 親師私訊</p>
+            <!-- 雲端試算表連線狀態燈 -->
+            <span id="syncStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-white/20 text-white transition backdrop-blur-sm">
+              <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span> 連線中...
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 導航切換按鈕區塊 -->
+      <div class="flex items-center space-x-2 text-sm">
+        <!-- 教師導航按鈕 (學生掃碼模式下預設隱藏) -->
+        <div id="teacherNavControls" class="flex items-center space-x-2 bg-black/15 p-1 rounded-2xl backdrop-blur-sm border border-white/20">
+          <button id="syncNowBtn" onclick="fetchFromGoogleSheets(true)" class="px-2.5 py-1.5 rounded-xl font-medium text-amber-100 hover:text-white hover:bg-white/20 transition flex items-center gap-1.5 text-xs" title="手動向 Google 試算表同步最新資料">
+            <i class="fa-solid fa-arrows-rotate" id="syncSpinner"></i> 同步試算表
+          </button>
+          <button id="navStudentBtn" onclick="switchView('student')" class="px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 bg-white text-orange-600 shadow-sm">
+            <i class="fa-solid fa-mobile-screen"></i> 學生卡片
+          </button>
+          <button id="navAdminBtn" onclick="requestAdminAccess('admin')" class="px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 text-amber-100 hover:text-white hover:bg-white/20">
+            <i class="fa-solid fa-lock" id="adminLockIcon"></i> 教師後台
+          </button>
+          <button id="navPrintBtn" onclick="requestAdminAccess('print')" class="px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 text-amber-100 hover:text-white hover:bg-white/20">
+            <i class="fa-solid fa-qrcode"></i> QR Code 列印
+          </button>
+          <button id="navLogoutBtn" onclick="logoutAdmin()" class="hidden px-2.5 py-1.5 rounded-xl font-medium text-rose-200 hover:text-white hover:bg-rose-600/60 transition" title="登出並鎖定後台">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </button>
+        </div>
+
+        <!-- 學生模式專用重整按鈕 -->
+        <button id="studentRefreshBtn" onclick="fetchFromGoogleSheets(true)" class="hidden bg-white/20 hover:bg-white/30 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-white/30 shadow-sm">
+          <i class="fa-solid fa-rotate-right"></i> 重新載入
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- 訊息提示視窗 (Toast) -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+    <div class="bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-xl flex items-center space-x-3 border border-slate-700 max-w-sm">
+      <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-lg flex-shrink-0"></i>
+      <span id="toastMsg" class="text-xs sm:text-sm font-medium leading-tight">訊息通知</span>
+    </div>
+  </div>
+
+  <!-- 主要內容容器 -->
+  <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6 md:p-8">
+
+    <!-- ================= 視圖 1: 學生專屬查詢頁面 (Student View) ================= -->
+    <section id="studentView" class="block">
+
+      <!-- 🌻 向日葵班班 首頁專屬主視覺橫幅 -->
+      <div class="max-w-md mx-auto mb-4 bg-white rounded-3xl overflow-hidden shadow-lg border border-amber-200/80 transition hover:shadow-xl">
+        <div class="relative w-full aspect-square max-h-64 bg-gradient-to-b from-amber-100 to-amber-50 flex items-center justify-center overflow-hidden">
+          <img src="0716-1.png" alt="向日葵班班首頁插畫" class="w-full h-full object-contain p-2" onerror="this.onerror=null; this.src='_e48fa19a-4efd-4d92-b5e4-99ca56628130.jpg';">
+          <div class="absolute bottom-2 right-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full shadow-sm text-[11px] font-black text-amber-900 border border-amber-200 flex items-center gap-1">
+            <i class="fa-solid fa-seedling text-emerald-500"></i> Sun Flower Class
+          </div>
+        </div>
+      </div>
+
+      <!-- ⏰ 班級重要事件即時倒數與行事曆小卡 -->
+      <div class="max-w-md mx-auto mb-5 bg-gradient-to-br from-orange-500 via-amber-500 to-amber-600 rounded-3xl p-4 sm:p-5 text-white shadow-lg border border-amber-300/40 relative overflow-hidden">
+        <div class="absolute -right-6 -bottom-6 text-white/10 text-8xl font-black pointer-events-none select-none">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        
+        <div class="flex items-center justify-between mb-3 relative z-10">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-white/20 backdrop-blur-md border border-white/30 text-white">
+            <i class="fa-solid fa-bullhorn text-amber-200 animate-bounce"></i> 班級重要提醒
+          </span>
+          <span id="currentDateDisplay" class="text-xs text-amber-100 font-mono font-semibold">2026/09/01</span>
+        </div>
+
+        <!-- 重點倒數展示區 -->
+        <div id="countdownBannerBox" class="relative z-10 bg-white/15 backdrop-blur-md rounded-2xl p-3.5 border border-white/25 mb-3 shadow-inner">
+          <div class="flex justify-between items-start gap-2">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span id="countdownBadge" class="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs">
+                  倒數中
+                </span>
+                <span id="countdownEventTag" class="bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  考試測驗
+                </span>
+              </div>
+              <h3 id="countdownEventTitle" class="text-base font-black text-white drop-shadow-sm line-clamp-1">
+                即將到來重要事件
+              </h3>
+              <p id="countdownEventDesc" class="text-xs text-amber-100 mt-0.5 line-clamp-1">
+                請同學記得預習並準備文具
+              </p>
+            </div>
+            <div class="text-right flex-shrink-0 bg-white/25 px-3 py-1.5 rounded-2xl border border-white/30 text-center min-w-[72px]">
+              <div class="text-[10px] text-amber-100 font-bold uppercase">距離還有</div>
+              <div class="text-2xl font-black text-amber-100 tracking-tight" id="countdownDaysNum">0</div>
+              <div class="text-[10px] font-bold text-white">天</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 展開所有近期行事曆清單 -->
+        <div class="relative z-10">
+          <div class="flex justify-between items-center text-xs font-bold mb-2">
+            <span class="text-amber-100 flex items-center gap-1">
+              <i class="fa-solid fa-calendar-days"></i> 近期重要日程
+            </span>
+            <button onclick="toggleHomeCalendarList()" id="toggleCalendarBtn" class="text-[11px] text-white hover:text-amber-200 underline flex items-center gap-1 font-semibold">
+              <span>查看全部事項</span> <i class="fa-solid fa-chevron-down text-[10px]" id="calendarChevron"></i>
+            </button>
+          </div>
+          <div id="homeCalendarList" class="space-y-1.5 hidden max-h-48 overflow-y-auto pr-1">
+            <!-- 動態填入近期日程 -->
+          </div>
+        </div>
+      </div>
+
+      <!-- 學生切換選單 (掃碼專屬模式下自動隱藏) -->
+      <div id="studentSelectorBox" class="no-print mb-5 max-w-md mx-auto bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+        <label for="studentSelector" class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+          <i class="fa-solid fa-arrow-pointer text-amber-500 mr-1"></i> 教師預覽與快速切換學生
+        </label>
+        <div class="flex gap-2">
+          <select id="studentSelector" onchange="onStudentSelectChange(this.value)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white">
+            <!-- 動態填入學生選項 -->
+          </select>
+          <button onclick="copyCurrentStudentUrl()" class="px-3 py-2 bg-amber-50 text-amber-700 rounded-xl text-sm font-bold hover:bg-amber-100 transition whitespace-nowrap border border-amber-200" title="複製此學生的專屬查詢網址">
+            <i class="fa-solid fa-link"></i> 複製網址
+          </button>
+        </div>
+      </div>
+
+      <!-- 學生個人資訊卡 -->
+      <div id="studentCardContainer" class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-amber-100 transform transition mb-6">
+        
+        <!-- 頂部漸層背景與頭像 -->
+        <div class="bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 p-6 text-white text-center relative shadow-inner">
+          <div class="absolute top-4 right-4 bg-white/25 backdrop-blur-md px-3 py-1 rounded-full text-xs font-black tracking-wider border border-white/30">
+            <span id="cardSeatNumber">座號 01 號</span>
+          </div>
+          
+          <!-- 可點擊更換的個人頭貼 -->
+          <div class="relative w-24 h-24 mx-auto mb-3 group cursor-pointer" onclick="openStudentAvatarModal()" title="點擊更換我的頭像或上傳照片">
+            <div class="w-full h-full bg-white/95 backdrop-blur rounded-full p-1 shadow-md flex items-center justify-center text-4xl overflow-hidden border-2 border-white group-hover:ring-4 group-hover:ring-white/50 transition">
+              <span id="cardAvatar" class="w-full h-full flex items-center justify-center">🌟</span>
+            </div>
+            <div class="absolute bottom-0 right-0 bg-orange-600 hover:bg-orange-700 text-white w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-md border-2 border-white transition transform group-hover:scale-110">
+              <i class="fa-solid fa-camera"></i>
+            </div>
+          </div>
+
+          <!-- 學生姓名與幹部頭銜 -->
+          <div class="flex items-center justify-center gap-2 flex-wrap">
+            <span id="cardStudentRole" class="inline-flex items-center gap-1 bg-white/90 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full shadow-sm border border-amber-200">
+              👑 班長
+            </span>
+            <h2 id="cardStudentName" class="text-2xl font-black tracking-tight drop-shadow-sm">王小明</h2>
+          </div>
+          <p id="cardStudentId" class="text-xs text-amber-100 mt-1 font-mono font-bold">專屬代碼: S001</p>
+        </div>
+
+        <div class="p-6">
+          <!-- 💌 老師專屬勉勵與歡迎詞卡片 -->
+          <div class="mb-5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200 shadow-sm relative">
+            <div class="flex items-center gap-2 mb-1.5">
+              <div class="w-7 h-7 rounded-full overflow-hidden border-2 border-amber-300 bg-white flex-shrink-0 flex items-center justify-center shadow-xs">
+                <img src="0716-1.png" alt="向日葵班班" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='_e48fa19a-4efd-4d92-b5e4-99ca56628130.jpg';">
+              </div>
+              <span class="text-xs font-bold text-amber-900 flex items-center gap-1">
+                <i class="fa-solid fa-heart text-rose-500"></i> 老師的專屬鼓勵
+              </span>
+            </div>
+            <p id="cardWelcomeMessage" class="text-xs sm:text-sm text-amber-950 font-medium leading-relaxed italic bg-white/90 p-3 rounded-xl border border-amber-100 shadow-2xs">
+              🌟 歡迎來到向日葵班班！今天也要一起快樂學習、發揮最好的實力喔！
+            </p>
+          </div>
+
+          <!-- 積分展示核心區塊 -->
+          <div class="bg-gradient-to-b from-amber-50/70 to-orange-50/40 rounded-2xl p-5 border border-amber-200/70 text-center mb-6 shadow-xs">
+            <span class="text-xs font-bold uppercase tracking-wider text-amber-800 bg-amber-100/90 px-3 py-1 rounded-full border border-amber-200">
+              目前累積學習點數
+            </span>
+            <div class="flex items-center justify-center my-3">
+              <span id="cardPoints" class="text-5xl font-black text-orange-600 tracking-tight">0</span>
+              <span class="text-lg font-black text-amber-400 ml-2 self-end mb-1">PTS</span>
+            </div>
+            <!-- 等級徽章與稱號 -->
+            <div class="inline-flex items-center gap-1.5 bg-amber-200/70 text-amber-900 px-3.5 py-1 rounded-full text-xs font-black shadow-2xs" id="cardBadge">
+              <i class="fa-solid fa-medal text-amber-600"></i>
+              <span id="cardLevelName">黃金勇者 ⚔️</span>
+            </div>
+          </div>
+
+          <!-- 等級進度條 -->
+          <div class="mb-6">
+            <div class="flex justify-between text-xs text-slate-500 font-semibold mb-1.5">
+              <span>升級進度</span>
+              <span id="cardProgressText" class="text-amber-800 font-bold">距離下一階段還差 2 點</span>
+            </div>
+            <div class="w-full bg-amber-100/60 h-3.5 rounded-full overflow-hidden p-0.5 border border-amber-200">
+              <div id="cardProgressBar" class="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 h-full rounded-full transition-all duration-500 shadow-sm" style="width: 50%;"></div>
+            </div>
+          </div>
+
+          <!-- 老師自訂獎勵兌換區塊 -->
+          <div class="mb-6">
+            <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center justify-between">
+              <span><i class="fa-solid fa-gift mr-1.5 text-orange-500"></i> 班級點數獎勵兌換庫</span>
+              <span class="text-[11px] text-slate-400 font-normal">達到點數可找老師兌換</span>
+            </h3>
+            <div id="studentRewardList" class="space-y-2.5">
+              <!-- 動態填入自訂獎勵清單 -->
+            </div>
+          </div>
+
+          <!-- 最近積分變更歷史紀錄 -->
+          <div>
+            <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center justify-between">
+              <span><i class="fa-solid fa-clock-rotate-left mr-1.5 text-slate-400"></i> 最近點數紀錄</span>
+              <span class="text-xs text-slate-400 font-normal">最近 5 筆</span>
+            </h3>
+            <div id="cardHistoryList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+              <!-- 動態載入點數紀錄 -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部更新時間 -->
+        <div class="bg-amber-50/50 border-t border-amber-100 px-6 py-3 text-center text-xs text-slate-400 flex justify-between items-center">
+          <span>最後更新：<span id="cardLastUpdated">剛才</span></span>
+          <button onclick="fetchFromGoogleSheets(true)" class="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1">
+            <i class="fa-solid fa-rotate text-[11px]"></i> 重新整理
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= 💬 親師生一對一私密留言板卡片 ================= -->
+      <div id="studentMessageCard" class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-amber-200 transition">
+        <!-- 留言板頂部標題 -->
+        <div class="bg-gradient-to-r from-orange-500 to-amber-500 p-4 text-white flex items-center justify-between">
+          <div class="flex items-center space-x-2">
+            <div class="w-9 h-9 bg-white/20 backdrop-blur rounded-2xl flex items-center justify-center text-lg">
+              <i class="fa-solid fa-comments"></i>
+            </div>
+            <div>
+              <h3 class="font-black text-sm tracking-wide flex items-center gap-1.5">
+                親師生獨立悄悄話留言板
+              </h3>
+              <p class="text-[11px] text-amber-100">🔒 僅限本人、家長與老師可見的私密聯絡簿</p>
+            </div>
+          </div>
+          <span class="text-[10px] bg-white/25 px-2.5 py-1 rounded-full font-bold border border-white/30">
+            一對一專屬
+          </span>
+        </div>
+
+        <!-- 留言對話歷史視窗 -->
+        <div class="p-4 bg-slate-50/70">
+          <div id="studentMessageFeed" class="space-y-3.5 max-h-80 overflow-y-auto pr-1">
+            <!-- 動態填入該學生的私密訊息 -->
+          </div>
+        </div>
+
+        <!-- 留言撰寫輸入區 -->
+        <div class="p-4 bg-white border-t border-slate-100">
+          <form id="studentMessageForm" onsubmit="submitStudentMessage(event)" class="space-y-2.5">
+            <!-- 發送身分選擇 -->
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-slate-500 font-bold">留言者身分：</span>
+              <div class="flex gap-2">
+                <label class="cursor-pointer inline-flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-xl border border-amber-200 text-amber-900 font-semibold text-xs">
+                  <input type="radio" name="messageSenderType" value="學生" checked class="accent-orange-500 text-xs">
+                  <span>👦 學生本人</span>
+                </label>
+                <label class="cursor-pointer inline-flex items-center gap-1.5 bg-sky-50 px-2.5 py-1 rounded-xl border border-sky-200 text-sky-900 font-semibold text-xs">
+                  <input type="radio" name="messageSenderType" value="家長" class="accent-sky-600 text-xs">
+                  <span>👨‍👩‍👦 學生家長</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="relative">
+              <textarea id="studentMessageInput" rows="2" required placeholder="想向老師提出問題、請假或生活分享嗎？請在此輸入..." class="w-full bg-slate-50 border border-slate-300 rounded-2xl p-3 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white resize-none"></textarea>
+            </div>
+
+            <div class="flex justify-between items-center">
+              <p class="text-[10px] text-slate-400">
+                <i class="fa-solid fa-lock text-[9px] text-emerald-500"></i> 此訊息經加密隔絕，其他同學完全看不到
+              </p>
+              <button type="submit" class="px-4 py-2 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-paper-plane"></i> 送出訊息
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ================= 視圖 2: 教師後台管理 (Teacher Admin View) ================= -->
+    <section id="adminView" class="hidden">
+      <!-- 後台操作列 -->
+      <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 mb-6 flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <div class="flex items-center gap-2">
+            <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-sliders text-orange-500"></i> 教師控制台
+            </h2>
+            <span class="bg-emerald-100 text-emerald-800 text-[11px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+              <i class="fa-solid fa-shield-halved"></i> 密碼保護中
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 mt-1">向日葵班班專屬管理後台 · 親師私訊、歡迎詞、積分與行事曆皆可即時處理</p>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="fetchFromGoogleSheets(true)" class="bg-amber-50 hover:bg-amber-100 text-amber-800 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 border border-amber-200 shadow-xs">
+            <i class="fa-solid fa-cloud-arrow-down"></i> 同步試算表
+          </button>
+          <button onclick="openChangePasswordModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-key"></i> 修改密碼
+          </button>
+          <button onclick="openAddStudentModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-user-plus"></i> 新增學生
+          </button>
+          <button onclick="exportData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-file-export"></i> 匯出
+          </button>
+          <button onclick="document.getElementById('importFileInput').click()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-file-import"></i> 匯入
+          </button>
+          <input type="file" id="importFileInput" onchange="importData(event)" class="hidden" accept=".json">
+          <button onclick="logoutAdmin()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5">
+            <i class="fa-solid fa-lock"></i> 鎖定登出
+          </button>
+        </div>
+      </div>
+
+      <!-- 後台頁籤選單 -->
+      <div class="flex space-x-2 border-b border-slate-200 mb-6 overflow-x-auto">
+        <button id="adminTabStudentsBtn" onclick="switchAdminTab('students')" class="px-4 py-2.5 font-bold text-sm border-b-2 border-orange-500 text-orange-600 flex items-center gap-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-users"></i> 學生名單與積分 (<span id="studentCountBadge">0</span>)
+        </button>
+        <button id="adminTabMessagesBtn" onclick="switchAdminTab('messages')" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap relative">
+          <i class="fa-solid fa-comments"></i> 親師生私訊信箱
+          <span id="unreadMessageBadge" class="hidden bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full ml-1 animate-pulse">0</span>
+        </button>
+        <button id="adminTabRewardsBtn" onclick="switchAdminTab('rewards')" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-gifts"></i> 獎勵兌換項目 (<span id="rewardCountBadge">0</span>)
+        </button>
+        <button id="adminTabEventsBtn" onclick="switchAdminTab('events')" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-calendar-days"></i> 班級行事曆 (<span id="eventCountBadge">0</span>)
+        </button>
+      </div>
+
+      <!-- 後台分頁 1: 學生名單與積分管理 -->
+      <div id="adminTabStudents" class="block">
+        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div class="relative flex-1 min-w-[240px]">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
+            <input type="text" id="adminSearchInput" oninput="renderAdminTable()" placeholder="搜尋姓名、座號或學號..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white">
+          </div>
+          <div class="flex items-center gap-2 text-xs font-bold text-slate-600 flex-wrap">
+            <span>快速加分範本：</span>
+            <button onclick="quickBatchAdd('作業優良', 2)" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1.5 rounded-lg border border-emerald-200 transition">
+              作業優良 +2
+            </button>
+            <button onclick="quickBatchAdd('主動發言', 1)" class="bg-amber-50 hover:bg-amber-100 text-amber-800 px-2.5 py-1.5 rounded-lg border border-amber-200 transition">
+              主動發言 +1
+            </button>
+            <button onclick="quickBatchAdd('熱心服務', 3)" class="bg-orange-50 hover:bg-orange-100 text-orange-700 px-2.5 py-1.5 rounded-lg border border-orange-200 transition">
+              熱心服務 +3
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase font-bold text-slate-500">
+                  <th class="py-3 px-4">座號 / 學號</th>
+                  <th class="py-3 px-4">學生姓名</th>
+                  <th class="py-3 px-4">班級幹部</th>
+                  <th class="py-3 px-4">老師專屬勉勵</th>
+                  <th class="py-3 px-4 text-center">積分</th>
+                  <th class="py-3 px-4 text-center">快速調整</th>
+                  <th class="py-3 px-4 text-center">核銷獎勵</th>
+                  <th class="py-3 px-4 text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="adminStudentTableBody" class="divide-y divide-slate-100 text-sm">
+                <!-- 動態填入學生列表 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 後台分頁 2: 親師生私密留言管理中心 -->
+      <div id="adminTabMessages" class="hidden">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+          <!-- 左側：學生私訊聯絡簿列表 (4 欄) -->
+          <div class="md:col-span-4 bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
+              <h3 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                <i class="fa-solid fa-address-book text-orange-500"></i> 學生留言清單
+              </h3>
+              <span class="text-xs text-slate-400 font-medium">點選進行回覆</span>
+            </div>
+            
+            <div id="adminMessageStudentList" class="space-y-1.5 overflow-y-auto max-h-[520px] pr-1">
+              <!-- 動態填入學生對話列表 -->
+            </div>
+          </div>
+
+          <!-- 右側：選定學生的對話視窗與回覆區 (8 欄) -->
+          <div class="md:col-span-8 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between">
+            <div>
+              <!-- 當前選中的學生標題列 -->
+              <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-4">
+                <div class="flex items-center space-x-3">
+                  <div id="adminChatAvatar" class="w-10 h-10 rounded-2xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl font-bold">
+                    🌟
+                  </div>
+                  <div>
+                    <h3 id="adminChatStudentTitle" class="font-bold text-slate-800 text-base">請選擇學生</h3>
+                    <p id="adminChatStudentSub" class="text-xs text-slate-400">專屬獨立親師生私密留言對話</p>
+                  </div>
+                </div>
+                <button onclick="markCurrentStudentMessagesAsRead()" class="text-xs text-slate-500 hover:text-orange-600 font-semibold px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-orange-50 transition">
+                  <i class="fa-solid fa-check-double mr-1"></i> 全部標為已讀
+                </button>
+              </div>
+
+              <!-- 對話歷史清單 -->
+              <div id="adminChatThread" class="space-y-3 overflow-y-auto max-h-[360px] p-3 bg-slate-50/80 rounded-2xl border border-slate-100 mb-4">
+                <div class="text-center text-slate-400 text-xs py-8">
+                  請從左側點選一位學生以查看對話紀錄
+                </div>
+              </div>
+            </div>
+
+            <!-- 教師回覆輸入區塊 -->
+            <div class="pt-2 border-t border-slate-100">
+              <!-- 快速回覆範本按鈕 -->
+              <div class="flex items-center gap-1.5 flex-wrap mb-2">
+                <span class="text-[11px] text-slate-400 font-bold">快速回覆：</span>
+                <button type="button" onclick="setQuickTeacherReply('好的，老師已收到！會持續在校關心與留意孩子的情況。')" class="text-[11px] bg-amber-50 hover:bg-amber-100 text-amber-800 px-2 py-0.5 rounded-lg border border-amber-200">收到留意</button>
+                <button type="button" onclick="setQuickTeacherReply('今天在學校表現很棒，作業也已經完成囉！請家長放心。')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg">表現優秀</button>
+                <button type="button" onclick="setQuickTeacherReply('請假事項已為孩子辦妥，若有學習進度需要補齊，老師會給予個別協助。')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg">請假回覆</button>
+                <button type="button" onclick="setQuickTeacherReply('謝謝家長的貼心告知與支持配合，我們一起加油！💪')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg">感謝配合</button>
+              </div>
+
+              <form id="adminReplyForm" onsubmit="submitTeacherReply(event)" class="space-y-2">
+                <div class="flex gap-2">
+                  <textarea id="adminReplyInput" rows="2" required placeholder="以【🌻 向日葵班班導師】身分回覆家長與學生..." class="flex-1 bg-slate-50 border border-slate-300 rounded-2xl p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white resize-none"></textarea>
+                  <button type="submit" class="px-5 bg-orange-500 hover:bg-orange-600 text-white rounded-2xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-1">
+                    <i class="fa-solid fa-reply"></i> 回覆
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 後台分頁 3: 獎勵項目自訂設定 -->
+      <div id="adminTabRewards" class="hidden">
+        <div class="flex justify-between items-center mb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-800">向日葵班班 獎勵項目清單</h3>
+            <p class="text-xs text-slate-500 mt-0.5">這些獎勵會即時同步給全班學生查詢卡顯示</p>
+          </div>
+          <button onclick="openAddRewardModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-plus"></i> 新增獎勵項目
+          </button>
+        </div>
+
+        <div id="rewardsGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- 動態填入老師設定的獎勵項目 -->
+        </div>
+      </div>
+
+      <!-- 後台分頁 4: 班級行事曆與重要事件設定 -->
+      <div id="adminTabEvents" class="hidden">
+        <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
+          <div>
+            <h3 class="text-base font-bold text-slate-800">向日葵班班 重要行事曆設定</h3>
+            <p class="text-xs text-slate-500 mt-0.5">此處設定的重要事項會在首頁自動倒數，並同步至 Google 試算表</p>
+          </div>
+          <button onclick="openAddEventModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-plus"></i> 新增行事曆事件
+          </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-slate-50 border-b border-slate-200 text-xs uppercase font-bold text-slate-500">
+                  <th class="py-3 px-4">日期</th>
+                  <th class="py-3 px-4">倒數天數</th>
+                  <th class="py-3 px-4">事件名稱</th>
+                  <th class="py-3 px-4">類型標籤</th>
+                  <th class="py-3 px-4">備註說明</th>
+                  <th class="py-3 px-4 text-right">操作</th>
+                </tr>
+              </thead>
+              <tbody id="adminEventsTableBody" class="divide-y divide-slate-100 text-sm">
+                <!-- 動態填入行事曆事件列表 -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================= 視圖 3: QR Code 批量列印 (Print View) ================= -->
+    <section id="printView" class="hidden">
+      <div class="no-print bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex flex-wrap justify-between items-center gap-4">
+        <div>
+          <h3 class="font-bold text-amber-900 text-sm flex items-center gap-2">
+            <i class="fa-solid fa-print"></i> 🌻 向日葵班班 · 專屬 QR Code 小卡
+          </h3>
+          <p class="text-xs text-amber-700 mt-0.5">點擊右方按鈕即可一鍵呼叫瀏覽器列印，將小卡剪裁後貼在學生聯絡簿或課桌上，掃碼後即進入個人獨立介面。</p>
+        </div>
+        <button onclick="window.print()" class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition flex items-center gap-2">
+          <i class="fa-solid fa-print"></i> 立即列印全部小卡
+        </button>
+      </div>
+
+      <div id="qrCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- 動態產生 QR Code 卡片 -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ================= 模態視窗: 編輯學生勉勵詞 ================= -->
+  <div id="welcomeMessageModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-comment-dots text-amber-500"></i> 設定向日葵班專屬勉勵詞
+        </h3>
+        <button onclick="closeWelcomeMessageModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="text-xs text-slate-500 mb-3">
+        對象：<span id="welcomeModalStudentName" class="font-bold text-orange-600 text-sm">--</span>
+      </div>
+
+      <form id="welcomeMessageForm" onsubmit="saveWelcomeMessage(event)" class="space-y-3.5">
+        <input type="hidden" id="welcomeModalStudentId">
+        
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">歡迎與勉勵詞內容 *</label>
+          <textarea id="welcomeModalInput" rows="3" required placeholder="例如：這週在分組活動表現很棒，繼續保持積極的心情喔！" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-500 mb-1.5">快速套用範本：</label>
+          <div class="flex flex-wrap gap-1.5">
+            <button type="button" onclick="setQuickWelcome('🌻 歡迎來到向日葵班班！今天也要一起快樂學習、發揮最好的實力喔！')" class="text-[11px] bg-amber-50 hover:bg-amber-100 text-amber-800 px-2.5 py-1 rounded-lg border border-amber-200">班級歡迎</button>
+            <button type="button" onclick="setQuickWelcome('🏆 這週作業與課堂表現非常亮眼，老師為你感到驕傲！')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg">表現優秀</button>
+            <button type="button" onclick="setQuickWelcome('💪 遇到挑戰不要灰心，多向同學與老師提問，你一定做得到！')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg">加油打氣</button>
+            <button type="button" onclick="setQuickWelcome('📚 距離下一個稱號只差一點點了，今天再爭取加分吧！')" class="text-[11px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1 rounded-lg">集點衝刺</button>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeWelcomeMessageModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition">
+            取消
+          </button>
+          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold transition shadow-sm">
+            儲存勉勵詞
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 新增/編輯行事曆事件 ================= -->
+  <div id="eventModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center mb-5">
+        <h3 id="eventModalTitle" class="text-lg font-bold text-slate-800">新增行事曆事件</h3>
+        <button onclick="closeEventModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="eventForm" onsubmit="saveEventItem(event)" class="space-y-4">
+        <input type="hidden" id="editEventId">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">事件日期 *</label>
+            <input type="date" id="eventDateInput" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">類型標籤 *</label>
+            <select id="eventTagInput" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+              <option value="考試測驗">📝 考試測驗</option>
+              <option value="作業繳交">📚 作業繳交</option>
+              <option value="戶外活動">🚌 戶外活動</option>
+              <option value="班級活動">🎉 班級活動</option>
+              <option value="學校重要日">🏫 學校重要日</option>
+              <option value="其他">📌 其他提醒</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">事件名稱 / 事項 *</label>
+          <input type="text" id="eventTitleInput" required placeholder="例如: 第一次數學隨堂測驗..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">備註說明與注意事項</label>
+          <textarea id="eventDescInput" rows="2" placeholder="例如: 請攜帶三角板與圓規..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeEventModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold transition">
+            取消
+          </button>
+          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold transition shadow-sm">
+            儲存事件
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 教師登入驗證 ================= -->
+  <div id="adminLoginModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      <div class="text-center mb-5">
+        <div class="w-14 h-14 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-2xl shadow-inner">
+          <i class="fa-solid fa-shield-halved"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-800">教師後台身分驗證</h3>
+        <p class="text-xs text-slate-500 mt-1">請輸入教師管理密碼以繼續操作</p>
+      </div>
+
+      <form id="adminLoginForm" onsubmit="verifyAdminPassword(event)" class="space-y-4">
+        <div>
+          <input type="password" id="inputAdminPassword" required placeholder="請輸入管理密碼" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-center font-mono text-base tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeAdminLoginModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold transition">
+            取消
+          </button>
+          <button type="submit" class="w-1/2 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold transition shadow-sm">
+            確認登入
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 修改教師密碼 ================= -->
+  <div id="changePasswordModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-key text-orange-500"></i> 修改後台管理密碼
+        </h3>
+        <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="changePasswordForm" onsubmit="saveNewPassword(event)" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">目前密碼 *</label>
+          <input type="password" id="currentPasswordInput" required placeholder="輸入舊密碼" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">新密碼 *</label>
+          <input type="password" id="newPasswordInput" required placeholder="輸入新密碼 (至少4碼)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">再次確認新密碼 *</label>
+          <input type="password" id="confirmNewPasswordInput" required placeholder="再次輸入新密碼" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeChangePasswordModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold transition">
+            取消
+          </button>
+          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold transition shadow-sm">
+            儲存密碼
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 新增/編輯學生 ================= -->
+  <div id="studentModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-5">
+        <h3 id="modalTitle" class="text-lg font-bold text-slate-800">新增學生</h3>
+        <button onclick="closeStudentModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="studentForm" onsubmit="saveStudent(event)" class="space-y-3.5">
+        <input type="hidden" id="editOriginalId">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">座號 *</label>
+            <input type="number" id="inputSeat" required min="1" max="99" placeholder="例如: 1" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">學號/自訂代碼 *</label>
+            <input type="text" id="inputId" required placeholder="例如: S001" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">學生姓名 *</label>
+          <input type="text" id="inputName" required placeholder="例如: 王小明" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">班級幹部職稱</label>
+          <input type="text" id="inputRole" placeholder="例如: 班長、風紀股長、無..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+          <div class="flex items-center gap-1.5 flex-wrap mt-1.5">
+            <span class="text-[10px] text-slate-400 font-bold">快速套用：</span>
+            <button type="button" onclick="setQuickRole('👑 班長')" class="text-[10px] bg-amber-50 hover:bg-amber-100 text-amber-800 px-2 py-0.5 rounded border border-amber-200">👑 班長</button>
+            <button type="button" onclick="setQuickRole('⭐ 副班長')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded">⭐ 副班長</button>
+            <button type="button" onclick="setQuickRole('🛡️ 風紀股長')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded">🛡️ 風紀</button>
+            <button type="button" onclick="setQuickRole('📚 學藝股長')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded">📚 學藝</button>
+            <button type="button" onclick="setQuickRole('🌿 衛生股長')" class="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded">🌿 衛生</button>
+            <button type="button" onclick="setQuickRole('')" class="text-[10px] bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-0.5 rounded">無</button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">專屬歡迎與勉勵詞</label>
+          <input type="text" id="inputWelcomeMessage" placeholder="例如: 歡迎來到向日葵班班！今天也要加油喔！" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">頭像 Emoji</label>
+          <div class="flex gap-2">
+            <input type="text" id="inputAvatar" value="🌟" class="w-16 text-center bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-lg focus:outline-none focus:ring-2 focus:ring-amber-500">
+            <div class="flex items-center gap-1.5 text-lg overflow-x-auto p-1 bg-slate-50 rounded-xl border border-slate-200">
+              <span class="cursor-pointer hover:scale-125 transition" onclick="selectEmoji('🌟')">🌟</span>
+              <span class="cursor-pointer hover:scale-125 transition" onclick="selectEmoji('🚀')">🚀</span>
+              <span class="cursor-pointer hover:scale-125 transition" onclick="selectEmoji('🦄')">🦄</span>
+              <span class="cursor-pointer hover:scale-125 transition" onclick="selectEmoji('🦁')">🦁</span>
+              <span class="cursor-pointer hover:scale-125 transition" onclick="selectEmoji('🎨')">🎨</span>
+              <span class="cursor-pointer hover:scale-125 transition" onclick="selectEmoji('⚽')">⚽</span>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">起始積分</label>
+          <input type="number" id="inputPoints" value="0" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeStudentModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold transition">
+            取消
+          </button>
+          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold transition shadow-sm">
+            儲存學生
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 自訂加減分 ================= -->
+  <div id="pointModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-star text-amber-500"></i> 調整點數紀錄
+        </h3>
+        <button onclick="closePointModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="text-center py-2 mb-4 bg-amber-50/60 rounded-2xl border border-amber-100">
+        <div id="pointModalStudentName" class="font-bold text-slate-800">學生名稱</div>
+        <div class="text-xs text-slate-500 mt-0.5">目前點數：<span id="pointModalCurrentPoints" class="font-bold text-orange-600">0</span> 點</div>
+      </div>
+
+      <form id="pointForm" onsubmit="submitPointAdjustment(event)" class="space-y-4">
+        <input type="hidden" id="pointStudentId">
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">變更點數 (正數加分，負數扣分) *</label>
+          <input type="number" id="pointChangeAmount" required placeholder="例如: 2 或 -1" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">原因說明 *</label>
+          <input type="text" id="pointReason" required placeholder="例如: 課堂主動發問、作業整潔..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div class="flex gap-1.5 flex-wrap">
+          <button type="button" onclick="setQuickReason('課堂優良發言', 1)" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg">發言 +1</button>
+          <button type="button" onclick="setQuickReason('作業優秀', 2)" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg">作業 +2</button>
+          <button type="button" onclick="setQuickReason('熱心助人', 2)" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg">助人 +2</button>
+          <button type="button" onclick="setQuickReason('未帶課本', -1)" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg">缺帶 -1</button>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closePointModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold transition">
+            取消
+          </button>
+          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold transition shadow-sm">
+            確認送出
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 新增/編輯獎勵項目 ================= -->
+  <div id="rewardModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center mb-5">
+        <h3 id="rewardModalTitle" class="text-lg font-bold text-slate-800">設定獎勵項目</h3>
+        <button onclick="closeRewardModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <form id="rewardForm" onsubmit="saveRewardItem(event)" class="space-y-4">
+        <input type="hidden" id="editRewardId">
+
+        <div class="grid grid-cols-3 gap-3">
+          <div class="col-span-1">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">圖示 Emoji</label>
+            <input type="text" id="rewardEmojiInput" value="🎁" class="w-full text-center bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xl focus:outline-none focus:ring-2 focus:ring-amber-500">
+          </div>
+          <div class="col-span-2">
+            <label class="block text-xs font-semibold text-slate-600 mb-1">所需積分 (PTS) *</label>
+            <input type="number" id="rewardPointsInput" required min="1" placeholder="例如: 30" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-orange-600 focus:outline-none focus:ring-2 focus:ring-amber-500">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">獎勵名稱 *</label>
+          <input type="text" id="rewardTitleInput" required placeholder="例如: 自選座位特權..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">兌換說明與規則</label>
+          <textarea id="rewardDescInput" rows="2" placeholder="例如: 作業可補交一次..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeRewardModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold transition">
+            取消
+          </button>
+          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold transition shadow-sm">
+            儲存獎勵
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 學生獎勵核銷 ================= -->
+  <div id="claimModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      <div class="text-center mb-4">
+        <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-2 text-xl">
+          <i class="fa-solid fa-gift"></i>
+        </div>
+        <h3 class="text-base font-bold text-slate-800">核銷獎勵兌換</h3>
+        <p class="text-xs text-slate-500 mt-0.5">為學生扣除對應點數並完成兌換紀錄</p>
+      </div>
+
+      <div class="bg-amber-50/60 p-3 rounded-2xl mb-4 text-xs space-y-1 border border-amber-100">
+        <div class="flex justify-between text-slate-600">
+          <span>兌換學生：</span>
+          <strong id="claimStudentName" class="text-slate-800">--</strong>
+        </div>
+        <div class="flex justify-between text-slate-600">
+          <span>目前點數：</span>
+          <strong id="claimCurrentPoints" class="text-orange-600 font-bold">0 點</strong>
+        </div>
+      </div>
+
+      <form id="claimForm" onsubmit="submitClaimReward(event)" class="space-y-4">
+        <input type="hidden" id="claimStudentId">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">選擇要兌換的獎勵項目 *</label>
+          <select id="claimRewardSelect" required onchange="onClaimRewardSelected(this.value)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+            <!-- 動態填入 -->
+          </select>
+        </div>
+
+        <div class="p-3 bg-amber-100/70 rounded-xl border border-amber-200 text-xs text-amber-900 font-medium">
+          即將扣除：<span id="claimDeductAmount" class="font-black text-rose-600 text-sm">0</span> 點
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+          <button type="button" onclick="closeClaimModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold transition">
+            取消
+          </button>
+          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold transition shadow-sm">
+            確認核銷扣點
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 學生自訂頭貼 ================= -->
+  <div id="avatarModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center mb-4">
+        <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-face-smile text-orange-500"></i> 更換我的個人頭像
+        </h3>
+        <button onclick="closeStudentAvatarModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="text-center mb-5">
+        <div class="w-20 h-20 mx-auto rounded-full bg-amber-50 border-2 border-amber-300 flex items-center justify-center text-4xl overflow-hidden shadow-inner mb-2" id="avatarPreviewBox">
+          <span id="avatarPreviewSpan" class="w-full h-full flex items-center justify-center">🌟</span>
+        </div>
+        <p class="text-xs text-slate-500 font-medium">即將套用的個人頭像預覽</p>
+      </div>
+
+      <div class="space-y-4">
+        <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-200 text-center">
+          <p class="text-xs font-bold text-slate-700 mb-2 flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-image text-orange-500"></i> 上傳個人照片或自拍
+          </p>
+          <input type="file" id="avatarUploadInput" accept="image/*" class="hidden" onchange="handleAvatarFileUpload(event)">
+          <button type="button" onclick="document.getElementById('avatarUploadInput').click()" class="w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border border-amber-200">
+            <i class="fa-solid fa-upload"></i> 從相簿選取或拍照上傳
+          </button>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1.5">或挑選一個代表自己的 Emoji：</label>
+          <div class="grid grid-cols-6 gap-2 p-2 bg-slate-50 rounded-2xl border border-slate-200 text-2xl text-center">
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🌟')">🌟</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🌻')">🌻</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🚀')">🚀</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🦄')">🦄</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🦁')">🦁</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🐼')">🐼</span>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <input type="text" id="avatarManualInput" placeholder="或自行輸入 Emoji 符號" maxlength="2" class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-3 py-1.5 text-xs text-center focus:outline-none focus:ring-2 focus:ring-amber-500">
+          <button type="button" onclick="applyManualAvatarInput()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition">
+            套用
+          </button>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-4 mt-4 border-t border-slate-100">
+        <button type="button" onclick="closeStudentAvatarModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition">
+          取消
+        </button>
+        <button type="button" onclick="saveSelectedAvatar()" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition shadow-sm">
+          確認儲存頭像
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部版權與隱藏教師入口 (列印時隱藏) -->
+  <footer class="no-print bg-white/80 backdrop-blur-sm border-t border-amber-200/60 py-4 text-center text-xs text-slate-400 mt-auto">
+    <div class="max-w-6xl mx-auto px-4 flex flex-wrap justify-between items-center gap-2">
+      <p>🌻 向日葵班班 · 親師生學習存摺與聯絡系統</p>
+      <button id="footerTeacherEntryBtn" onclick="requestAdminAccess('admin')" class="text-slate-400 hover:text-orange-600 text-[11px] flex items-center gap-1 transition">
+        <i class="fa-solid fa-lock text-[10px]"></i> 教師管理登入
+      </button>
+    </div>
+  </footer>
+
+  <!-- ================= 系統邏輯 Javascript ================= -->
+  <script>
+    // Google Apps Script Web App API 網址
+    const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxWQhC0bDnz4ITKoSGACvJeYlzDCGVOoYDMcoP3dIyAtBk5C1bpTajpj-R_xycdcBjW/exec";
+
+    // 預設教師密碼
+    const DEFAULT_ADMIN_PASSWORD = "8888";
+
+    // 預設班級行事曆事件
+    const DEFAULT_EVENTS = [
+      {
+        id: "EV01",
+        date: "2026-09-10",
+        title: "第一次數學單元小考",
+        tag: "考試測驗",
+        desc: "測驗範圍：第一單元～第二單元，請記得帶三角板與圓規"
+      },
+      {
+        id: "EV02",
+        date: "2026-09-18",
+        title: "台北科學教育館 校外教學",
+        tag: "戶外活動",
+        desc: "請穿著運動服，自備水壺、悠遊卡與輕便雨衣"
+      },
+      {
+        id: "EV03",
+        date: "2026-09-25",
+        title: "暑假閱讀心得海報繳交",
+        tag: "作業繳交",
+        desc: "請於早自習繳交給各組學藝股長"
+      }
+    ];
+
+    // 預設範例學生名單
+    const DEFAULT_STUDENTS = [
+      {
+        id: "S001",
+        seat: 1,
+        name: "王小明",
+        role: "👑 班長",
+        avatar: "🌟",
+        points: 48,
+        welcomeMessage: "🌻 歡迎回到向日葵班班！今天也要像向日葵一樣充滿朝氣喔！",
+        history: [
+          { time: "09/01 09:15", reason: "開學預習表現優異", delta: 5 },
+          { time: "09/01 14:20", reason: "主動協助整理班級圖書", delta: 3 }
+        ]
+      },
+      {
+        id: "S002",
+        seat: 2,
+        name: "李美華",
+        role: "⭐ 副班長",
+        avatar: "🦄",
+        points: 65,
+        welcomeMessage: "🦄 英文朗讀很出色！期待你在課堂上更多精彩分享！",
+        history: [
+          { time: "08/29 11:30", reason: "英文朗讀流暢生動", delta: 5 }
+        ]
+      },
+      {
+        id: "S003",
+        seat: 3,
+        name: "陳冠宇",
+        role: "⚽ 體育股長",
+        avatar: "🚀",
+        points: 18,
+        welcomeMessage: "🚀 體育團隊合作非常棒，課業上也繼續衝刺升級吧！",
+        history: [
+          { time: "08/30 10:10", reason: "體育課團隊合作精神佳", delta: 3 }
+        ]
+      }
+    ];
+
+    // 預設教師自訂獎勵清單
+    const DEFAULT_REWARDS = [
+      {
+        id: "R01",
+        emoji: "🎫",
+        title: "免死金牌（作業補交/減免券）",
+        points: 30,
+        desc: "可抵用一次作業遲交或減免一次訂正。"
+      },
+      {
+        id: "R02",
+        emoji: "💺",
+        title: "自選座位特權一週",
+        points: 50,
+        desc: "可自由指定或調整喜愛的座位一週。"
+      },
+      {
+        id: "R03",
+        emoji: "🎁",
+        title: "驚喜文具神秘小禮包",
+        points: 25,
+        desc: "可至教師獎勵箱抽取精美文具一份。"
+      }
+    ];
+
+    // 預設親師生留言示範資料
+    const DEFAULT_MESSAGES = [
+      {
+        id: "MSG_001",
+        studentId: "S001",
+        sender: "家長",
+        content: "老師您好，小明昨晚因輕微感冒有看醫生，今日精神已好轉，再麻煩老師協助提醒他多喝水，謝謝老師！",
+        time: "09/02 07:50",
+        isRead: true
+      },
+      {
+        id: "MSG_002",
+        studentId: "S001",
+        sender: "老師",
+        content: "小明家長您好！老師今天會多留意小明的身體狀況，並提醒他按時補充溫水，請您放心！",
+        time: "09/02 08:15",
+        isRead: true
+      },
+      {
+        id: "MSG_003",
+        studentId: "S001",
+        sender: "學生",
+        content: "老師，今天的數學直角三角形題目我還有點不太懂，明天早自習可以找老師請教嗎？",
+        time: "09/02 18:30",
+        isRead: false
+      },
+      {
+        id: "MSG_004",
+        studentId: "S002",
+        sender: "家長",
+        content: "老師好，美華這週英文朗讀比賽很投入練習，非常謝謝老師的耐心指導！",
+        time: "09/01 19:20",
+        isRead: true
+      },
+      {
+        id: "MSG_005",
+        studentId: "S002",
+        sender: "老師",
+        content: "美華非常有天分而且很肯努力，期待她週五的亮眼表現！",
+        time: "09/01 20:05",
+        isRead: true
+      }
+    ];
+
+    // 全域變數狀態
+    let students = [];
+    let rewards = [];
+    let classEvents = [];
+    let classMessages = [];
+    let adminPassword = DEFAULT_ADMIN_PASSWORD;
+    let hasCustomPassword = false;
+    let isAdminAuthenticated = false;
+    let currentStudentId = null;
+    let selectedAdminChatStudentId = null;
+    let pendingAdminTargetView = 'admin';
+    let isFetchingGoogleSheet = false;
+    let isStudentPersonalMode = false;
+    let tempSelectedAvatar = '🌟';
+    let isHomeCalendarExpanded = false;
+    let localModifiedTracker = {};
+
+    function initApp() {
+      loadSystemData();
+      
+      try {
+        const params = new URLSearchParams(window.location.search);
+        const urlSid = params.get('sid') || params.get('id');
+
+        if (urlSid) {
+          const matchStudent = students.find(s => 
+            String(s.id).toLowerCase() === String(urlSid).toLowerCase() || 
+            String(s.seat) === String(urlSid)
+          );
+          currentStudentId = matchStudent ? matchStudent.id : urlSid;
+          isStudentPersonalMode = true;
+          applyStudentPersonalModeUI();
+        } else {
+          isStudentPersonalMode = false;
+          if (students.length > 0 && !currentStudentId) {
+            currentStudentId = students[0].id;
+          }
+        }
+      } catch (e) {
+        console.warn("URL 參數解析略過:", e);
+        if (students.length > 0) currentStudentId = students[0].id;
+      }
+
+      selectedAdminChatStudentId = currentStudentId || (students[0] ? students[0].id : null);
+      refreshAllViews();
+
+      setTimeout(() => {
+        fetchFromGoogleSheets(false);
+      }, 500);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
+
+    function applyStudentPersonalModeUI() {
+      const selectorBox = document.getElementById('studentSelectorBox');
+      if (selectorBox) selectorBox.style.display = 'none';
+
+      const teacherControls = document.getElementById('teacherNavControls');
+      if (teacherControls) teacherControls.classList.add('hidden');
+
+      const studentRefreshBtn = document.getElementById('studentRefreshBtn');
+      if (studentRefreshBtn) studentRefreshBtn.classList.remove('hidden');
+    }
+
+    // 連線 Google 試算表
+    async function fetchFromGoogleSheets(showUserFeedback = false) {
+      if (isFetchingGoogleSheet) return;
+      isFetchingGoogleSheet = true;
+
+      const spinner = document.getElementById('syncSpinner');
+      const statusBadge = document.getElementById('syncStatusBadge');
+      if (spinner) spinner.classList.add('animate-spin');
+      if (statusBadge) {
+        statusBadge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-amber-500 text-white shadow-sm";
+        statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-white animate-ping"></span> 連線中...`;
+      }
+
+      if (showUserFeedback) {
+        showToast("正在連線 Google 試算表讀取最新資料...", "info");
+      }
+
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+        const separator = GAS_API_URL.includes('?') ? '&' : '?';
+        const targetFetchUrl = `${GAS_API_URL}${separator}_t=${Date.now()}`;
+
+        const response = await fetch(targetFetchUrl, {
+          method: 'GET',
+          redirect: 'follow',
+          signal: controller.signal
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          throw new Error(`伺服器回應狀態碼: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        let incomingStudents = null;
+        let incomingRewards = null;
+        let incomingEvents = null;
+        let incomingMessages = null;
+
+        if (Array.isArray(data)) {
+          incomingStudents = data;
+        } else if (data && typeof data === 'object') {
+          if (Array.isArray(data.students)) incomingStudents = data.students;
+          else if (Array.isArray(data.data)) incomingStudents = data.data;
+          
+          if (Array.isArray(data.rewards)) incomingRewards = data.rewards;
+          if (Array.isArray(data.events)) incomingEvents = data.events;
+          if (Array.isArray(data.messages)) incomingMessages = data.messages;
+          if (data.adminPassword && !hasCustomPassword) {
+            adminPassword = String(data.adminPassword);
+          }
+        }
+
+        if (incomingStudents && incomingStudents.length > 0) {
+          const nowTime = Date.now();
+
+          students = incomingStudents.map((st, idx) => {
+            const rawId = String(st.id || st.studentId || st['學號'] || st.ID || st.Id || `S${String(idx+1).padStart(3,'0')}`).trim();
+            const oldMatch = students.find(s => String(s.id).trim().toLowerCase() === rawId.toLowerCase());
+            const cloudAvatar = String(st.avatar || st['頭像'] || st.Avatar || '').trim();
+            const cloudPoints = Number(st.points || st.score || st['積分'] || st['點數'] || st.Points || 0);
+            const cloudWelcome = st.welcomeMessage || st['歡迎詞'] || st['鼓勵話語'] || st['勉勵詞'] || st['留言'] || st.welcome || '';
+            const cloudRole = st.role || st['幹部'] || st['職稱'] || st['職務'] || st.cadre || '';
+
+            const lastLocalPointEdit = localModifiedTracker[rawId + '_points'] || 0;
+            const lastLocalAvatarEdit = localModifiedTracker[rawId + '_avatar'] || 0;
+            const lastLocalWelcomeEdit = localModifiedTracker[rawId + '_welcome'] || 0;
+            const lastLocalRoleEdit = localModifiedTracker[rawId + '_role'] || 0;
+
+            let finalPoints = cloudPoints;
+            if (oldMatch && (nowTime - lastLocalPointEdit < 30000)) {
+              finalPoints = oldMatch.points;
+            }
+
+            let finalAvatar = cloudAvatar;
+            if (oldMatch && (nowTime - lastLocalAvatarEdit < 60000)) {
+              finalAvatar = oldMatch.avatar;
+            } else if (!finalAvatar || finalAvatar === '🌟' || finalAvatar === '') {
+              finalAvatar = oldMatch?.avatar || '🌟';
+            }
+
+            let finalWelcome = (cloudWelcome && cloudWelcome.trim() !== '') ? cloudWelcome : (oldMatch?.welcomeMessage || "🌻 歡迎來到向日葵班班！今天也要像向日葵一樣充滿朝氣喔！");
+            if (oldMatch && (nowTime - lastLocalWelcomeEdit < 60000)) {
+              finalWelcome = oldMatch.welcomeMessage;
+            }
+
+            let finalRole = (cloudRole && cloudRole.trim() !== '') ? cloudRole : (oldMatch?.role || "");
+            if (oldMatch && (nowTime - lastLocalRoleEdit < 60000)) {
+              finalRole = oldMatch.role || "";
+            }
+
+            return {
+              id: rawId,
+              seat: Number(st.seat || st.seatNumber || st['座號'] || st.Seat || idx + 1),
+              name: String(st.name || st.studentName || st['姓名'] || st.Name || `學生${idx+1}`),
+              role: finalRole,
+              avatar: finalAvatar,
+              points: finalPoints,
+              welcomeMessage: finalWelcome,
+              history: oldMatch?.history && oldMatch.history.length > 0 ? oldMatch.history : (st.history || [
+                { time: new Date().toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }), reason: "試算表同步", delta: finalPoints }
+              ])
+            };
+          });
+
+          if (!currentStudentId && students.length > 0) {
+            currentStudentId = students[0].id;
+          }
+        }
+
+        if (incomingRewards && incomingRewards.length > 0) {
+          rewards = incomingRewards.map((rw, idx) => ({
+            id: String(rw.id || `R${String(idx+1).padStart(2,'0')}`),
+            emoji: rw.emoji || "🎁",
+            title: String(rw.title || rw['獎勵名稱'] || rw.name || "獎勵"),
+            points: Number(rw.points || rw['所需點數'] || rw.cost || 10),
+            desc: String(rw.desc || rw['說明'] || rw.description || '')
+          }));
+        }
+
+        if (incomingEvents && incomingEvents.length > 0) {
+          classEvents = incomingEvents.map((ev, idx) => ({
+            id: String(ev.id || `EV${String(idx+1).padStart(2,'0')}`),
+            date: formatCleanDate(ev.date || ev['日期'] || ''),
+            title: String(ev.title || ev['事件名稱'] || ev['事項'] || ''),
+            tag: String(ev.tag || ev['類型'] || ev['標籤'] || '其他'),
+            desc: String(ev.desc || ev['說明'] || ev['備註'] || '')
+          }));
+        }
+
+        if (incomingMessages && incomingMessages.length > 0) {
+          // 合併雲端留言與本地新留言
+          const localIds = new Set(classMessages.map(m => m.id));
+          incomingMessages.forEach(im => {
+            if (!localIds.has(im.id)) {
+              classMessages.push(im);
+            }
+          });
+        }
+
+        saveSystemData();
+        refreshAllViews();
+
+        if (statusBadge) {
+          statusBadge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500 text-white shadow-sm";
+          statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-white"></span> 試算表已連線`;
+        }
+
+        if (showUserFeedback) {
+          showToast("已成功連線並同步 Google 試算表最新資料！✨", "success");
+        }
+      } catch (err) {
+        console.warn("Google Apps Script 連線失敗或離線:", err);
+        if (statusBadge) {
+          statusBadge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-slate-500/80 text-white";
+          statusBadge.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-300"></span> 本地離線模式`;
+        }
+        if (showUserFeedback) {
+          showToast("試算表連線超時，目前使用本地暫存", "info");
+        }
+      } finally {
+        isFetchingGoogleSheet = false;
+        if (spinner) spinner.classList.remove('animate-spin');
+      }
+    }
+
+    function loadSystemData() {
+      try {
+        const storedStudentsStr = localStorage.getItem('class_points_students');
+        if (storedStudentsStr) students = JSON.parse(storedStudentsStr);
+        else students = JSON.parse(JSON.stringify(DEFAULT_STUDENTS));
+
+        const storedRewardsStr = localStorage.getItem('class_points_rewards');
+        if (storedRewardsStr) rewards = JSON.parse(storedRewardsStr);
+        else rewards = JSON.parse(JSON.stringify(DEFAULT_REWARDS));
+
+        const storedEventsStr = localStorage.getItem('class_points_events');
+        if (storedEventsStr) classEvents = JSON.parse(storedEventsStr);
+        else classEvents = JSON.parse(JSON.stringify(DEFAULT_EVENTS));
+
+        const storedMessagesStr = localStorage.getItem('class_points_messages');
+        if (storedMessagesStr) classMessages = JSON.parse(storedMessagesStr);
+        else classMessages = JSON.parse(JSON.stringify(DEFAULT_MESSAGES));
+
+        const savedCustomPwd = localStorage.getItem('class_points_custom_pwd');
+        if (savedCustomPwd && savedCustomPwd.trim() !== '') {
+          adminPassword = savedCustomPwd;
+          hasCustomPassword = true;
+        } else {
+          adminPassword = DEFAULT_ADMIN_PASSWORD;
+          hasCustomPassword = false;
+        }
+      } catch (e) {
+        console.warn("載入本地快取資料失敗，使用預設值:", e);
+        students = JSON.parse(JSON.stringify(DEFAULT_STUDENTS));
+        rewards = JSON.parse(JSON.stringify(DEFAULT_REWARDS));
+        classEvents = JSON.parse(JSON.stringify(DEFAULT_EVENTS));
+        classMessages = JSON.parse(JSON.stringify(DEFAULT_MESSAGES));
+        adminPassword = DEFAULT_ADMIN_PASSWORD;
+      }
+    }
+
+    function saveSystemData() {
+      try {
+        localStorage.setItem('class_points_students', JSON.stringify(students));
+        localStorage.setItem('class_points_rewards', JSON.stringify(rewards));
+        localStorage.setItem('class_points_events', JSON.stringify(classEvents));
+        localStorage.setItem('class_points_messages', JSON.stringify(classMessages));
+        if (hasCustomPassword) {
+          localStorage.setItem('class_points_custom_pwd', adminPassword);
+        }
+      } catch (e) {
+        console.warn("LocalStorage 寫入受限:", e);
+      }
+    }
+
+    // 雲端資料同步發送器
+    async function sendDataToGoogleSheets(payload) {
+      try {
+        fetch(GAS_API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: {
+            'Content-Type': 'text/plain;charset=utf-8'
+          },
+          body: JSON.stringify(payload)
+        }).catch(err => console.warn("POST 發送略過:", err));
+
+        if (payload.action === 'updatePoints' || payload.action === 'updateWelcomeMessage' || payload.action === 'updateRole' || payload.action === 'saveStudent') {
+          const separator = GAS_API_URL.includes('?') ? '&' : '?';
+          let queryUrl = `${GAS_API_URL}${separator}action=${encodeURIComponent(payload.action)}&id=${encodeURIComponent(payload.id || '')}&seat=${encodeURIComponent(payload.seat || '')}&_t=${Date.now()}`;
+          if (payload.name !== undefined) queryUrl += `&name=${encodeURIComponent(payload.name)}`;
+          if (payload.role !== undefined) queryUrl += `&role=${encodeURIComponent(payload.role)}`;
+          if (payload.points !== undefined) queryUrl += `&points=${encodeURIComponent(payload.points)}`;
+          if (payload.welcomeMessage !== undefined) queryUrl += `&welcomeMessage=${encodeURIComponent(payload.welcomeMessage)}`;
+          
+          fetch(queryUrl, { method: 'GET', mode: 'no-cors' }).catch(e => {});
+        }
+      } catch (e) {
+        console.warn("雲端發送背景作業中:", e);
+      }
+    }
+
+    function requestAdminAccess(targetView) {
+      if (isAdminAuthenticated) {
+        switchView(targetView);
+      } else {
+        pendingAdminTargetView = targetView;
+        const pwdInput = document.getElementById('inputAdminPassword');
+        if (pwdInput) pwdInput.value = '';
+        const modal = document.getElementById('adminLoginModal');
+        if (modal) modal.classList.remove('hidden');
+      }
+    }
+
+    function closeAdminLoginModal() {
+      const modal = document.getElementById('adminLoginModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function verifyAdminPassword(e) {
+      e.preventDefault();
+      const pwdInput = document.getElementById('inputAdminPassword');
+      const entered = pwdInput ? pwdInput.value.trim() : '';
+      if (entered === adminPassword) {
+        isAdminAuthenticated = true;
+        closeAdminLoginModal();
+        
+        const teacherControls = document.getElementById('teacherNavControls');
+        if (teacherControls) {
+          teacherControls.classList.remove('hidden');
+        }
+
+        updateAdminNavState();
+        switchView(pendingAdminTargetView);
+        showToast("身分驗證成功，已進入向日葵班班控制台！", "success");
+      } else {
+        showToast("密碼錯誤，請重新輸入！", "error");
+        if (pwdInput) pwdInput.select();
+      }
+    }
+
+    function logoutAdmin() {
+      isAdminAuthenticated = false;
+      updateAdminNavState();
+      
+      if (isStudentPersonalMode) {
+        applyStudentPersonalModeUI();
+      }
+
+      switchView('student');
+      showToast("已登出並鎖定教師後台", "info");
+    }
+
+    function updateAdminNavState() {
+      const lockIcon = document.getElementById('adminLockIcon');
+      const logoutBtn = document.getElementById('navLogoutBtn');
+      if (isAdminAuthenticated) {
+        if (lockIcon) lockIcon.className = "fa-solid fa-lock-open text-emerald-300";
+        if (logoutBtn) logoutBtn.classList.remove('hidden');
+      } else {
+        if (lockIcon) lockIcon.className = "fa-solid fa-lock";
+        if (logoutBtn) logoutBtn.classList.add('hidden');
+      }
+    }
+
+    function openChangePasswordModal() {
+      const curr = document.getElementById('currentPasswordInput');
+      const next = document.getElementById('newPasswordInput');
+      const confirm = document.getElementById('confirmNewPasswordInput');
+      if (curr) curr.value = '';
+      if (next) next.value = '';
+      if (confirm) confirm.value = '';
+      const modal = document.getElementById('changePasswordModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeChangePasswordModal() {
+      const modal = document.getElementById('changePasswordModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function saveNewPassword(e) {
+      e.preventDefault();
+      const curr = document.getElementById('currentPasswordInput').value.trim();
+      const next = document.getElementById('newPasswordInput').value.trim();
+      const confirm = document.getElementById('confirmNewPasswordInput').value.trim();
+
+      if (curr !== adminPassword) {
+        showToast("目前密碼不正確！", "error");
+        return;
+      }
+      if (next.length < 4) {
+        showToast("新密碼長度至少需要 4 碼！", "error");
+        return;
+      }
+      if (next !== confirm) {
+        showToast("兩次輸入的新密碼不一致！", "error");
+        return;
+      }
+
+      adminPassword = next;
+      hasCustomPassword = true;
+      localStorage.setItem('class_points_custom_pwd', adminPassword);
+      saveSystemData();
+      closeChangePasswordModal();
+      showToast("教師後台密碼已永久保存！下次請使用新密碼登入。", "success");
+    }
+
+    function switchView(viewName) {
+      const studentView = document.getElementById('studentView');
+      const adminView = document.getElementById('adminView');
+      const printView = document.getElementById('printView');
+
+      if (studentView) studentView.classList.add('hidden');
+      if (adminView) adminView.classList.add('hidden');
+      if (printView) printView.classList.add('hidden');
+
+      const navStudent = document.getElementById('navStudentBtn');
+      const navAdmin = document.getElementById('navAdminBtn');
+      const navPrint = document.getElementById('navPrintBtn');
+
+      [navStudent, navAdmin, navPrint].forEach(btn => {
+        if (btn) btn.className = "px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 text-amber-100 hover:text-white hover:bg-white/20";
+      });
+
+      if (viewName === 'student') {
+        if (studentView) studentView.classList.remove('hidden');
+        if (navStudent) navStudent.className = "px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 bg-white text-orange-600 shadow-sm";
+        renderStudentCard();
+        renderHomeCountdownAndCalendar();
+        renderStudentMessageFeed();
+      } else if (viewName === 'admin') {
+        if (!isAdminAuthenticated) {
+          requestAdminAccess('admin');
+          return;
+        }
+        if (adminView) adminView.classList.remove('hidden');
+        if (navAdmin) navAdmin.className = "px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 bg-white text-orange-600 shadow-sm";
+        renderAdminTable();
+        renderAdminMessageView();
+        renderRewardsManager();
+        renderAdminEventsTable();
+      } else if (viewName === 'print') {
+        if (!isAdminAuthenticated) {
+          requestAdminAccess('print');
+          return;
+        }
+        if (printView) printView.classList.remove('hidden');
+        if (navPrint) navPrint.className = "px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 bg-white text-orange-600 shadow-sm";
+        renderQRCards();
+      }
+    }
+
+    function switchAdminTab(tabName) {
+      const tabStudents = document.getElementById('adminTabStudents');
+      const tabMessages = document.getElementById('adminTabMessages');
+      const tabRewards = document.getElementById('adminTabRewards');
+      const tabEvents = document.getElementById('adminTabEvents');
+
+      const btnStudents = document.getElementById('adminTabStudentsBtn');
+      const btnMessages = document.getElementById('adminTabMessagesBtn');
+      const btnRewards = document.getElementById('adminTabRewardsBtn');
+      const btnEvents = document.getElementById('adminTabEventsBtn');
+
+      [tabStudents, tabMessages, tabRewards, tabEvents].forEach(t => { if (t) t.classList.add('hidden'); });
+      [btnStudents, btnMessages, btnRewards, btnEvents].forEach(b => {
+        if (b) b.className = "px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap";
+      });
+
+      if (tabName === 'students') {
+        if (tabStudents) tabStudents.classList.remove('hidden');
+        if (btnStudents) btnStudents.className = "px-4 py-2.5 font-bold text-sm border-b-2 border-orange-500 text-orange-600 flex items-center gap-2 transition whitespace-nowrap";
+        renderAdminTable();
+      } else if (tabName === 'messages') {
+        if (tabMessages) tabMessages.classList.remove('hidden');
+        if (btnMessages) btnMessages.className = "px-4 py-2.5 font-bold text-sm border-b-2 border-orange-500 text-orange-600 flex items-center gap-2 transition whitespace-nowrap";
+        renderAdminMessageView();
+      } else if (tabName === 'rewards') {
+        if (tabRewards) tabRewards.classList.remove('hidden');
+        if (btnRewards) btnRewards.className = "px-4 py-2.5 font-bold text-sm border-b-2 border-orange-500 text-orange-600 flex items-center gap-2 transition whitespace-nowrap";
+        renderRewardsManager();
+      } else if (tabName === 'events') {
+        if (tabEvents) tabEvents.classList.remove('hidden');
+        if (btnEvents) btnEvents.className = "px-4 py-2.5 font-bold text-sm border-b-2 border-orange-500 text-orange-600 flex items-center gap-2 transition whitespace-nowrap";
+        renderAdminEventsTable();
+      }
+    }
+
+    function refreshAllViews() {
+      updateStudentSelector();
+      renderStudentCard();
+      renderHomeCountdownAndCalendar();
+      renderStudentMessageFeed();
+      renderAdminTable();
+      renderAdminMessageView();
+      renderRewardsManager();
+      renderAdminEventsTable();
+      renderQRCards();
+      updateUnreadMessageBadge();
+    }
+
+    function updateStudentSelector() {
+      const selector = document.getElementById('studentSelector');
+      if (!selector) return;
+      selector.innerHTML = '';
+      
+      students.sort((a, b) => a.seat - b.seat).forEach(st => {
+        const opt = document.createElement('option');
+        opt.value = st.id;
+        const roleTag = st.role ? ` [${st.role}]` : '';
+        opt.textContent = `[${String(st.seat).padStart(2, '0')} 號] ${st.name}${roleTag} (${st.points} 分)`;
+        if (st.id === currentStudentId) {
+          opt.selected = true;
+        }
+        selector.appendChild(opt);
+      });
+    }
+
+    function onStudentSelectChange(val) {
+      currentStudentId = val;
+      renderStudentCard();
+      renderStudentMessageFeed();
+    }
+
+    function getStudentLevel(points) {
+      if (points >= 100) return { name: "傳奇榮譽大師 👑", next: 150, max: 150, prev: 100 };
+      if (points >= 50) return { name: "鑽石探險家 💎", next: 100, max: 100, prev: 50 };
+      if (points >= 30) return { name: "黃金勇者 ⚔️", next: 50, max: 50, prev: 30 };
+      if (points >= 15) return { name: "進階小達人 🌿", next: 30, max: 30, prev: 15 };
+      return { name: "初階探索者 🌟", next: 15, max: 15, prev: 0 };
+    }
+
+    function formatCleanDate(rawDateStr) {
+      if (!rawDateStr) return '';
+      const str = String(rawDateStr).trim();
+      const simpleMatch = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+      if (simpleMatch) {
+        return `${simpleMatch[1]}/${String(simpleMatch[2]).padStart(2, '0')}/${String(simpleMatch[3]).padStart(2, '0')}`;
+      }
+      const parsed = new Date(str);
+      if (!isNaN(parsed.getTime())) {
+        const year = parsed.getFullYear();
+        const month = String(parsed.getMonth() + 1).padStart(2, '0');
+        const day = String(parsed.getDate()).padStart(2, '0');
+        return `${year}/${month}/${day}`;
+      }
+      return str;
+    }
+
+    function getDaysDiff(targetDateStr) {
+      if (!targetDateStr) return 0;
+      const cleanDate = formatCleanDate(targetDateStr);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const target = new Date(cleanDate);
+      target.setHours(0, 0, 0, 0);
+      if (isNaN(target.getTime())) return 0;
+      const diffTime = target.getTime() - today.getTime();
+      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    }
+
+    function getTagBadgeClass(tag) {
+      switch(tag) {
+        case '考試測驗': return 'bg-rose-100 text-rose-800 border-rose-200';
+        case '作業繳交': return 'bg-amber-100 text-amber-900 border-amber-200';
+        case '戶外活動': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
+        case '班級活動': return 'bg-purple-100 text-purple-800 border-purple-200';
+        case '學校重要日': return 'bg-sky-100 text-sky-800 border-sky-200';
+        default: return 'bg-slate-100 text-slate-800 border-slate-200';
+      }
+    }
+
+    function renderHomeCountdownAndCalendar() {
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+      const dateDisplay = document.getElementById('currentDateDisplay');
+      if (dateDisplay) dateDisplay.textContent = dateStr;
+
+      const sortedEvents = [...classEvents].sort((a, b) => {
+        const tA = new Date(formatCleanDate(a.date)).getTime() || 0;
+        const tB = new Date(formatCleanDate(b.date)).getTime() || 0;
+        return tA - tB;
+      });
+      const upcomingEvents = sortedEvents.filter(ev => getDaysDiff(ev.date) >= 0);
+
+      const titleEl = document.getElementById('countdownEventTitle');
+      const descEl = document.getElementById('countdownEventDesc');
+      const daysNumEl = document.getElementById('countdownDaysNum');
+      const badgeEl = document.getElementById('countdownBadge');
+      const tagEl = document.getElementById('countdownEventTag');
+
+      if (!titleEl || !descEl || !daysNumEl || !badgeEl || !tagEl) return;
+
+      if (upcomingEvents.length > 0) {
+        const topEvent = upcomingEvents[0];
+        const days = getDaysDiff(topEvent.date);
+        const displayDate = formatCleanDate(topEvent.date);
+
+        titleEl.textContent = topEvent.title;
+        descEl.textContent = topEvent.desc || `日期：${displayDate}`;
+        tagEl.textContent = topEvent.tag || '提醒';
+        daysNumEl.textContent = days;
+
+        if (days === 0) {
+          badgeEl.className = "bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full animate-pulse";
+          badgeEl.textContent = "🔥 就是今天";
+        } else if (days <= 3) {
+          badgeEl.className = "bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full";
+          badgeEl.textContent = `⚡ 倒數 ${days} 天`;
+        } else {
+          badgeEl.className = "bg-amber-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full";
+          badgeEl.textContent = `📌 倒數中`;
+        }
+      } else if (sortedEvents.length > 0) {
+        const lastEvent = sortedEvents[sortedEvents.length - 1];
+        titleEl.textContent = lastEvent.title;
+        descEl.textContent = "目前無未來事件，此為最近完成事項";
+        tagEl.textContent = lastEvent.tag;
+        daysNumEl.textContent = "0";
+        badgeEl.textContent = "已結束";
+        badgeEl.className = "bg-slate-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full";
+      } else {
+        titleEl.textContent = "目前尚無排定事件";
+        descEl.textContent = "老師尚未新增班級重要行事曆";
+        tagEl.textContent = "向日葵班班";
+        daysNumEl.textContent = "--";
+        badgeEl.textContent = "無提醒";
+        badgeEl.className = "bg-white/20 text-white text-[10px] font-black px-2 py-0.5 rounded-full";
+      }
+
+      const listContainer = document.getElementById('homeCalendarList');
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+
+      if (sortedEvents.length === 0) {
+        listContainer.innerHTML = `<div class="text-xs text-amber-100/80 py-2 text-center">暫無其他日程安排</div>`;
+      } else {
+        sortedEvents.forEach(ev => {
+          const diff = getDaysDiff(ev.date);
+          let diffBadge = "";
+          if (diff === 0) diffBadge = `<span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-rose-500 text-white flex-shrink-0">今天</span>`;
+          else if (diff > 0) diffBadge = `<span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/25 text-white flex-shrink-0">${diff} 天後</span>`;
+          else diffBadge = `<span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-black/20 text-amber-200 flex-shrink-0">已過</span>`;
+
+          const cleanDate = formatCleanDate(ev.date);
+
+          const row = document.createElement('div');
+          row.className = "bg-white/10 hover:bg-white/20 px-3 py-2 rounded-xl border border-white/15 flex items-center justify-between gap-3 transition text-xs";
+          row.innerHTML = `
+            <div class="flex items-center gap-2.5 truncate">
+              <span class="font-mono text-amber-200 font-bold flex-shrink-0 text-[11px]">${cleanDate}</span>
+              <span class="font-bold text-white truncate text-xs">${ev.title}</span>
+            </div>
+            <div class="flex-shrink-0">
+              ${diffBadge}
+            </div>
+          `;
+          listContainer.appendChild(row);
+        });
+      }
+    }
+
+    function toggleHomeCalendarList() {
+      const list = document.getElementById('homeCalendarList');
+      const chevron = document.getElementById('calendarChevron');
+      const btn = document.getElementById('toggleCalendarBtn');
+      if (!list) return;
+
+      isHomeCalendarExpanded = !isHomeCalendarExpanded;
+      if (isHomeCalendarExpanded) {
+        list.classList.remove('hidden');
+        if (chevron) chevron.className = "fa-solid fa-chevron-up text-[10px]";
+        if (btn) btn.querySelector('span').textContent = "收起日程";
+      } else {
+        list.classList.add('hidden');
+        if (chevron) chevron.className = "fa-solid fa-chevron-down text-[10px]";
+        if (btn) btn.querySelector('span').textContent = "查看全部事項";
+      }
+    }
+
+    // ================= 💬 親師生私密留言邏輯 =================
+    // 學生/家長端：只顯示屬於當前學生的私密對話
+    function renderStudentMessageFeed() {
+      const feed = document.getElementById('studentMessageFeed');
+      if (!feed) return;
+      feed.innerHTML = '';
+
+      const currentStudent = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      ) || students[0];
+
+      if (!currentStudent) return;
+
+      // 嚴格過濾：只顯示屬於此學生 ID 的留言
+      const studentMessages = classMessages.filter(m => String(m.studentId).toLowerCase() === String(currentStudent.id).toLowerCase());
+
+      if (studentMessages.length === 0) {
+        feed.innerHTML = `
+          <div class="text-center py-8 px-4 bg-white/70 rounded-2xl border border-dashed border-amber-200">
+            <div class="w-12 h-12 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center mx-auto mb-2 text-xl">
+              <i class="fa-regular fa-comment-dots"></i>
+            </div>
+            <p class="text-xs font-bold text-slate-700">目前尚無親師私密留言</p>
+            <p class="text-[11px] text-slate-400 mt-1">學生或家長可以在下方輸入文字，向導師提出問題或分享生活心得喔！</p>
+          </div>
+        `;
+        return;
+      }
+
+      studentMessages.forEach(msg => {
+        const isTeacher = msg.sender === '老師';
+        const isParent = msg.sender === '家長';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = `flex flex-col ${isTeacher ? 'items-start' : 'items-end'}`;
+
+        let senderBadge = "";
+        let bubbleClass = "";
+
+        if (isTeacher) {
+          senderBadge = `
+            <div class="flex items-center gap-1.5 mb-1 text-[11px] font-bold text-amber-800">
+              <span class="w-5 h-5 rounded-full bg-amber-200 text-amber-900 flex items-center justify-center text-[10px]">🌻</span>
+              <span>向日葵班導師</span>
+              <span class="text-[10px] text-slate-400 font-normal ml-1 font-mono">${msg.time}</span>
+            </div>
+          `;
+          bubbleClass = "bg-gradient-to-r from-amber-100/90 to-orange-100/90 border border-amber-300 text-slate-800 rounded-2xl rounded-tl-xs";
+        } else if (isParent) {
+          senderBadge = `
+            <div class="flex items-center gap-1.5 mb-1 text-[11px] font-bold text-sky-800 justify-end">
+              <span class="text-[10px] text-slate-400 font-normal mr-1 font-mono">${msg.time}</span>
+              <span>👨‍👩‍👦 ${currentStudent.name} 家長</span>
+            </div>
+          `;
+          bubbleClass = "bg-sky-50 border border-sky-200 text-slate-800 rounded-2xl rounded-tr-xs";
+        } else {
+          senderBadge = `
+            <div class="flex items-center gap-1.5 mb-1 text-[11px] font-bold text-emerald-800 justify-end">
+              <span class="text-[10px] text-slate-400 font-normal mr-1 font-mono">${msg.time}</span>
+              <span>👦 ${currentStudent.name}</span>
+            </div>
+          `;
+          bubbleClass = "bg-emerald-50 border border-emerald-200 text-slate-800 rounded-2xl rounded-tr-xs";
+        }
+
+        wrapper.innerHTML = `
+          ${senderBadge}
+          <div class="max-w-[85%] p-3 text-xs leading-relaxed shadow-2xs ${bubbleClass}">
+            ${escapeHtml(msg.content)}
+          </div>
+        `;
+        feed.appendChild(wrapper);
+      });
+
+      // 自動捲動至最底部
+      feed.scrollTop = feed.scrollHeight;
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function submitStudentMessage(e) {
+      e.preventDefault();
+      const inputEl = document.getElementById('studentMessageInput');
+      const content = inputEl ? inputEl.value.trim() : '';
+      if (!content) return;
+
+      const currentStudent = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      ) || students[0];
+
+      if (!currentStudent) return;
+
+      const senderRadio = document.querySelector('input[name="messageSenderType"]:checked');
+      const sender = senderRadio ? senderRadio.value : '學生';
+
+      const now = new Date();
+      const timeStr = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      const newMessage = {
+        id: "MSG_" + Date.now(),
+        studentId: currentStudent.id,
+        sender: sender,
+        content: content,
+        time: timeStr,
+        isRead: false
+      };
+
+      classMessages.push(newMessage);
+      saveSystemData();
+      renderStudentMessageFeed();
+      updateUnreadMessageBadge();
+      inputEl.value = '';
+
+      showToast("訊息已成功傳送給導師！老師回覆後將直接顯示於此處。✨", "success");
+
+      sendDataToGoogleSheets({
+        action: "addMessage",
+        message: newMessage
+      });
+    }
+
+    // 教師後台：親師生留言信箱處理
+    function updateUnreadMessageBadge() {
+      const badge = document.getElementById('unreadMessageBadge');
+      if (!badge) return;
+      const unreadCount = classMessages.filter(m => (m.sender === '學生' || m.sender === '家長') && !m.isRead).length;
+      if (unreadCount > 0) {
+        badge.textContent = unreadCount;
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    function renderAdminMessageView() {
+      const studentListContainer = document.getElementById('adminMessageStudentList');
+      if (!studentListContainer) return;
+      studentListContainer.innerHTML = '';
+
+      students.sort((a, b) => a.seat - b.seat).forEach(st => {
+        const msgs = classMessages.filter(m => String(m.studentId).toLowerCase() === String(st.id).toLowerCase());
+        const unreadCount = msgs.filter(m => (m.sender === '學生' || m.sender === '家長') && !m.isRead).length;
+        const lastMsg = msgs.length > 0 ? msgs[msgs.length - 1] : null;
+
+        const isSelected = selectedAdminChatStudentId === st.id;
+
+        const item = document.createElement('div');
+        item.onclick = () => selectAdminChatStudent(st.id);
+        item.className = `p-2.5 rounded-xl cursor-pointer transition flex items-center justify-between gap-2 border ${
+          isSelected ? 'bg-amber-50 border-amber-300 shadow-xs' : 'bg-slate-50 hover:bg-slate-100 border-slate-200'
+        }`;
+
+        item.innerHTML = `
+          <div class="flex items-center space-x-2.5 truncate">
+            <span class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 flex items-center justify-center font-bold text-xs flex-shrink-0">
+              ${st.seat}
+            </span>
+            <div class="truncate text-left">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-xs text-slate-800">${st.name}</span>
+                ${unreadCount > 0 ? `<span class="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">${unreadCount}</span>` : ''}
+              </div>
+              <p class="text-[10px] text-slate-400 truncate mt-0.5">
+                ${lastMsg ? `[${lastMsg.sender}] ${lastMsg.content}` : '尚無留言'}
+              </p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+        `;
+        studentListContainer.appendChild(item);
+      });
+
+      renderAdminChatThread();
+      updateUnreadMessageBadge();
+    }
+
+    function selectAdminChatStudent(studentId) {
+      selectedAdminChatStudentId = studentId;
+      renderAdminMessageView();
+    }
+
+    function renderAdminChatThread() {
+      const threadContainer = document.getElementById('adminChatThread');
+      const titleEl = document.getElementById('adminChatStudentTitle');
+      const subEl = document.getElementById('adminChatStudentSub');
+      const avatarEl = document.getElementById('adminChatAvatar');
+      if (!threadContainer) return;
+
+      const student = students.find(s => s.id === selectedAdminChatStudentId) || students[0];
+      if (!student) {
+        threadContainer.innerHTML = `<div class="text-center text-slate-400 text-xs py-8">請選擇學生</div>`;
+        return;
+      }
+
+      if (titleEl) titleEl.textContent = `[${String(student.seat).padStart(2,'0')} 號] ${student.name} 的親師生聯絡對話`;
+      if (subEl) subEl.textContent = `學號: ${student.id} · 目前積分: ${student.points} 點`;
+      if (avatarEl) avatarEl.textContent = student.avatar || '🌟';
+
+      const msgs = classMessages.filter(m => String(m.studentId).toLowerCase() === String(student.id).toLowerCase());
+      threadContainer.innerHTML = '';
+
+      if (msgs.length === 0) {
+        threadContainer.innerHTML = `
+          <div class="text-center text-slate-400 text-xs py-8">
+            此學生與家長目前尚無留言紀錄
+          </div>
+        `;
+        return;
+      }
+
+      msgs.forEach(msg => {
+        const isTeacher = msg.sender === '老師';
+        const isParent = msg.sender === '家長';
+
+        const wrapper = document.createElement('div');
+        wrapper.className = `flex flex-col ${isTeacher ? 'items-end' : 'items-start'}`;
+
+        let badge = "";
+        let bubbleClass = "";
+
+        if (isTeacher) {
+          badge = `
+            <div class="flex items-center gap-1.5 mb-1 text-[11px] font-bold text-orange-800 justify-end">
+              <span class="text-[10px] text-slate-400 font-normal mr-1 font-mono">${msg.time}</span>
+              <span>🌻 導師回覆</span>
+            </div>
+          `;
+          bubbleClass = "bg-amber-100 border border-amber-300 text-slate-800 rounded-2xl rounded-tr-xs";
+        } else if (isParent) {
+          badge = `
+            <div class="flex items-center gap-1.5 mb-1 text-[11px] font-bold text-sky-800">
+              <span>👨‍👩‍👦 家長留言</span>
+              <span class="text-[10px] text-slate-400 font-normal ml-1 font-mono">${msg.time}</span>
+            </div>
+          `;
+          bubbleClass = "bg-white border border-sky-200 text-slate-800 rounded-2xl rounded-tl-xs";
+        } else {
+          badge = `
+            <div class="flex items-center gap-1.5 mb-1 text-[11px] font-bold text-emerald-800">
+              <span>👦 學生發問</span>
+              <span class="text-[10px] text-slate-400 font-normal ml-1 font-mono">${msg.time}</span>
+            </div>
+          `;
+          bubbleClass = "bg-white border border-emerald-200 text-slate-800 rounded-2xl rounded-tl-xs";
+        }
+
+        wrapper.innerHTML = `
+          ${badge}
+          <div class="max-w-[80%] p-2.5 text-xs leading-relaxed shadow-2xs ${bubbleClass}">
+            ${escapeHtml(msg.content)}
+          </div>
+        `;
+        threadContainer.appendChild(wrapper);
+      });
+
+      threadContainer.scrollTop = threadContainer.scrollHeight;
+    }
+
+    function markCurrentStudentMessagesAsRead() {
+      if (!selectedAdminChatStudentId) return;
+      classMessages.forEach(m => {
+        if (String(m.studentId).toLowerCase() === String(selectedAdminChatStudentId).toLowerCase()) {
+          m.isRead = true;
+        }
+      });
+      saveSystemData();
+      renderAdminMessageView();
+      updateUnreadMessageBadge();
+      showToast("已將該學生的留言全部標示為已讀", "info");
+    }
+
+    function setQuickTeacherReply(text) {
+      const input = document.getElementById('adminReplyInput');
+      if (input) input.value = text;
+    }
+
+    function submitTeacherReply(e) {
+      e.preventDefault();
+      const input = document.getElementById('adminReplyInput');
+      const content = input ? input.value.trim() : '';
+      if (!content || !selectedAdminChatStudentId) return;
+
+      const student = students.find(s => s.id === selectedAdminChatStudentId);
+      if (!student) return;
+
+      const now = new Date();
+      const timeStr = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      const replyMsg = {
+        id: "MSG_" + Date.now(),
+        studentId: student.id,
+        sender: "老師",
+        content: content,
+        time: timeStr,
+        isRead: true
+      };
+
+      classMessages.push(replyMsg);
+      // 同時將此學生先前的未讀訊息標為已讀
+      classMessages.forEach(m => {
+        if (String(m.studentId).toLowerCase() === String(student.id).toLowerCase()) {
+          m.isRead = true;
+        }
+      });
+
+      saveSystemData();
+      input.value = '';
+      renderAdminMessageView();
+      updateUnreadMessageBadge();
+      if (currentStudentId === student.id) renderStudentMessageFeed();
+      showToast(`已成功回覆 ${student.name} 的親師留言！`, "success");
+
+      sendDataToGoogleSheets({
+        action: "addMessage",
+        message: replyMsg
+      });
+    }
+
+    // ================= 後台行事曆管理 =================
+    function renderAdminEventsTable() {
+      const tbody = document.getElementById('adminEventsTableBody');
+      const badge = document.getElementById('eventCountBadge');
+      if (badge) badge.textContent = classEvents.length;
+      if (!tbody) return;
+
+      tbody.innerHTML = '';
+
+      if (classEvents.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs">目前尚未設定任何班級行事曆事件</td></tr>`;
+        return;
+      }
+
+      const sorted = [...classEvents].sort((a, b) => {
+        const tA = new Date(formatCleanDate(a.date)).getTime() || 0;
+        const tB = new Date(formatCleanDate(b.date)).getTime() || 0;
+        return tA - tB;
+      });
+
+      sorted.forEach(ev => {
+        const diff = getDaysDiff(ev.date);
+        const cleanDate = formatCleanDate(ev.date);
+        let countdownText = "";
+        if (diff === 0) countdownText = `<span class="bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded-md text-xs">🔥 今天截止</span>`;
+        else if (diff > 0) countdownText = `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-md text-xs">倒數 ${diff} 天</span>`;
+        else countdownText = `<span class="bg-slate-100 text-slate-400 font-medium px-2 py-0.5 rounded-md text-xs">已結束</span>`;
+
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-amber-50/40 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono font-bold text-slate-700">${cleanDate}</td>
+          <td class="py-3 px-4">${countdownText}</td>
+          <td class="py-3 px-4 font-bold text-slate-800">${ev.title}</td>
+          <td class="py-3 px-4">
+            <span class="text-xs px-2.5 py-1 rounded-full border ${getTagBadgeClass(ev.tag)} font-semibold">
+              ${ev.tag}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-xs text-slate-500 max-w-[200px] truncate">${ev.desc || '無'}</td>
+          <td class="py-3 px-4 text-right">
+            <div class="flex items-center justify-end space-x-1.5">
+              <button onclick="openEditEventModal('${ev.id}')" class="text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg text-xs font-medium" title="編輯事件">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="deleteEventItem('${ev.id}')" class="text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg text-xs font-medium" title="刪除事件">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openAddEventModal() {
+      const titleEl = document.getElementById('eventModalTitle');
+      const editIdEl = document.getElementById('editEventId');
+      const dateEl = document.getElementById('eventDateInput');
+      const tagEl = document.getElementById('eventTagInput');
+      const eventTitleEl = document.getElementById('eventTitleInput');
+      const descEl = document.getElementById('eventDescInput');
+
+      if (titleEl) titleEl.textContent = "新增行事曆事件";
+      if (editIdEl) editIdEl.value = "";
+      if (dateEl) dateEl.value = new Date().toISOString().slice(0, 10);
+      if (tagEl) tagEl.value = "考試測驗";
+      if (eventTitleEl) eventTitleEl.value = "";
+      if (descEl) descEl.value = "";
+
+      const modal = document.getElementById('eventModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function openEditEventModal(id) {
+      const ev = classEvents.find(e => e.id === id);
+      if (!ev) return;
+
+      const titleEl = document.getElementById('eventModalTitle');
+      const editIdEl = document.getElementById('editEventId');
+      const dateEl = document.getElementById('eventDateInput');
+      const tagEl = document.getElementById('eventTagInput');
+      const eventTitleEl = document.getElementById('eventTitleInput');
+      const descEl = document.getElementById('eventDescInput');
+
+      if (titleEl) titleEl.textContent = "編輯行事曆事件";
+      if (editIdEl) editIdEl.value = ev.id;
+      if (dateEl) dateEl.value = ev.date;
+      if (tagEl) tagEl.value = ev.tag || "其他";
+      if (eventTitleEl) eventTitleEl.value = ev.title;
+      if (descEl) descEl.value = ev.desc || "";
+
+      const modal = document.getElementById('eventModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeEventModal() {
+      const modal = document.getElementById('eventModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function saveEventItem(e) {
+      e.preventDefault();
+      const origId = document.getElementById('editEventId').value;
+      const date = document.getElementById('eventDateInput').value;
+      const tag = document.getElementById('eventTagInput').value;
+      const title = document.getElementById('eventTitleInput').value.trim();
+      const desc = document.getElementById('eventDescInput').value.trim();
+
+      if (!date || !title) return;
+
+      if (origId) {
+        const idx = classEvents.findIndex(ev => ev.id === origId);
+        if (idx !== -1) {
+          classEvents[idx] = { id: origId, date, tag, title, desc };
+        }
+        showToast(`事件「${title}」已成功更新`, "success");
+      } else {
+        const newId = "EV" + String(Date.now()).slice(-4);
+        classEvents.push({ id: newId, date, tag, title, desc });
+        showToast(`已新增事件「${title}」`, "success");
+      }
+
+      saveSystemData();
+      closeEventModal();
+      renderAdminEventsTable();
+      renderHomeCountdownAndCalendar();
+
+      sendDataToGoogleSheets({
+        action: "saveEvents",
+        events: classEvents
+      });
+    }
+
+    function deleteEventItem(id) {
+      const item = classEvents.find(e => e.id === id);
+      if (!item) return;
+
+      classEvents = classEvents.filter(e => e.id !== id);
+      saveSystemData();
+      renderAdminEventsTable();
+      renderHomeCountdownAndCalendar();
+      showToast(`已刪除事件「${item.title}」`, "info");
+
+      sendDataToGoogleSheets({
+        action: "saveEvents",
+        events: classEvents
+      });
+    }
+
+    function renderStudentCard() {
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      ) || students[0];
+
+      if (!student) return;
+
+      const seatEl = document.getElementById('cardSeatNumber');
+      if (seatEl) seatEl.textContent = `座號 ${String(student.seat).padStart(2, '0')} 號`;
+      
+      const cardAvatarEl = document.getElementById('cardAvatar');
+      const avatarVal = student.avatar || '🌟';
+      if (cardAvatarEl) {
+        if (avatarVal.startsWith('data:image/') || avatarVal.startsWith('http://') || avatarVal.startsWith('https://')) {
+          cardAvatarEl.innerHTML = `<img src="${avatarVal}" alt="頭貼" class="w-full h-full object-cover rounded-full">`;
+        } else {
+          cardAvatarEl.innerHTML = avatarVal;
+        }
+      }
+
+      const cardRoleEl = document.getElementById('cardStudentRole');
+      if (cardRoleEl) {
+        if (student.role && student.role.trim() !== '') {
+          cardRoleEl.textContent = student.role;
+          cardRoleEl.classList.remove('hidden');
+        } else {
+          cardRoleEl.classList.add('hidden');
+        }
+      }
+
+      const nameEl = document.getElementById('cardStudentName');
+      const idEl = document.getElementById('cardStudentId');
+      const pointsEl = document.getElementById('cardPoints');
+      if (nameEl) nameEl.textContent = student.name;
+      if (idEl) idEl.textContent = `專屬代碼: ${student.id}`;
+      if (pointsEl) pointsEl.textContent = student.points;
+
+      const welcomeMsgEl = document.getElementById('cardWelcomeMessage');
+      if (welcomeMsgEl) {
+        welcomeMsgEl.textContent = student.welcomeMessage || "🌻 歡迎來到向日葵班班！今天也要一起快樂學習、發揮最好的實力喔！";
+      }
+
+      const levelInfo = getStudentLevel(student.points);
+      const levelEl = document.getElementById('cardLevelName');
+      if (levelEl) levelEl.textContent = levelInfo.name;
+      
+      const needed = Math.max(0, levelInfo.next - student.points);
+      const span = levelInfo.next - levelInfo.prev;
+      const currentInSpan = student.points - levelInfo.prev;
+      const percent = Math.min(100, Math.max(5, Math.round((currentInSpan / span) * 100)));
+
+      const progTextEl = document.getElementById('cardProgressText');
+      const progBarEl = document.getElementById('cardProgressBar');
+      if (progTextEl) progTextEl.textContent = needed > 0 ? `距離下一階稱號還差 ${needed} 點` : `已達最高稱號榮譽！`;
+      if (progBarEl) progBarEl.style.width = `${percent}%`;
+
+      const rewardListEl = document.getElementById('studentRewardList');
+      if (rewardListEl) {
+        rewardListEl.innerHTML = '';
+
+        if (rewards.length === 0) {
+          rewardListEl.innerHTML = `<div class="text-xs text-slate-400 py-2 text-center">目前無可兌換項目</div>`;
+        } else {
+          rewards.forEach(rw => {
+            const canAfford = student.points >= rw.points;
+            const diff = rw.points - student.points;
+            const div = document.createElement('div');
+            div.className = `p-3 rounded-2xl border flex items-center justify-between gap-2 transition ${
+              canAfford ? 'bg-emerald-50/70 border-emerald-200' : 'bg-slate-50 border-slate-200 opacity-80'
+            }`;
+            div.innerHTML = `
+              <div class="flex items-center space-x-3 overflow-hidden">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center text-xl flex-shrink-0 ${canAfford ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">
+                  ${rw.emoji || '🎁'}
+                </div>
+                <div class="truncate">
+                  <p class="font-bold text-xs text-slate-800 truncate">${rw.title}</p>
+                  <p class="text-[10px] text-slate-400 truncate">${rw.desc || '達到點數即可找老師兌換'}</p>
+                </div>
+              </div>
+              <div class="flex-shrink-0 text-right">
+                <span class="inline-block px-2.5 py-1 rounded-full text-xs font-bold ${
+                  canAfford ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-600'
+                }">
+                  ${rw.points} PTS
+                </span>
+                <p class="text-[9px] mt-0.5 font-medium ${canAfford ? 'text-emerald-600 font-bold' : 'text-slate-400'}">
+                  ${canAfford ? '✨ 可兌換' : `還差 ${diff} 點`}
+                </p>
+              </div>
+            `;
+            rewardListEl.appendChild(div);
+          });
+        }
+      }
+
+      const historyList = document.getElementById('cardHistoryList');
+      if (historyList) {
+        historyList.innerHTML = '';
+
+        if (!student.history || student.history.length === 0) {
+          historyList.innerHTML = `<div class="text-xs text-slate-400 py-3 text-center">尚無積分變動紀錄</div>`;
+        } else {
+          const sortedHistory = [...student.history].reverse().slice(0, 5);
+          sortedHistory.forEach(item => {
+            const isPos = item.delta > 0;
+            const div = document.createElement('div');
+            div.className = "flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs";
+            div.innerHTML = `
+              <div>
+                <p class="font-bold text-slate-700">${item.reason}</p>
+                <p class="text-[10px] text-slate-400">${item.time}</p>
+              </div>
+              <span class="font-bold px-2 py-0.5 rounded-lg ${isPos ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+                ${isPos ? '+' + item.delta : item.delta}
+              </span>
+            `;
+            historyList.appendChild(div);
+          });
+        }
+      }
+
+      const updatedEl = document.getElementById('cardLastUpdated');
+      if (updatedEl) updatedEl.textContent = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function copyCurrentStudentUrl() {
+      const baseUrl = window.location.origin + window.location.pathname;
+      const targetUrl = `${baseUrl}?sid=${currentStudentId}`;
+
+      const tempInput = document.createElement('input');
+      tempInput.value = targetUrl;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast("已成功複製該學生的專屬查詢網址！", "success");
+      } catch (err) {
+        showToast("複製失敗，請手動複製網址", "error");
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    function renderAdminTable() {
+      const tbody = document.getElementById('adminStudentTableBody');
+      const badge = document.getElementById('studentCountBadge');
+      if (badge) badge.textContent = students.length;
+      if (!tbody) return;
+
+      const searchInput = document.getElementById('adminSearchInput');
+      const keyword = (searchInput ? searchInput.value : '').trim().toLowerCase();
+      tbody.innerHTML = '';
+
+      const filtered = students.filter(s => {
+        return s.name.toLowerCase().includes(keyword) ||
+               String(s.seat).includes(keyword) ||
+               (s.role && s.role.toLowerCase().includes(keyword)) ||
+               s.id.toLowerCase().includes(keyword);
+      }).sort((a, b) => a.seat - b.seat);
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 text-xs">查無相符的學生資料</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(st => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-amber-50/40 transition";
+        
+        let avatarDisplay = `<span class="text-lg">${st.avatar || '🌟'}</span>`;
+        if (st.avatar && (st.avatar.startsWith('data:image/') || st.avatar.startsWith('http'))) {
+          avatarDisplay = `<img src="${st.avatar}" class="w-7 h-7 rounded-full object-cover border border-slate-200">`;
+        }
+
+        let roleDisplay = `<span class="text-xs text-slate-400 font-medium">一般同學</span>`;
+        if (st.role && st.role.trim() !== '') {
+          roleDisplay = `<span class="inline-flex items-center gap-1 text-xs font-bold bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full border border-amber-200/80 shadow-2xs">${st.role}</span>`;
+        }
+
+        tr.innerHTML = `
+          <td class="py-3 px-4">
+            <span class="inline-block bg-slate-100 font-mono font-bold text-slate-700 px-2 py-0.5 rounded-md text-xs mr-1.5">
+              #${String(st.seat).padStart(2, '0')}
+            </span>
+            <span class="text-xs text-slate-400 font-mono">${st.id}</span>
+          </td>
+          <td class="py-3 px-4">
+            <div class="flex items-center space-x-2">
+              ${avatarDisplay}
+              <span class="font-bold text-slate-800">${st.name}</span>
+            </div>
+          </td>
+          <td class="py-3 px-4">
+            ${roleDisplay}
+          </td>
+          <td class="py-3 px-4 max-w-[200px]">
+            <div class="flex items-center justify-between gap-1.5 bg-amber-50/70 hover:bg-amber-100/70 p-1.5 rounded-xl border border-amber-200/60 cursor-pointer transition" onclick="openWelcomeMessageModal('${st.id}')" title="點擊修改專屬勉勵詞">
+              <p class="text-xs text-amber-950 truncate">${st.welcomeMessage || '🌻 歡迎來到向日葵班班！'}</p>
+              <i class="fa-solid fa-pen text-[10px] text-amber-600 flex-shrink-0"></i>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-center">
+            <span class="font-black text-orange-600 text-base">${st.points}</span>
+          </td>
+          <td class="py-3 px-4 text-center">
+            <div class="inline-flex items-center gap-1">
+              <button onclick="quickAddPoints('${st.id}', 1, '課堂優良發言')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 w-7 h-7 rounded-lg text-xs font-bold transition" title="加 1 分">+1</button>
+              <button onclick="quickAddPoints('${st.id}', 2, '表現優異')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 w-7 h-7 rounded-lg text-xs font-bold transition" title="加 2 分">+2</button>
+              <button onclick="quickAddPoints('${st.id}', -1, '課堂違規')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 w-7 h-7 rounded-lg text-xs font-bold transition" title="扣 1 分">-1</button>
+              <button onclick="openPointModal('${st.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 h-7 rounded-lg text-xs font-medium transition ml-1">自訂</button>
+            </div>
+          </td>
+          <td class="py-3 px-4 text-center">
+            <button onclick="openClaimModal('${st.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1 mx-auto" title="核銷獎勵扣點">
+              <i class="fa-solid fa-gift text-amber-500"></i> 核銷兌換
+            </button>
+          </td>
+          <td class="py-3 px-4 text-right">
+            <div class="flex items-center justify-end space-x-1.5">
+              <button onclick="viewStudentProfile('${st.id}')" class="text-amber-700 hover:bg-amber-50 p-1.5 rounded-lg text-xs font-medium" title="查看學生視角">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+              <button onclick="openEditStudentModal('${st.id}')" class="text-slate-600 hover:bg-slate-100 p-1.5 rounded-lg text-xs font-medium" title="編輯基本資料">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </button>
+              <button onclick="deleteStudent('${st.id}')" class="text-rose-500 hover:bg-rose-50 p-1.5 rounded-lg text-xs font-medium" title="刪除學生">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function viewStudentProfile(id) {
+      currentStudentId = id;
+      switchView('student');
+    }
+
+    function quickAddPoints(id, delta, reason) {
+      const student = students.find(s => s.id === id);
+      if (!student) return;
+
+      student.points += delta;
+      if (!student.history) student.history = [];
+
+      const now = new Date();
+      const timeStr = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      student.history.push({ time: timeStr, reason: reason, delta: delta });
+
+      localModifiedTracker[student.id + '_points'] = Date.now();
+
+      saveSystemData();
+      renderAdminTable();
+      updateStudentSelector();
+      if (currentStudentId === id) renderStudentCard();
+      showToast(`${student.name} ${delta > 0 ? '+' + delta : delta} 點 (${reason})，已同步雲端`, "success");
+
+      sendDataToGoogleSheets({
+        action: "updatePoints",
+        id: student.id,
+        seat: student.seat,
+        points: student.points
+      });
+    }
+
+    function quickBatchAdd(reason, amount) {
+      const now = new Date();
+      const timeStr = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+      
+      students.forEach((st, idx) => {
+        st.points += amount;
+        if (!st.history) st.history = [];
+        st.history.push({ time: timeStr, reason: `[全班] ${reason}`, delta: amount });
+        localModifiedTracker[st.id + '_points'] = Date.now();
+        
+        setTimeout(() => {
+          sendDataToGoogleSheets({
+            action: "updatePoints",
+            id: st.id,
+            seat: st.seat,
+            points: st.points
+          });
+        }, idx * 100);
+      });
+
+      saveSystemData();
+      renderAdminTable();
+      updateStudentSelector();
+      renderStudentCard();
+      showToast(`全班已批量加上 ${amount} 點 (${reason})，已同步雲端`, "success");
+    }
+
+    function openWelcomeMessageModal(studentId) {
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+
+      const idInput = document.getElementById('welcomeModalStudentId');
+      const nameSpan = document.getElementById('welcomeModalStudentName');
+      const msgInput = document.getElementById('welcomeModalInput');
+
+      if (idInput) idInput.value = student.id;
+      if (nameSpan) nameSpan.textContent = `${student.name} (#${student.seat})`;
+      if (msgInput) msgInput.value = student.welcomeMessage || "🌻 歡迎來到向日葵班班！今天也要像向日葵一樣充滿朝氣喔！";
+
+      const modal = document.getElementById('welcomeMessageModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeWelcomeMessageModal() {
+      const modal = document.getElementById('welcomeMessageModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function setQuickWelcome(text) {
+      const msgInput = document.getElementById('welcomeModalInput');
+      if (msgInput) msgInput.value = text;
+    }
+
+    function saveWelcomeMessage(e) {
+      e.preventDefault();
+      const studentId = document.getElementById('welcomeModalStudentId').value;
+      const msg = document.getElementById('welcomeModalInput').value.trim();
+      const student = students.find(s => s.id === studentId);
+
+      if (!student || !msg) return;
+
+      student.welcomeMessage = msg;
+      localModifiedTracker[student.id + '_welcome'] = Date.now();
+
+      saveSystemData();
+      renderAdminTable();
+      if (currentStudentId === student.id) renderStudentCard();
+      closeWelcomeMessageModal();
+      showToast(`已成功更新 ${student.name} 的專屬鼓勵話語！✨`, "success");
+
+      sendDataToGoogleSheets({
+        action: "updateWelcomeMessage",
+        id: student.id,
+        seat: student.seat,
+        welcomeMessage: msg
+      });
+    }
+
+    function renderRewardsManager() {
+      const container = document.getElementById('rewardsGridContainer');
+      const badge = document.getElementById('rewardCountBadge');
+      if (badge) badge.textContent = rewards.length;
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      if (rewards.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center bg-white rounded-2xl border border-dashed border-slate-300">
+            <i class="fa-solid fa-gift text-slate-300 text-4xl mb-2"></i>
+            <p class="text-sm font-bold text-slate-600">目前尚未設定任何獎勵項目</p>
+          </div>
+        `;
+        return;
+      }
+
+      rewards.forEach(rw => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between hover:shadow-md transition";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-start justify-between gap-3 mb-2">
+              <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0">
+                ${rw.emoji || '🎁'}
+              </div>
+              <span class="bg-amber-100 text-amber-900 text-xs font-black px-3 py-1 rounded-full border border-amber-200">
+                ${rw.points} 點
+              </span>
+            </div>
+            <h4 class="font-bold text-slate-800 text-base mt-2">${rw.title}</h4>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">${rw.desc || '無特定規則說明'}</p>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-4 mt-4 border-t border-slate-100">
+            <button onclick="openEditRewardModal('${rw.id}')" class="text-xs font-semibold text-slate-600 hover:text-orange-600 hover:bg-orange-50 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1">
+              <i class="fa-solid fa-pen"></i> 編輯
+            </button>
+            <button onclick="deleteRewardItem('${rw.id}')" class="text-xs font-semibold text-rose-500 hover:bg-rose-50 px-2.5 py-1.5 rounded-lg transition flex items-center gap-1">
+              <i class="fa-solid fa-trash"></i> 刪除
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openAddRewardModal() {
+      const titleEl = document.getElementById('rewardModalTitle');
+      const editIdEl = document.getElementById('editRewardId');
+      const emojiEl = document.getElementById('rewardEmojiInput');
+      const ptsEl = document.getElementById('rewardPointsInput');
+      const rewardTitleEl = document.getElementById('rewardTitleInput');
+      const descEl = document.getElementById('rewardDescInput');
+
+      if (titleEl) titleEl.textContent = "新增獎勵兌換項目";
+      if (editIdEl) editIdEl.value = "";
+      if (emojiEl) emojiEl.value = "🎁";
+      if (ptsEl) ptsEl.value = "30";
+      if (rewardTitleEl) rewardTitleEl.value = "";
+      if (descEl) descEl.value = "";
+
+      const modal = document.getElementById('rewardModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function openEditRewardModal(id) {
+      const rw = rewards.find(r => r.id === id);
+      if (!rw) return;
+
+      const titleEl = document.getElementById('rewardModalTitle');
+      const editIdEl = document.getElementById('editRewardId');
+      const emojiEl = document.getElementById('rewardEmojiInput');
+      const ptsEl = document.getElementById('rewardPointsInput');
+      const rewardTitleEl = document.getElementById('rewardTitleInput');
+      const descEl = document.getElementById('rewardDescInput');
+
+      if (titleEl) titleEl.textContent = "編輯獎勵項目";
+      if (editIdEl) editIdEl.value = rw.id;
+      if (emojiEl) emojiEl.value = rw.emoji || "🎁";
+      if (ptsEl) ptsEl.value = rw.points;
+      if (rewardTitleEl) rewardTitleEl.value = rw.title;
+      if (descEl) descEl.value = rw.desc || "";
+
+      const modal = document.getElementById('rewardModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeRewardModal() {
+      const modal = document.getElementById('rewardModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function saveRewardItem(e) {
+      e.preventDefault();
+      const origId = document.getElementById('editRewardId').value;
+      const emoji = document.getElementById('rewardEmojiInput').value.trim() || "🎁";
+      const points = parseInt(document.getElementById('rewardPointsInput').value, 10) || 10;
+      const title = document.getElementById('rewardTitleInput').value.trim();
+      const desc = document.getElementById('rewardDescInput').value.trim();
+
+      if (origId) {
+        const idx = rewards.findIndex(r => r.id === origId);
+        if (idx !== -1) {
+          rewards[idx] = { id: origId, emoji, points, title, desc };
+        }
+        showToast(`獎勵「${title}」已成功更新`, "success");
+      } else {
+        const newId = "R" + String(Date.now()).slice(-4);
+        rewards.push({ id: newId, emoji, points, title, desc });
+        showToast(`已新增獎勵「${title}」`, "success");
+      }
+
+      saveSystemData();
+      closeRewardModal();
+      renderRewardsManager();
+      renderStudentCard();
+    }
+
+    function deleteRewardItem(id) {
+      const item = rewards.find(r => r.id === id);
+      if (!item) return;
+
+      rewards = rewards.filter(r => r.id !== id);
+      saveSystemData();
+      renderRewardsManager();
+      renderStudentCard();
+      showToast(`已刪除獎勵項目「${item.title}」`, "info");
+    }
+
+    function openClaimModal(studentId) {
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+
+      if (rewards.length === 0) {
+        showToast("尚未建立獎勵項目，請先至「獎勵設定」新增！", "error");
+        return;
+      }
+
+      const idInput = document.getElementById('claimStudentId');
+      const nameSpan = document.getElementById('claimStudentName');
+      const ptsSpan = document.getElementById('claimCurrentPoints');
+
+      if (idInput) idInput.value = student.id;
+      if (nameSpan) nameSpan.textContent = `${student.name} (#${student.seat})`;
+      if (ptsSpan) ptsSpan.textContent = `${student.points} 點`;
+
+      const select = document.getElementById('claimRewardSelect');
+      if (select) {
+        select.innerHTML = '';
+        rewards.forEach(rw => {
+          const opt = document.createElement('option');
+          opt.value = rw.id;
+          opt.textContent = `${rw.emoji || '🎁'} ${rw.title} (扣 ${rw.points} 點)`;
+          select.appendChild(opt);
+        });
+
+        onClaimRewardSelected(rewards[0].id);
+      }
+
+      const modal = document.getElementById('claimModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeClaimModal() {
+      const modal = document.getElementById('claimModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function onClaimRewardSelected(rewardId) {
+      const rw = rewards.find(r => r.id === rewardId);
+      const deductEl = document.getElementById('claimDeductAmount');
+      if (rw && deductEl) {
+        deductEl.textContent = rw.points;
+      }
+    }
+
+    function submitClaimReward(e) {
+      e.preventDefault();
+      const studentId = document.getElementById('claimStudentId').value;
+      const rewardId = document.getElementById('claimRewardSelect').value;
+      const student = students.find(s => s.id === studentId);
+      const reward = rewards.find(r => r.id === rewardId);
+
+      if (!student || !reward) return;
+
+      quickAddPoints(student.id, -reward.points, `[兌換獎勵] ${reward.title}`);
+      closeClaimModal();
+      showToast(`已成功為 ${student.name} 核銷兌換「${reward.title}」！`, "success");
+    }
+
+    function renderQRCards() {
+      const grid = document.getElementById('qrCardsGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const baseUrl = window.location.origin + window.location.pathname;
+
+      students.sort((a, b) => a.seat - b.seat).forEach(st => {
+        const studentUrl = `${baseUrl}?sid=${st.id}`;
+        
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded-3xl border-2 border-dashed border-amber-300 shadow-sm flex flex-col items-center text-center page-break relative";
+        
+        const qrContainerId = `qrcode_${st.id}`;
+        
+        let cardAvatarDisplay = `<div class="text-2xl mb-1">${st.avatar || '🌟'}</div>`;
+        if (st.avatar && (st.avatar.startsWith('data:image/') || st.avatar.startsWith('http'))) {
+          cardAvatarDisplay = `<div class="w-10 h-10 mx-auto mb-1 rounded-full overflow-hidden border border-amber-200"><img src="${st.avatar}" class="w-full h-full object-cover"></div>`;
+        }
+
+        const roleTagHtml = st.role ? `<span class="inline-block bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-full mb-1 border border-amber-200">${st.role}</span>` : '';
+
+        card.innerHTML = `
+          <div class="w-full flex justify-between items-center text-xs font-bold text-slate-500 mb-2">
+            <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded-md font-bold">座號 ${String(st.seat).padStart(2,'0')}</span>
+            <span class="text-slate-400 font-mono">${st.id}</span>
+          </div>
+
+          ${cardAvatarDisplay}
+          ${roleTagHtml}
+          <h4 class="font-black text-slate-800 text-lg mb-1">${st.name}</h4>
+          <p class="text-[10px] text-amber-800 bg-amber-50 px-2 py-0.5 rounded-md mb-2 truncate max-w-[180px] font-medium">${st.welcomeMessage || '🌻 快樂學習、天天進步！'}</p>
+          
+          <div id="${qrContainerId}" class="p-2 bg-white border border-amber-100 rounded-2xl shadow-inner flex items-center justify-center mb-3 min-h-[136px]"></div>
+          
+          <p class="text-[11px] font-bold text-amber-900">🌻 向日葵班班 · 掃碼獨立查詢</p>
+          <p class="text-[9px] text-slate-400 font-mono truncate w-full px-2 mt-0.5">${studentUrl}</p>
+        `;
+        grid.appendChild(card);
+
+        setTimeout(() => {
+          try {
+            const container = document.getElementById(qrContainerId);
+            if (container && typeof QRCode !== 'undefined') {
+              container.innerHTML = '';
+              new QRCode(container, {
+                text: studentUrl,
+                width: 120,
+                height: 120,
+                colorDark: "#b45309",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.M
+              });
+            }
+          } catch (qrErr) {
+            console.warn("QR code render delayed:", qrErr);
+          }
+        }, 100);
+      });
+    }
+
+    function openAddStudentModal() {
+      const titleEl = document.getElementById('modalTitle');
+      const editIdEl = document.getElementById('editOriginalId');
+      const seatEl = document.getElementById('inputSeat');
+      const idEl = document.getElementById('inputId');
+      const nameEl = document.getElementById('inputName');
+      const roleEl = document.getElementById('inputRole');
+      const welcomeEl = document.getElementById('inputWelcomeMessage');
+      const avatarEl = document.getElementById('inputAvatar');
+      const ptsEl = document.getElementById('inputPoints');
+
+      if (titleEl) titleEl.textContent = "新增學生";
+      if (editIdEl) editIdEl.value = "";
+      if (seatEl) seatEl.value = students.length + 1;
+      if (idEl) idEl.value = `S${String(students.length + 1).padStart(3, '0')}`;
+      if (nameEl) nameEl.value = "";
+      if (roleEl) roleEl.value = "";
+      if (welcomeEl) welcomeEl.value = "🌻 歡迎來到向日葵班班！今天也要像向日葵一樣充滿朝氣喔！";
+      if (avatarEl) avatarEl.value = "🌟";
+      if (ptsEl) ptsEl.value = "0";
+
+      const modal = document.getElementById('studentModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function openEditStudentModal(id) {
+      const student = students.find(s => s.id === id);
+      if (!student) return;
+
+      const titleEl = document.getElementById('modalTitle');
+      const editIdEl = document.getElementById('editOriginalId');
+      const seatEl = document.getElementById('inputSeat');
+      const idEl = document.getElementById('inputId');
+      const nameEl = document.getElementById('inputName');
+      const roleEl = document.getElementById('inputRole');
+      const welcomeEl = document.getElementById('inputWelcomeMessage');
+      const avatarEl = document.getElementById('inputAvatar');
+      const ptsEl = document.getElementById('inputPoints');
+
+      if (titleEl) titleEl.textContent = "編輯學生資料";
+      if (editIdEl) editIdEl.value = student.id;
+      if (seatEl) seatEl.value = student.seat;
+      if (idEl) idEl.value = student.id;
+      if (nameEl) nameEl.value = student.name;
+      if (roleEl) roleEl.value = student.role || "";
+      if (welcomeEl) welcomeEl.value = student.welcomeMessage || "🌻 歡迎來到向日葵班班！今天也要像向日葵一樣充滿朝氣喔！";
+      if (avatarEl) avatarEl.value = student.avatar || "🌟";
+      if (ptsEl) ptsEl.value = student.points;
+
+      const modal = document.getElementById('studentModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeStudentModal() {
+      const modal = document.getElementById('studentModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function selectEmoji(emoji) {
+      const avatarInput = document.getElementById('inputAvatar');
+      if (avatarInput) avatarInput.value = emoji;
+    }
+
+    function setQuickRole(role) {
+      const roleInput = document.getElementById('inputRole');
+      if (roleInput) roleInput.value = role;
+    }
+
+    function saveStudent(e) {
+      e.preventDefault();
+      const origId = document.getElementById('editOriginalId').value;
+      const seat = parseInt(document.getElementById('inputSeat').value, 10);
+      const id = document.getElementById('inputId').value.trim();
+      const name = document.getElementById('inputName').value.trim();
+      const role = document.getElementById('inputRole').value.trim();
+      const welcomeMessage = document.getElementById('inputWelcomeMessage').value.trim() || "🌻 歡迎來到向日葵班班！今天也要像向日葵一樣充滿朝氣喔！";
+      const avatar = document.getElementById('inputAvatar').value.trim() || "🌟";
+      const points = parseInt(document.getElementById('inputPoints').value, 10) || 0;
+
+      if (!origId && students.some(s => s.id === id)) {
+        showToast("學號/代碼不可重複！", "error");
+        return;
+      }
+
+      if (origId) {
+        const index = students.findIndex(s => s.id === origId);
+        if (index !== -1) {
+          students[index].seat = seat;
+          students[index].id = id;
+          students[index].name = name;
+          students[index].role = role;
+          students[index].welcomeMessage = welcomeMessage;
+          students[index].avatar = avatar;
+          students[index].points = points;
+        }
+        localModifiedTracker[id + '_role'] = Date.now();
+        showToast(`已更新 ${name} 的資料`, "success");
+      } else {
+        students.push({
+          id,
+          seat,
+          name,
+          role,
+          avatar,
+          points,
+          welcomeMessage,
+          history: [{
+            time: new Date().toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+            reason: "建立學生帳號",
+            delta: points
+          }]
+        });
+        showToast(`已新增學生 ${name}`, "success");
+      }
+
+      saveSystemData();
+      closeStudentModal();
+      refreshAllViews();
+
+      sendDataToGoogleSheets({
+        action: "saveStudent",
+        id: id,
+        seat: seat,
+        name: name,
+        role: role,
+        points: points,
+        avatar: avatar,
+        welcomeMessage: welcomeMessage
+      });
+    }
+
+    function deleteStudent(id) {
+      const student = students.find(s => s.id === id);
+      if (!student) return;
+
+      students = students.filter(s => s.id !== id);
+      if (currentStudentId === id && students.length > 0) {
+        currentStudentId = students[0].id;
+      }
+      saveSystemData();
+      refreshAllViews();
+      showToast(`學生 ${student.name} 已成功刪除`, "info");
+    }
+
+    function openPointModal(id) {
+      const student = students.find(s => s.id === id);
+      if (!student) return;
+
+      const idInput = document.getElementById('pointStudentId');
+      const nameSpan = document.getElementById('pointModalStudentName');
+      const ptsSpan = document.getElementById('pointModalCurrentPoints');
+      const changeInput = document.getElementById('pointChangeAmount');
+      const reasonInput = document.getElementById('pointReason');
+
+      if (idInput) idInput.value = student.id;
+      if (nameSpan) nameSpan.textContent = `${student.name} (#${student.seat})`;
+      if (ptsSpan) ptsSpan.textContent = student.points;
+      if (changeInput) changeInput.value = "";
+      if (reasonInput) reasonInput.value = "";
+
+      const modal = document.getElementById('pointModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closePointModal() {
+      const modal = document.getElementById('pointModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function setQuickReason(reason, amount) {
+      const reasonInput = document.getElementById('pointReason');
+      const amountInput = document.getElementById('pointChangeAmount');
+      if (reasonInput) reasonInput.value = reason;
+      if (amountInput) amountInput.value = amount;
+    }
+
+    function submitPointAdjustment(e) {
+      e.preventDefault();
+      const id = document.getElementById('pointStudentId').value;
+      const amount = parseInt(document.getElementById('pointChangeAmount').value, 10);
+      const reason = document.getElementById('pointReason').value.trim();
+
+      if (isNaN(amount) || !reason) {
+        showToast("請填寫有效的變更點數與原因", "error");
+        return;
+      }
+
+      quickAddPoints(id, amount, reason);
+      closePointModal();
+    }
+
+    function openStudentAvatarModal() {
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      ) || students[0];
+
+      if (!student) return;
+      
+      tempSelectedAvatar = student.avatar || '🌟';
+      updateAvatarPreview(tempSelectedAvatar);
+      
+      const manualInput = document.getElementById('avatarManualInput');
+      if (manualInput) manualInput.value = '';
+      
+      const modal = document.getElementById('avatarModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeStudentAvatarModal() {
+      const modal = document.getElementById('avatarModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function updateAvatarPreview(val) {
+      const previewSpan = document.getElementById('avatarPreviewSpan');
+      if (!previewSpan) return;
+
+      if (val && (val.startsWith('data:image/') || val.startsWith('http://') || val.startsWith('https://'))) {
+        previewSpan.innerHTML = `<img src="${val}" alt="預覽" class="w-full h-full object-cover">`;
+      } else {
+        previewSpan.innerHTML = val || '🌟';
+      }
+    }
+
+    function setAvatarPreset(emoji) {
+      tempSelectedAvatar = emoji;
+      updateAvatarPreview(emoji);
+    }
+
+    function applyManualAvatarInput() {
+      const manualInput = document.getElementById('avatarManualInput');
+      const val = manualInput ? manualInput.value.trim() : '';
+      if (val) {
+        tempSelectedAvatar = val;
+        updateAvatarPreview(val);
+      }
+    }
+
+    function handleAvatarFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (!file.type.startsWith('image/')) {
+        showToast("請選擇圖片檔案！", "error");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          const size = 80;
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext('2d');
+
+          const minDim = Math.min(img.width, img.height);
+          const startX = (img.width - minDim) / 2;
+          const startY = (img.height - minDim) / 2;
+
+          ctx.drawImage(img, startX, startY, minDim, minDim, 0, 0, size, size);
+          
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.65);
+          tempSelectedAvatar = compressedDataUrl;
+          updateAvatarPreview(compressedDataUrl);
+          showToast("圖片已載入，點擊「確認儲存」即可完成更換！", "success");
+        };
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+      e.target.value = '';
+    }
+
+    async function saveSelectedAvatar() {
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      );
+      if (!student) return;
+
+      student.avatar = tempSelectedAvatar;
+      localModifiedTracker[student.id + '_avatar'] = Date.now();
+
+      saveSystemData();
+      renderStudentCard();
+      renderAdminTable();
+      renderQRCards();
+      closeStudentAvatarModal();
+      showToast("個人頭像已成功更新並保存！✨", "success");
+
+      sendDataToGoogleSheets({
+        action: "updateAvatar",
+        id: student.id,
+        seat: student.seat,
+        avatar: student.avatar
+      });
+    }
+
+    function exportData() {
+      const exportObject = {
+        students: students,
+        rewards: rewards,
+        events: classEvents,
+        messages: classMessages,
+        adminPassword: adminPassword,
+        exportDate: new Date().toISOString()
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObject, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", `class_backup_${new Date().toISOString().slice(0,10)}.json`);
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+      showToast("班級全部資料已成功匯出備份！", "success");
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed.students && Array.isArray(parsed.students)) {
+            students = parsed.students;
+            if (parsed.rewards && Array.isArray(parsed.rewards)) rewards = parsed.rewards;
+            if (parsed.events && Array.isArray(parsed.events)) classEvents = parsed.events;
+            if (parsed.messages && Array.isArray(parsed.messages)) classMessages = parsed.messages;
+            if (parsed.adminPassword) {
+              adminPassword = parsed.adminPassword;
+              hasCustomPassword = true;
+              localStorage.setItem('class_points_custom_pwd', adminPassword);
+            }
+          } else if (Array.isArray(parsed)) {
+            students = parsed;
+          }
+          currentStudentId = students[0]?.id || null;
+          saveSystemData();
+          refreshAllViews();
+          showToast("成功匯入班級所有資料與親師留言！", "success");
+        } catch (err) {
+          showToast("檔案讀取失敗，非有效 JSON 檔案", "error");
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    }
+
+    function showToast(msg, type = "success") {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+
+      if (!toast || !toastMsg || !toastIcon) return;
+
+      toastMsg.textContent = msg;
+
+      if (type === "success") {
+        toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg flex-shrink-0";
+      } else if (type === "error") {
+        toastIcon.className = "fa-solid fa-triangle-exclamation text-rose-400 text-lg flex-shrink-0";
+      } else {
+        toastIcon.className = "fa-solid fa-circle-info text-sky-400 text-lg flex-shrink-0";
+      }
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3500);
+    }
+  </script>
+</body>
+</html>
