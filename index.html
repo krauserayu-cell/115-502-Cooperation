@@ -3066,6 +3066,8 @@
           students[index].points = points;
         }
         localModifiedTracker[id + '_role'] = Date.now();
+        localModifiedTracker[id + '_welcome'] = Date.now();
+        localModifiedTracker[id + '_points'] = Date.now();
         showToast(`已更新 ${name} 的資料`, "success");
       } else {
         students.push({
@@ -3091,6 +3093,7 @@
 
       sendDataToGoogleSheets({
         action: "saveStudent",
+        origId: origId || id,
         id: id,
         seat: seat,
         name: name,
@@ -3112,6 +3115,11 @@
       saveSystemData();
       refreshAllViews();
       showToast(`學生 ${student.name} 已成功刪除`, "info");
+
+      sendDataToGoogleSheets({
+        action: "deleteStudent",
+        id: student.id
+      });
     }
 
     function openPointModal(id) {
