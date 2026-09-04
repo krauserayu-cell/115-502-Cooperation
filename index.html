@@ -1467,6 +1467,15 @@
               finalRole = oldMatch.role || "";
             }
 
+            const localHistory = (oldMatch?.history && oldMatch.history.length > 0) ? oldMatch.history : [];
+            const cloudHistory = (st.history && Array.isArray(st.history)) ? st.history : [];
+            let finalHistory = cloudHistory.length > 0 ? cloudHistory : localHistory;
+            if (finalHistory.length === 0 && finalPoints > 0) {
+              finalHistory = [
+                { time: new Date().toLocaleDateString('zh-TW', { month: '2-digit', day: '2-digit' }), reason: "目前累積點數", delta: finalPoints }
+              ];
+            }
+
             return {
               id: rawId,
               seat: Number(st.seat || st.seatNumber || st['座號'] || st.Seat || idx + 1),
@@ -1475,9 +1484,7 @@
               avatar: finalAvatar,
               points: finalPoints,
               welcomeMessage: finalWelcome,
-              history: oldMatch?.history && oldMatch.history.length > 0 ? oldMatch.history : (st.history || [
-                { time: new Date().toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }), reason: "試算表同步", delta: finalPoints }
-              ])
+              history: finalHistory
             };
           });
 
@@ -1610,6 +1617,9 @@
           if (payload.name !== undefined) queryUrl += `&name=${encodeURIComponent(payload.name)}`;
           if (payload.role !== undefined) queryUrl += `&role=${encodeURIComponent(payload.role)}`;
           if (payload.points !== undefined) queryUrl += `&points=${encodeURIComponent(payload.points)}`;
+          if (payload.delta !== undefined) queryUrl += `&delta=${encodeURIComponent(payload.delta)}`;
+          if (payload.reason !== undefined) queryUrl += `&reason=${encodeURIComponent(payload.reason)}`;
+          if (payload.time !== undefined) queryUrl += `&time=${encodeURIComponent(payload.time)}`;
           if (payload.welcomeMessage !== undefined) queryUrl += `&welcomeMessage=${encodeURIComponent(payload.welcomeMessage)}`;
           
           fetch(queryUrl, { method: 'GET', mode: 'no-cors' }).catch(e => {});
@@ -2973,16 +2983,17 @@
         } else {
           const sortedHistory = [...student.history].reverse().slice(0, 5);
           sortedHistory.forEach(item => {
-            const isPos = item.delta > 0;
+            const numDelta = Number(item.delta) || 0;
+            const isPos = numDelta > 0;
             const div = document.createElement('div');
             div.className = "flex justify-between items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-xs";
             div.innerHTML = `
               <div>
-                <p class="font-bold text-slate-700">${item.reason}</p>
-                <p class="text-[10px] text-slate-400">${item.time}</p>
+                <p class="font-bold text-slate-700">${item.reason || '點數調整'}</p>
+                <p class="text-[10px] text-slate-400 font-mono">${item.time || ''}</p>
               </div>
               <span class="font-bold px-2 py-0.5 rounded-lg ${isPos ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
-                ${isPos ? '+' + item.delta : item.delta}
+                ${isPos ? '+' + numDelta : numDelta}
               </span>
             `;
             historyList.appendChild(div);
@@ -3131,7 +3142,10 @@
         action: "updatePoints",
         id: student.id,
         seat: student.seat,
-        points: student.points
+        points: student.points,
+        delta: delta,
+        reason: reason,
+        time: timeStr
       });
     }
 
@@ -3150,7 +3164,10 @@
             action: "updatePoints",
             id: st.id,
             seat: st.seat,
-            points: st.points
+            points: st.points,
+            delta: amount,
+            reason: `[全班] ${reason}`,
+            time: timeStr
           });
         }, idx * 100);
       });
