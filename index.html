@@ -2610,7 +2610,7 @@
         const isParent = msg.sender === '家長';
 
         const wrapper = document.createElement('div');
-        wrapper.className = `flex flex-col ${isTeacher ? 'items-end' : 'items-start'}`;
+        wrapper.className = `flex flex-col ${isTeacher ? 'items-end' : 'items-start'} group`;
 
         let badge = "";
         let bubbleClass = "";
@@ -2618,6 +2618,9 @@
         if (isTeacher) {
           badge = `
             <div class="flex items-center gap-1.5 mb-1 text-[11px] font-bold text-orange-800 justify-end">
+              <button type="button" onclick="deleteMessageById('${msg.id}')" class="text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition p-0.5" title="刪除此則留言">
+                <i class="fa-solid fa-trash-can text-[10px]"></i>
+              </button>
               <span class="text-[10px] text-slate-400 font-normal mr-1 font-mono">${msg.time}</span>
               <span>🌻 導師回覆</span>
             </div>
@@ -2628,6 +2631,9 @@
             <div class="flex items-center gap-1.5 mb-1 text-[11px] font-bold text-sky-800">
               <span>👨‍👩‍👦 家長留言</span>
               <span class="text-[10px] text-slate-400 font-normal ml-1 font-mono">${msg.time}</span>
+              <button type="button" onclick="deleteMessageById('${msg.id}')" class="text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition p-0.5" title="刪除此則留言">
+                <i class="fa-solid fa-trash-can text-[10px]"></i>
+              </button>
             </div>
           `;
           bubbleClass = "bg-white border border-sky-200 text-slate-800 rounded-2xl rounded-tl-xs";
@@ -2636,6 +2642,9 @@
             <div class="flex items-center gap-1.5 mb-1 text-[11px] font-bold text-emerald-800">
               <span>👦 學生發問</span>
               <span class="text-[10px] text-slate-400 font-normal ml-1 font-mono">${msg.time}</span>
+              <button type="button" onclick="deleteMessageById('${msg.id}')" class="text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition p-0.5" title="刪除此則留言">
+                <i class="fa-solid fa-trash-can text-[10px]"></i>
+              </button>
             </div>
           `;
           bubbleClass = "bg-white border border-emerald-200 text-slate-800 rounded-2xl rounded-tl-xs";
@@ -2643,7 +2652,7 @@
 
         wrapper.innerHTML = `
           ${badge}
-          <div class="max-w-[80%] p-2.5 text-xs leading-relaxed shadow-2xs ${bubbleClass}">
+          <div class="max-w-[80%] p-2.5 text-xs leading-relaxed shadow-2xs break-all ${bubbleClass}">
             ${escapeHtml(msg.content)}
           </div>
         `;
@@ -2651,6 +2660,19 @@
       });
 
       threadContainer.scrollTop = threadContainer.scrollHeight;
+    }
+
+    function deleteMessageById(msgId) {
+      classMessages = classMessages.filter(m => m.id !== msgId);
+      saveSystemData();
+      renderAdminMessageView();
+      if (currentStudentId) renderStudentMessageFeed();
+      showToast("已成功刪除該則留言！", "info");
+
+      sendDataToGoogleSheets({
+        action: "deleteMessage",
+        id: msgId
+      });
     }
 
     function markCurrentStudentMessagesAsRead() {
