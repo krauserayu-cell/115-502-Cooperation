@@ -496,6 +496,9 @@
             <button onclick="quickBatchAdd('熱心服務', 3)" class="bg-orange-50 hover:bg-orange-100 text-orange-700 px-2.5 py-1.5 rounded-lg border border-orange-200 transition">
               熱心服務 +3
             </button>
+            <button onclick="openPresetManagerModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2.5 py-1.5 rounded-lg border border-slate-300 transition flex items-center gap-1.5 shadow-2xs" title="自訂加扣分項目清單與點數">
+              <i class="fa-solid fa-gear text-orange-500"></i> 管理加扣分項目
+            </button>
           </div>
         </div>
 
@@ -909,50 +912,135 @@
 
   <!-- ================= 模態視窗: 自訂加減分 ================= -->
   <div id="pointModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
-          <i class="fa-solid fa-star text-amber-500"></i> 調整點數紀錄
+          <i class="fa-solid fa-star text-amber-500"></i> 調整學生點數與獎勵
         </h3>
         <button onclick="closePointModal()" class="text-slate-400 hover:text-slate-600 p-1">
-          <i class="fa-solid fa-xmark"></i>
+          <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
 
-      <div class="text-center py-2 mb-4 bg-amber-50/60 rounded-2xl border border-amber-100">
-        <div id="pointModalStudentName" class="font-bold text-slate-800">學生名稱</div>
-        <div class="text-xs text-slate-500 mt-0.5">目前點數：<span id="pointModalCurrentPoints" class="font-bold text-orange-600">0</span> 點</div>
+      <!-- 學生資訊列 -->
+      <div class="flex items-center justify-between p-3.5 mb-4 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl border border-amber-200">
+        <div class="flex items-center space-x-3">
+          <div id="pointModalAvatarBox" class="w-11 h-11 rounded-2xl bg-white text-xl flex items-center justify-center shadow-xs border border-amber-200 overflow-hidden">
+            🌟
+          </div>
+          <div>
+            <div id="pointModalStudentName" class="font-black text-slate-800 text-base">學生名稱</div>
+            <div class="text-xs text-slate-500 font-medium" id="pointModalStudentSeat">座號 01 號 · S001</div>
+          </div>
+        </div>
+        <div class="text-right">
+          <span class="text-[10px] uppercase font-bold text-slate-400 block">目前累積</span>
+          <span class="text-xl font-black text-orange-600" id="pointModalCurrentPoints">0</span>
+          <span class="text-xs font-bold text-amber-500 ml-0.5">PTS</span>
+        </div>
       </div>
 
-      <form id="pointForm" onsubmit="submitPointAdjustment(event)" class="space-y-4">
-        <input type="hidden" id="pointStudentId">
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">變更點數 (正數加分，負數扣分) *</label>
-          <input type="number" id="pointChangeAmount" required placeholder="例如: 2 或 -1" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-bold text-center focus:outline-none focus:ring-2 focus:ring-amber-500">
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 mb-1">原因說明 *</label>
-          <input type="text" id="pointReason" required placeholder="例如: 課堂主動發問、作業整潔..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-        </div>
-
-        <div class="flex gap-1.5 flex-wrap">
-          <button type="button" onclick="setQuickReason('課堂優良發言', 1)" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg">發言 +1</button>
-          <button type="button" onclick="setQuickReason('作業優秀', 2)" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg">作業 +2</button>
-          <button type="button" onclick="setQuickReason('熱心助人', 2)" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg">助人 +2</button>
-          <button type="button" onclick="setQuickReason('未帶課本', -1)" class="text-xs bg-rose-50 hover:bg-rose-100 text-rose-600 px-2 py-1 rounded-lg">缺帶 -1</button>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-          <button type="button" onclick="closePointModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold transition">
-            取消
+      <!-- 快捷點數預設範本清單區塊 -->
+      <div class="mb-5">
+        <div class="flex items-center justify-between mb-2">
+          <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+            <i class="fa-solid fa-bolt text-amber-500"></i> 常用項目（點擊立即加扣分）
+          </label>
+          <button type="button" onclick="openPresetManagerModal()" class="text-[11px] font-bold text-orange-600 hover:text-orange-700 flex items-center gap-1 hover:underline">
+            <i class="fa-solid fa-pen-to-square"></i> 管理項目
           </button>
-          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold transition shadow-sm">
-            確認送出
+        </div>
+        <div id="pointPresetsGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          <!-- 動態載入常用項目按鈕 -->
+        </div>
+      </div>
+
+      <!-- 手動自訂輸入區塊 -->
+      <div class="border-t border-slate-100 pt-4">
+        <p class="text-xs font-bold text-slate-700 mb-2.5 flex items-center gap-1.5">
+          <i class="fa-solid fa-keyboard text-slate-400"></i> 或手動填寫自訂點數與原因
+        </p>
+
+        <form id="pointForm" onsubmit="submitPointAdjustment(event)" class="space-y-3">
+          <input type="hidden" id="pointStudentId">
+
+          <div class="grid grid-cols-3 gap-3">
+            <div class="col-span-1">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">變更點數 *</label>
+              <input type="number" id="pointChangeAmount" required placeholder="+2 或 -1" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm font-black text-center focus:outline-none focus:ring-2 focus:ring-amber-500">
+            </div>
+            <div class="col-span-2">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-1">加扣分原因說明 *</label>
+              <input type="text" id="pointReason" required placeholder="例如: 課堂主動發問、作業整潔..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-2">
+            <button type="button" onclick="closePointModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition">
+              取消
+            </button>
+            <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition shadow-sm flex items-center gap-1">
+              <i class="fa-solid fa-check"></i> 確認送出
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 管理常用加扣分預設項目 (Preset Manager Modal) ================= -->
+  <div id="presetManagerModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-55 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
+      <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-orange-500"></i> 管理常用加扣分項目
+          </h3>
+          <p class="text-[11px] text-slate-400 mt-0.5">這些預設項目會出現在點數調整快捷選單中</p>
+        </div>
+        <button onclick="closePresetManagerModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- 新增預設項目表單 -->
+      <form id="addPresetForm" onsubmit="saveNewPreset(event)" class="bg-amber-50/70 p-3.5 rounded-2xl border border-amber-200/80 mb-4 space-y-3">
+        <h4 class="text-xs font-bold text-amber-900 flex items-center gap-1">
+          <i class="fa-solid fa-plus-circle text-orange-600"></i> 新增自訂加扣分項目
+        </h4>
+        <div class="grid grid-cols-12 gap-2">
+          <div class="col-span-3">
+            <input type="text" id="newPresetIcon" value="🌟" maxlength="2" required placeholder="圖示" class="w-full text-center bg-white border border-slate-300 rounded-xl py-1.5 text-base focus:outline-none focus:ring-2 focus:ring-amber-500" title="輸入 Emoji 圖示">
+          </div>
+          <div class="col-span-6">
+            <input type="text" id="newPresetTitle" required placeholder="項目名稱 (如: 熱心服務)" class="w-full bg-white border border-slate-300 rounded-xl px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
+          </div>
+          <div class="col-span-3">
+            <input type="number" id="newPresetPoints" required placeholder="點數" class="w-full bg-white border border-slate-300 rounded-xl py-1.5 text-xs font-bold text-center focus:outline-none focus:ring-2 focus:ring-amber-500" title="正數為加分，負數為扣分">
+          </div>
+        </div>
+        <div class="flex justify-between items-center pt-1">
+          <span class="text-[10px] text-amber-800">提示：扣分請填負數（例如：-1）</span>
+          <button type="submit" class="px-3 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition shadow-2xs">
+            加入清單
           </button>
         </div>
       </form>
+
+      <!-- 目前已建立的項目清單 -->
+      <div class="space-y-2 mb-4" id="presetItemsContainer">
+        <!-- 動態填入 -->
+      </div>
+
+      <!-- 底部控制按鈕 -->
+      <div class="flex justify-between items-center pt-3 border-t border-slate-100">
+        <button type="button" onclick="resetDefaultPresets()" class="text-xs text-slate-400 hover:text-rose-600 font-medium transition">
+          <i class="fa-solid fa-rotate-left mr-1"></i> 恢復預設項目
+        </button>
+        <button type="button" onclick="closePresetManagerModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition">
+          完成返回
+        </button>
+      </div>
     </div>
   </div>
 
@@ -1260,6 +1348,18 @@
       }
     ];
 
+    // 預設常用加扣分管理項目清單
+    const DEFAULT_POINT_PRESETS = [
+      { id: "P1", icon: "🙋‍♂️", title: "課堂優良發言", points: 1 },
+      { id: "P2", icon: "📝", title: "作業優秀工整", points: 2 },
+      { id: "P3", icon: "🤝", title: "熱心助人服務", points: 3 },
+      { id: "P4", icon: "🧹", title: "環境打掃認真", points: 2 },
+      { id: "P5", icon: "💯", title: "小考測驗滿分", points: 5 },
+      { id: "P6", icon: "📖", title: "晨讀專注自律", points: 1 },
+      { id: "P7", icon: "⚠️", title: "未帶學用品/作業", points: -1 },
+      { id: "P8", icon: "🔔", title: "課堂喧嘩分心", points: -1 }
+    ];
+
     // 預設親師生留言示範資料
     const DEFAULT_MESSAGES = [
       {
@@ -1309,6 +1409,7 @@
     let rewards = [];
     let classEvents = [];
     let classMessages = [];
+    let pointPresets = [];
     let adminPassword = DEFAULT_ADMIN_PASSWORD;
     let hasCustomPassword = false;
     let isAdminAuthenticated = false;
@@ -1567,6 +1668,10 @@
         if (storedMessagesStr) classMessages = JSON.parse(storedMessagesStr);
         else classMessages = JSON.parse(JSON.stringify(DEFAULT_MESSAGES));
 
+        const storedPresetsStr = localStorage.getItem('class_points_presets');
+        if (storedPresetsStr) pointPresets = JSON.parse(storedPresetsStr);
+        else pointPresets = JSON.parse(JSON.stringify(DEFAULT_POINT_PRESETS));
+
         const savedCustomPwd = localStorage.getItem('class_points_custom_pwd');
         if (savedCustomPwd && savedCustomPwd.trim() !== '') {
           adminPassword = savedCustomPwd;
@@ -1581,6 +1686,7 @@
         rewards = JSON.parse(JSON.stringify(DEFAULT_REWARDS));
         classEvents = JSON.parse(JSON.stringify(DEFAULT_EVENTS));
         classMessages = JSON.parse(JSON.stringify(DEFAULT_MESSAGES));
+        pointPresets = JSON.parse(JSON.stringify(DEFAULT_POINT_PRESETS));
         adminPassword = DEFAULT_ADMIN_PASSWORD;
       }
     }
@@ -1591,6 +1697,7 @@
         localStorage.setItem('class_points_rewards', JSON.stringify(rewards));
         localStorage.setItem('class_points_events', JSON.stringify(classEvents));
         localStorage.setItem('class_points_messages', JSON.stringify(classMessages));
+        localStorage.setItem('class_points_presets', JSON.stringify(pointPresets));
         if (hasCustomPassword) {
           localStorage.setItem('class_points_custom_pwd', adminPassword);
         }
@@ -3681,15 +3788,30 @@
 
       const idInput = document.getElementById('pointStudentId');
       const nameSpan = document.getElementById('pointModalStudentName');
+      const seatSpan = document.getElementById('pointModalStudentSeat');
       const ptsSpan = document.getElementById('pointModalCurrentPoints');
+      const avatarBox = document.getElementById('pointModalAvatarBox');
       const changeInput = document.getElementById('pointChangeAmount');
       const reasonInput = document.getElementById('pointReason');
 
       if (idInput) idInput.value = student.id;
-      if (nameSpan) nameSpan.textContent = `${student.name} (#${student.seat})`;
+      if (nameSpan) nameSpan.textContent = student.name;
+      if (seatSpan) seatSpan.textContent = `座號 ${String(student.seat).padStart(2,'0')} 號 · ${student.id} ${student.role ? '· ' + student.role : ''}`;
       if (ptsSpan) ptsSpan.textContent = student.points;
+      
+      if (avatarBox) {
+        const av = student.avatar || '🌟';
+        if (av.startsWith('data:image/') || av.startsWith('http://') || av.startsWith('https://')) {
+          avatarBox.innerHTML = `<img src="${av}" alt="頭貼" class="w-full h-full object-cover">`;
+        } else {
+          avatarBox.innerHTML = `<span class="text-xl">${av}</span>`;
+        }
+      }
+
       if (changeInput) changeInput.value = "";
       if (reasonInput) reasonInput.value = "";
+
+      renderPointModalPresets();
 
       const modal = document.getElementById('pointModal');
       if (modal) modal.classList.remove('hidden');
@@ -3698,6 +3820,56 @@
     function closePointModal() {
       const modal = document.getElementById('pointModal');
       if (modal) modal.classList.add('hidden');
+    }
+
+    // 渲染調整點數視窗內的常用項目快捷按鈕
+    function renderPointModalPresets() {
+      const container = document.getElementById('pointPresetsGrid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (!pointPresets || pointPresets.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full text-center py-4 bg-slate-50 rounded-xl text-xs text-slate-400">
+            尚未設定常用項目，點擊右上角「管理項目」新增
+          </div>
+        `;
+        return;
+      }
+
+      pointPresets.forEach(preset => {
+        const isPositive = Number(preset.points) > 0;
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.onclick = () => executePresetAdjustment(preset.title, preset.points);
+        btn.className = `p-2 rounded-xl border text-left flex items-center justify-between gap-1.5 transition transform active:scale-95 shadow-2xs hover:shadow-xs ${
+          isPositive 
+            ? 'bg-amber-50/60 hover:bg-amber-100/80 border-amber-200/90 text-amber-950' 
+            : 'bg-rose-50/60 hover:bg-rose-100/80 border-rose-200/90 text-rose-950'
+        }`;
+
+        btn.innerHTML = `
+          <div class="flex items-center space-x-1.5 truncate">
+            <span class="text-base flex-shrink-0">${preset.icon || '⭐'}</span>
+            <span class="text-xs font-bold truncate">${preset.title}</span>
+          </div>
+          <span class="text-xs font-black px-1.5 py-0.5 rounded-lg flex-shrink-0 ${
+            isPositive ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+          }">
+            ${isPositive ? '+' + preset.points : preset.points}
+          </span>
+        `;
+        container.appendChild(btn);
+      });
+    }
+
+    // 一鍵套用並立刻送出
+    function executePresetAdjustment(reason, amount) {
+      const studentId = document.getElementById('pointStudentId').value;
+      if (!studentId) return;
+
+      quickAddPoints(studentId, Number(amount), reason);
+      closePointModal();
     }
 
     function setQuickReason(reason, amount) {
@@ -3720,6 +3892,100 @@
 
       quickAddPoints(id, amount, reason);
       closePointModal();
+    }
+
+    // ================= ⚙️ 常用加扣分預設項目管理 (Presets Management) =================
+    function openPresetManagerModal() {
+      renderPresetItemsList();
+      const modal = document.getElementById('presetManagerModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closePresetManagerModal() {
+      const modal = document.getElementById('presetManagerModal');
+      if (modal) modal.classList.add('hidden');
+      renderPointModalPresets();
+    }
+
+    function renderPresetItemsList() {
+      const container = document.getElementById('presetItemsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (pointPresets.length === 0) {
+        container.innerHTML = `<div class="text-center text-xs text-slate-400 py-6">目前尚未建立任何常用項目</div>`;
+        return;
+      }
+
+      pointPresets.forEach((item, index) => {
+        const isPos = Number(item.points) > 0;
+        const row = document.createElement('div');
+        row.className = "p-2.5 bg-slate-50 hover:bg-white rounded-xl border border-slate-200 flex items-center justify-between gap-2 transition";
+        row.innerHTML = `
+          <div class="flex items-center space-x-2.5 truncate">
+            <span class="text-xl flex-shrink-0">${item.icon || '⭐'}</span>
+            <div class="truncate">
+              <span class="text-xs font-bold text-slate-800">${item.title}</span>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2 flex-shrink-0">
+            <span class="text-xs font-black px-2 py-0.5 rounded-lg ${isPos ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+              ${isPos ? '+' + item.points : item.points} 點
+            </span>
+            <button type="button" onclick="deletePresetItem('${item.id}')" class="text-slate-300 hover:text-rose-500 p-1 rounded-lg transition" title="刪除此項目">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function saveNewPreset(e) {
+      e.preventDefault();
+      const iconInput = document.getElementById('newPresetIcon');
+      const titleInput = document.getElementById('newPresetTitle');
+      const pointsInput = document.getElementById('newPresetPoints');
+
+      const icon = iconInput.value.trim() || '⭐';
+      const title = titleInput.value.trim();
+      const points = parseInt(pointsInput.value, 10);
+
+      if (!title || isNaN(points)) {
+        showToast("請填寫正確的項目名稱與點數！", "error");
+        return;
+      }
+
+      const newPreset = {
+        id: "P_" + Date.now(),
+        icon: icon,
+        title: title,
+        points: points
+      };
+
+      pointPresets.push(newPreset);
+      saveSystemData();
+      renderPresetItemsList();
+
+      titleInput.value = '';
+      pointsInput.value = '';
+      iconInput.value = '🌟';
+
+      showToast(`已成功新增常用項目「${title}」！`, "success");
+    }
+
+    function deletePresetItem(presetId) {
+      pointPresets = pointPresets.filter(p => p.id !== presetId);
+      saveSystemData();
+      renderPresetItemsList();
+      showToast("已刪除該常用項目", "info");
+    }
+
+    function resetDefaultPresets() {
+      pointPresets = JSON.parse(JSON.stringify(DEFAULT_POINT_PRESETS));
+      saveSystemData();
+      renderPresetItemsList();
+      showToast("已成功恢復為系統預設加扣分項目！", "success");
     }
 
     function openStudentAvatarModal() {
