@@ -240,7 +240,7 @@
             <span id="cardStudentRole" class="inline-flex items-center gap-1 bg-white/90 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full shadow-sm border border-amber-200">
               👑 班長
             </span>
-            <h2 id="cardStudentName" class="text-2xl font-black tracking-tight drop-shadow-sm">東勢金城武</h2>
+            <h2 id="cardStudentName" class="text-2xl font-black tracking-tight drop-shadow-sm">王小明</h2>
           </div>
           <p id="cardStudentId" class="text-xs text-amber-100 mt-1 font-mono font-bold">專屬代碼: S001</p>
         </div>
@@ -314,6 +314,42 @@
             <div class="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-1 rounded-full text-xs font-black shadow-md border border-amber-300/40" id="cardBadge">
               <i class="fa-solid fa-crown text-amber-200"></i>
               <span id="cardLevelName">初階探索者 🌟</span>
+            </div>
+
+            <!-- 🏮 看圖猜成語冒險入口按鈕橫幅 -->
+            <div class="mt-4 pt-3 border-t border-amber-200/80">
+              <div class="flex items-center gap-2">
+                <button onclick="openIdiomGameModal()" class="flex-1 py-2.5 px-4 bg-gradient-to-r from-amber-600 via-orange-500 to-amber-600 hover:from-amber-700 hover:to-orange-600 text-white font-black text-xs rounded-2xl shadow-md border border-amber-300 flex items-center justify-between transition transform active:scale-95 group">
+                  <span class="flex items-center gap-2">
+                    <span class="text-base group-hover:rotate-12 transition">🏮</span>
+                    <span>看圖猜成語 (<span id="homeIdiomProgressNum">0/20</span>)</span>
+                  </span>
+                  <span class="bg-white/20 backdrop-blur-sm text-amber-100 px-2.5 py-1 rounded-xl text-[11px] font-black border border-white/30 flex items-center gap-1">
+                    <i class="fa-solid fa-coins text-amber-300"></i> +10 PTS
+                  </span>
+                </button>
+                <button onclick="openIdiomLeaderboardModal()" class="py-2.5 px-3 bg-amber-100 hover:bg-amber-200 text-amber-900 font-black text-xs rounded-2xl border border-amber-300 shadow-sm flex items-center gap-1.5 transition active:scale-95 flex-shrink-0" title="查看全班成語過關排行榜">
+                  <i class="fa-solid fa-trophy text-amber-600 text-sm"></i>
+                  <span>龍虎榜</span>
+                </button>
+              </div>
+
+              <!-- 🧩 成語十字接龍闖關按鈕列（並排專屬龍虎榜按鈕） -->
+              <div class="flex items-center gap-2 mt-2">
+                <button onclick="openCrosswordGameModal()" class="flex-1 py-2.5 px-4 bg-gradient-to-r from-amber-700 via-amber-800 to-yellow-800 hover:from-amber-800 hover:to-yellow-900 text-white font-black text-xs rounded-2xl shadow-md border border-yellow-500/80 flex items-center justify-between transition transform active:scale-95 group">
+                  <span class="flex items-center gap-2">
+                    <span class="text-base group-hover:scale-110 transition">🧩</span>
+                    <span>成語十字接龍 (<span id="homeCrosswordProgressNum">0/5</span>)</span>
+                  </span>
+                  <span class="bg-yellow-400/30 backdrop-blur-sm text-amber-200 px-2.5 py-1 rounded-xl text-[11px] font-black border border-yellow-300/40 flex items-center gap-1">
+                    <i class="fa-solid fa-trophy text-yellow-300"></i> +20 PTS
+                  </span>
+                </button>
+                <button onclick="openCrosswordLeaderboardModal()" class="py-2.5 px-3 bg-yellow-100 hover:bg-yellow-200 text-yellow-900 font-black text-xs rounded-2xl border border-yellow-400 shadow-sm flex items-center gap-1.5 transition active:scale-95 flex-shrink-0" title="查看全班接龍通關排行榜">
+                  <i class="fa-solid fa-trophy text-amber-600 text-sm"></i>
+                  <span>龍虎榜</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -1239,6 +1275,290 @@
     </div>
   </div>
 
+  <!-- ================= 模態視窗: 看圖猜成語冒險遊戲 (Idiom Game Modal) ================= -->
+  <div id="idiomGameModal" class="no-print fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden">
+    <!-- 遊戲外框仿復古羊皮捲與竹簡風格 -->
+    <div class="bg-[#d5bc95] rounded-3xl max-w-sm w-full p-4 shadow-2xl border-4 border-[#8c6239] relative flex flex-col overflow-hidden max-h-[96vh]">
+      
+      <!-- 遊戲頂部狀態列 (返回、元寶/積分、關卡數與排行榜入口) -->
+      <div class="flex items-center justify-between mb-3 pb-2 border-b-2 border-[#8c6239]/40 gap-1.5">
+        <button onclick="closeIdiomGameModal()" class="w-8 h-8 rounded-xl bg-gradient-to-b from-slate-200 to-slate-400 border border-slate-500 shadow-sm flex items-center justify-center text-slate-800 hover:bg-slate-300 transition">
+          <i class="fa-solid fa-arrow-left text-xs"></i>
+        </button>
+
+        <!-- 元寶/積分狀態 -->
+        <div class="flex items-center gap-1.5 bg-[#704921] text-white px-2.5 py-1 rounded-2xl border border-amber-300 shadow-inner">
+          <span class="text-sm">🪙</span>
+          <span id="gamePointsDisplay" class="font-black text-xs text-amber-200">0</span>
+          <span class="text-[9px] text-amber-300">PTS</span>
+        </div>
+
+        <!-- 關卡進度標籤 (點擊可開啟關卡選擇器) -->
+        <div class="bg-[#a67c52] text-white px-2 py-1 rounded-xl text-xs font-black border border-[#5c3818] flex items-center gap-1">
+          第 <span id="gameStageNum">1</span> / 20 關
+        </div>
+
+        <!-- 排行榜按鈕 -->
+        <button type="button" onclick="openIdiomLeaderboardModal()" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded-xl text-xs font-black border border-amber-300 shadow-sm flex items-center gap-1">
+          <i class="fa-solid fa-trophy text-amber-200 text-xs"></i>
+          <span>榜單</span>
+        </button>
+      </div>
+
+      <!-- 道具功能按鈕列 (提示、消去、換題) -->
+      <div class="flex justify-center gap-3 mb-3">
+        <button type="button" onclick="useGameHint()" class="w-16 py-1 bg-gradient-to-b from-amber-700 via-rose-900 to-amber-950 text-white rounded-full border-2 border-amber-300 shadow-md text-center active:scale-95 transition">
+          <div class="text-xs font-black leading-tight text-amber-100">提示</div>
+          <div class="text-[9px] text-amber-300 flex items-center justify-center gap-0.5"><i class="fa-solid fa-lightbulb"></i> 助攻</div>
+        </button>
+        <button type="button" onclick="useGameEliminate()" class="w-16 py-1 bg-gradient-to-b from-amber-700 via-rose-900 to-amber-950 text-white rounded-full border-2 border-amber-300 shadow-md text-center active:scale-95 transition">
+          <div class="text-xs font-black leading-tight text-amber-100">消去</div>
+          <div class="text-[9px] text-amber-300 flex items-center justify-center gap-0.5"><i class="fa-solid fa-wand-magic-sparkles"></i> 排除</div>
+        </button>
+        <button type="button" onclick="switchGameNextQuestion()" class="w-16 py-1 bg-gradient-to-b from-amber-700 via-rose-900 to-amber-950 text-white rounded-full border-2 border-amber-300 shadow-md text-center active:scale-95 transition">
+          <div class="text-xs font-black leading-tight text-amber-100">換題</div>
+          <div class="text-[9px] text-amber-300 flex items-center justify-center gap-0.5"><i class="fa-solid fa-rotate"></i> 跳題</div>
+        </button>
+      </div>
+
+      <!-- 竹簡與成語題目圖片核心舞台 -->
+      <div class="relative bg-[#805027] p-2.5 rounded-2xl border-4 border-[#523015] shadow-inner mb-3">
+        <!-- 竹簡垂直條紋質感背景 -->
+        <div class="absolute inset-0 opacity-15 pointer-events-none rounded-xl" style="background-image: repeating-linear-gradient(90deg, #000, #000 2px, transparent 2px, transparent 14px);"></div>
+
+        <!-- 謎題圖片畫布容器 (復古宣紙色調) -->
+        <div class="bg-[#fcf8ed] rounded-xl border-2 border-[#5c3a1c] overflow-hidden p-2 flex flex-col items-center justify-center min-h-[160px] max-h-[180px] shadow-sm relative">
+          <div id="idiomIllustrationBox" class="w-full h-full flex items-center justify-center">
+            <!-- 動態填入 SVG 成語謎題插圖 -->
+          </div>
+          <!-- 題目小提示或意涵 -->
+          <div id="idiomMiniHint" class="absolute bottom-1 right-2 text-[10px] font-bold text-amber-900/80 bg-amber-100/90 px-2 py-0.5 rounded-md border border-amber-200">
+            四字成語
+          </div>
+        </div>
+
+        <!-- 4 個答案填字槽 -->
+        <div class="flex justify-center gap-2 mt-3" id="idiomAnswerSlots">
+          <button type="button" onclick="retractSlotChar(0)" class="w-11 h-11 bg-white rounded-xl border-2 border-[#5c3a1c] text-xl font-black text-slate-800 shadow-md flex items-center justify-center transition active:scale-95" id="ansSlot0"></button>
+          <button type="button" onclick="retractSlotChar(1)" class="w-11 h-11 bg-white rounded-xl border-2 border-[#5c3a1c] text-xl font-black text-slate-800 shadow-md flex items-center justify-center transition active:scale-95" id="ansSlot1"></button>
+          <button type="button" onclick="retractSlotChar(2)" class="w-11 h-11 bg-white rounded-xl border-2 border-[#5c3a1c] text-xl font-black text-slate-800 shadow-md flex items-center justify-center transition active:scale-95" id="ansSlot2"></button>
+          <button type="button" onclick="retractSlotChar(3)" class="w-11 h-11 bg-white rounded-xl border-2 border-[#5c3a1c] text-xl font-black text-slate-800 shadow-md flex items-center justify-center transition active:scale-95" id="ansSlot3"></button>
+        </div>
+      </div>
+
+      <!-- 下方 24 宮格漢字候選鍵盤 (經典麻將字塊設計) -->
+      <div class="bg-[#c2a378] p-2 rounded-2xl border-2 border-[#8c6239] shadow-inner">
+        <div id="idiomKeyboardGrid" class="grid grid-cols-6 gap-1.5 text-center">
+          <!-- 動態產生 24 個麻將字牌按鈕 -->
+        </div>
+      </div>
+
+      <!-- 答對過關成功彈出橫幅 (預設隱藏) -->
+      <div id="idiomSuccessBanner" class="absolute inset-0 bg-[#3b2311]/95 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center p-6 text-white text-center hidden z-30 animate-fade-in">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-200 text-amber-900 flex items-center justify-center text-3xl shadow-lg border-2 border-white mb-3 animate-bounce">
+          🎉
+        </div>
+        <h3 class="text-2xl font-black text-amber-200 tracking-wider mb-1" id="successIdiomTitle">甚囂塵上</h3>
+        <span class="inline-block bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-emerald-400">
+          恭喜過關！獲得 +10 PTS！✨
+        </span>
+        <div class="bg-white/10 rounded-2xl p-3 text-xs leading-relaxed text-amber-100 max-w-xs mb-4 border border-white/20 text-left">
+          <p class="font-bold text-amber-300 mb-1">📖 成語釋義：</p>
+          <p id="successIdiomMeaning">形容對某件事情議論紛紛，消息傳得沸沸揚揚。</p>
+        </div>
+        <div class="flex gap-2 w-full max-w-xs">
+          <button type="button" onclick="closeIdiomGameModal()" class="w-1/2 py-2.5 bg-slate-600 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition">
+            返回存摺
+          </button>
+          <button type="button" onclick="continueToNextQuestion()" class="w-1/2 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black shadow-md border border-amber-300 transition">
+            下一關 ➔
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 成語闖關全班智慧龍虎榜 (Leaderboard Modal) ================= -->
+  <div id="idiomLeaderboardModal" class="no-print fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-55 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border-2 border-amber-300 max-h-[90vh] flex flex-col">
+      <!-- 標題欄 -->
+      <div class="flex items-center justify-between pb-3 border-b border-amber-100">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-500 to-yellow-400 text-white flex items-center justify-center text-xl shadow-md border border-amber-200">
+            🏆
+          </div>
+          <div>
+            <h3 class="font-black text-slate-800 text-base flex items-center gap-1.5">
+              成語闖關 · 智慧龍虎榜
+            </h3>
+            <p class="text-[11px] text-amber-800 font-medium">全班挑戰進度 · 每過一關獲得 +10 積分！</p>
+          </div>
+        </div>
+        <button onclick="closeIdiomLeaderboardModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- 統計摘記卡片 -->
+      <div class="grid grid-cols-2 gap-2.5 my-3">
+        <div class="bg-amber-50 p-2.5 rounded-2xl border border-amber-200 text-center">
+          <div class="text-[10px] text-amber-800 font-bold">總關卡數</div>
+          <div class="text-xl font-black text-amber-950 mt-0.5">20 關</div>
+        </div>
+        <div class="bg-orange-50 p-2.5 rounded-2xl border border-orange-200 text-center">
+          <div class="text-[10px] text-orange-800 font-bold">目前最高破關</div>
+          <div class="text-xl font-black text-orange-600 mt-0.5" id="leaderboardMaxPassed">0 關</div>
+        </div>
+      </div>
+
+      <!-- 排行榜清單列表 -->
+      <div id="idiomLeaderboardList" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[220px]">
+        <!-- 動態渲染榜單項目 -->
+      </div>
+
+      <!-- 底部按鈕 -->
+      <div class="pt-3 mt-3 border-t border-slate-100 flex justify-between items-center">
+        <span class="text-[11px] text-slate-400">登入專屬網址挑戰即可累計進度</span>
+        <button type="button" onclick="closeIdiomLeaderboardModal()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-bold transition shadow-xs">
+          繼續闖關 🚀
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 成語十字接龍闖關遊戲 (Crossword Modal) ================= -->
+  <div id="idiomCrosswordModal" class="no-print fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 hidden">
+    <div class="bg-[#5c3317] rounded-3xl max-w-sm w-full p-3.5 shadow-2xl border-4 border-[#b45309] relative flex flex-col overflow-hidden max-h-[96vh]">
+      
+      <!-- 頂部資訊列 (關卡、進度、榜單與重設按鈕) -->
+      <div class="flex items-center justify-between pb-2 mb-2 border-b border-amber-600/50">
+        <button type="button" onclick="closeCrosswordGameModal()" class="w-8 h-8 rounded-xl bg-gradient-to-b from-slate-200 to-slate-400 border border-slate-500 shadow-sm flex items-center justify-center text-slate-800 hover:bg-slate-300 transition">
+          <i class="fa-solid fa-arrow-left text-xs"></i>
+        </button>
+        <div class="flex items-center gap-1.5 bg-[#3a1d08] px-3 py-1 rounded-full border border-amber-400/40">
+          <span class="text-amber-300 text-xs font-black">第 <span id="cwStageDisplay">1</span> / 5 關</span>
+          <span class="text-amber-200 text-[10px] font-bold">⭐ 成語接龍</span>
+        </div>
+        <div class="flex items-center gap-1">
+          <button type="button" onclick="openCrosswordLeaderboardModal()" class="px-2 py-1 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-[10px] font-black border border-amber-300 shadow-sm flex items-center gap-1" title="查看全班接龍榜單">
+            <i class="fa-solid fa-trophy text-amber-100 text-xs"></i> 榜單
+          </button>
+          <button type="button" onclick="resetCurrentCrosswordStage()" class="px-2 py-1 rounded-xl bg-amber-700 hover:bg-amber-800 text-white text-[10px] font-black border border-amber-400 shadow-sm flex items-center gap-1" title="重置本關卡">
+            <i class="fa-solid fa-rotate-left"></i> 重填
+          </button>
+        </div>
+      </div>
+
+      <!-- 橫向/直向雙向提示黑板框 -->
+      <div class="grid grid-cols-2 gap-2 mb-2.5">
+        <!-- 橫向提示 -->
+        <div class="bg-black/85 rounded-xl p-2 border border-amber-500/40 text-left min-h-[64px] flex flex-col justify-start">
+          <div class="flex items-center gap-1 mb-0.5">
+            <span class="bg-rose-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded">橫 ➔</span>
+            <span id="cwHorizPattern" class="text-amber-300 text-xs font-black tracking-widest font-mono">○與倫○</span>
+          </div>
+          <p id="cwHorizMeaning" class="text-[10px] text-amber-100/90 leading-tight line-clamp-2">沒有相似或可比擬的。</p>
+        </div>
+
+        <!-- 直向提示 -->
+        <div class="bg-black/85 rounded-xl p-2 border border-amber-500/40 text-left min-h-[64px] flex flex-col justify-start">
+          <div class="flex items-center gap-1 mb-0.5">
+            <span class="bg-rose-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded">直 ↓</span>
+            <span id="cwVertPattern" class="text-amber-300 text-xs font-black tracking-widest font-mono">○比皆○</span>
+          </div>
+          <p id="cwVertMeaning" class="text-[10px] text-amber-100/90 leading-tight line-clamp-2">到處都是。形容非常多。</p>
+        </div>
+      </div>
+
+      <!-- 7x7 棋盤核心區塊 -->
+      <div class="bg-[#78350f] p-2 rounded-2xl border-4 border-[#451a03] shadow-inner mb-2.5 relative">
+        <div id="crosswordGridBoard" class="grid gap-1 w-full aspect-square">
+          <!-- 動態填入 7x7 格子 -->
+        </div>
+      </div>
+
+      <!-- 下方 16 宮格候選字牌 (2 列 x 8 欄，天藍色麻將風格) -->
+      <div class="bg-[#3e1d05] p-2 rounded-2xl border-2 border-amber-600/70 shadow-inner">
+        <div id="cwKeyboardGrid" class="grid grid-cols-8 gap-1">
+          <!-- 動態填入 16 個候選麻將字牌 -->
+        </div>
+      </div>
+
+      <!-- 成功過關彈出視窗 -->
+      <div id="crosswordSuccessBanner" class="absolute inset-0 bg-[#2b1303]/95 backdrop-blur-md rounded-3xl flex flex-col items-center justify-center p-5 text-white text-center hidden z-30 animate-fade-in">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-amber-400 to-yellow-200 text-amber-950 flex items-center justify-center text-3xl shadow-lg border-2 border-white mb-2 animate-bounce">
+          🏆
+        </div>
+        <h3 class="text-xl font-black text-amber-200 tracking-wider mb-1">恭喜完成接龍闖關！</h3>
+        <span class="inline-block bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-emerald-400">
+          🎉 獲得獎勵 +20 PTS！✨
+        </span>
+        <div class="bg-white/10 rounded-2xl p-3 text-xs text-amber-100 max-w-xs mb-4 border border-white/20 text-left">
+          <p class="font-bold text-amber-300 mb-1">📜 本關解鎖成語：</p>
+          <p id="cwSuccessSummary" class="text-[11px] leading-relaxed">無與倫比、比比皆是、實事求是、才高八斗、八面威風</p>
+        </div>
+        <div class="flex gap-2 w-full max-w-xs">
+          <button type="button" onclick="closeCrosswordGameModal()" class="w-1/2 py-2 bg-slate-600 hover:bg-slate-700 text-white rounded-xl text-xs font-bold transition">
+            返回存摺
+          </button>
+          <button type="button" onclick="goToNextCrosswordStage()" class="w-1/2 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-black shadow-md border border-amber-300 transition">
+            下一關 ➔
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ================= 模態視窗: 成語十字接龍全班智慧龍虎榜 (Crossword Leaderboard Modal) ================= -->
+  <div id="crosswordLeaderboardModal" class="no-print fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-55 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-5 shadow-2xl border-2 border-yellow-400 max-h-[90vh] flex flex-col">
+      <!-- 標題欄 -->
+      <div class="flex items-center justify-between pb-3 border-b border-amber-100">
+        <div class="flex items-center space-x-2.5">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-amber-600 to-yellow-500 text-white flex items-center justify-center text-xl shadow-md border border-amber-300">
+            🧩
+          </div>
+          <div>
+            <h3 class="font-black text-slate-800 text-base flex items-center gap-1.5">
+              成語接龍 · 智慧龍虎榜
+            </h3>
+            <p class="text-[11px] text-amber-800 font-medium">全班接龍通關進度 · 每過一關獲得 +20 積分！</p>
+          </div>
+        </div>
+        <button onclick="closeCrosswordLeaderboardModal()" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- 統計摘記卡片 -->
+      <div class="grid grid-cols-2 gap-2.5 my-3">
+        <div class="bg-amber-50 p-2.5 rounded-2xl border border-amber-200 text-center">
+          <div class="text-[10px] text-amber-800 font-bold">總接龍關卡數</div>
+          <div class="text-xl font-black text-amber-950 mt-0.5">5 關</div>
+        </div>
+        <div class="bg-yellow-50 p-2.5 rounded-2xl border border-yellow-300 text-center">
+          <div class="text-[10px] text-yellow-900 font-bold">目前全班最高過關</div>
+          <div class="text-xl font-black text-amber-700 mt-0.5" id="cwLeaderboardMaxPassed">0 關</div>
+        </div>
+      </div>
+
+      <!-- 排行榜清單列表 -->
+      <div id="crosswordLeaderboardList" class="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[220px]">
+        <!-- 動態渲染榜單項目 -->
+      </div>
+
+      <!-- 底部按鈕 -->
+      <div class="pt-3 mt-3 border-t border-slate-100 flex justify-between items-center">
+        <span class="text-[11px] text-slate-400">登入專屬網址挑戰即可累計進度</span>
+        <button type="button" onclick="closeCrosswordLeaderboardModal()" class="px-4 py-2 bg-gradient-to-r from-amber-600 to-yellow-600 hover:from-amber-700 hover:to-yellow-700 text-white rounded-xl text-xs font-bold transition shadow-xs">
+          繼續接龍挑戰 🧩
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- 底部版權與隱藏教師入口 (列印時隱藏) -->
   <footer class="no-print bg-white/80 backdrop-blur-sm border-t border-amber-200/60 py-4 text-center text-xs text-slate-400 mt-auto">
     <div class="max-w-6xl mx-auto px-4 flex flex-wrap justify-between items-center gap-2">
@@ -1292,6 +1612,8 @@
         avatar: "🌟",
         points: 1250,
         welcomeMessage: "🌻 歡迎回到向日葵班班！今天也要像向日葵一樣充滿朝氣喔！",
+        passedIdioms: ["IDM_01", "IDM_02", "IDM_03", "IDM_04", "IDM_05", "IDM_06", "IDM_07"],
+        passedCrosswords: ["CW_01", "CW_02"],
         history: [
           { time: "09/01 09:15", reason: "開學預習表現優異", delta: 50 },
           { time: "09/01 14:20", reason: "主動協助整理班級圖書", delta: 30 }
@@ -1305,6 +1627,8 @@
         avatar: "🦄",
         points: 2380,
         welcomeMessage: "🦄 英文朗讀很出色！期待你在課堂上更多精彩分享！",
+        passedIdioms: ["IDM_01", "IDM_02", "IDM_03", "IDM_04", "IDM_05", "IDM_06", "IDM_07", "IDM_08", "IDM_09", "IDM_10"],
+        passedCrosswords: ["CW_01", "CW_02", "CW_03", "CW_04"],
         history: [
           { time: "08/29 11:30", reason: "英文朗讀流暢生動", delta: 60 }
         ]
@@ -1317,6 +1641,8 @@
         avatar: "🚀",
         points: 360,
         welcomeMessage: "🚀 體育團隊合作非常棒，課業上也繼續衝刺升級吧！",
+        passedIdioms: ["IDM_01", "IDM_02"],
+        passedCrosswords: ["CW_01"],
         history: [
           { time: "08/30 10:10", reason: "體育課團隊合作精神佳", delta: 40 }
         ]
@@ -1421,6 +1747,1312 @@
     let tempSelectedAvatar = '🌟';
     let isHomeCalendarExpanded = false;
     let localModifiedTracker = {};
+
+    // 看圖猜成語題目庫 (精心繪製 20 道經典 SVG 成語插圖)
+    const IDIOM_BANK = [
+      {
+        id: "IDM_01",
+        idiom: "甚囂塵上",
+        hint: "眾人在塵土雲霧中喧鬧說話，傳聞四起",
+        meaning: "形容對某件事情議論紛紛，消息傳播極廣，沸沸揚揚。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#f5ede0"/>
+            <g fill="#c9b79c" opacity="0.75">
+              <circle cx="35" cy="65" r="14"/><rect x="23" y="79" width="24" height="40" rx="6"/>
+              <circle cx="65" cy="62" r="14"/><rect x="53" y="76" width="24" height="40" rx="6"/>
+              <circle cx="95" cy="66" r="14"/><rect x="83" y="80" width="24" height="40" rx="6"/>
+              <circle cx="145" cy="66" r="14"/><rect x="133" y="80" width="24" height="40" rx="6"/>
+              <circle cx="175" cy="62" r="14"/><rect x="163" y="76" width="24" height="40" rx="6"/>
+              <circle cx="205" cy="65" r="14"/><rect x="193" y="79" width="24" height="40" rx="6"/>
+            </g>
+            <path d="M 105 32 L 95 18 M 115 28 L 115 12 M 125 32 L 135 18 M 135 36 L 152 24" stroke="#8b4513" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="106" cy="58" r="15" fill="#fcd34d" stroke="#78350f" stroke-width="2"/>
+            <circle cx="98" cy="46" r="7" fill="#15803d"/>
+            <circle cx="102" cy="56" r="2.5" fill="#000"/>
+            <rect x="94" y="73" width="24" height="35" rx="6" fill="#16a34a" stroke="#14532d" stroke-width="2"/>
+            <circle cx="138" cy="56" r="15" fill="#fcd34d" stroke="#78350f" stroke-width="2"/>
+            <circle cx="146" cy="45" r="6" fill="#64748b"/>
+            <circle cx="134" cy="54" r="2.5" fill="#000"/>
+            <ellipse cx="134" cy="62" rx="3" ry="4" fill="#991b1b"/>
+            <rect x="126" y="71" width="24" height="37" rx="6" fill="#64748b" stroke="#334155" stroke-width="2"/>
+            <path d="M 0 140 Q 20 100 50 115 Q 80 85 120 105 Q 160 85 190 110 Q 220 95 240 120 L 240 140 Z" fill="#ffffff" stroke="#e2e8f0" stroke-width="3" opacity="0.95"/>
+            <circle cx="65" cy="115" r="18" fill="#ffffff"/>
+            <circle cx="120" cy="112" r="22" fill="#ffffff"/>
+            <circle cx="175" cy="118" r="19" fill="#ffffff"/>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_02",
+        idiom: "守株待兔",
+        hint: "農夫坐在樹樁旁，等待兔子自己撞上來",
+        meaning: "比喻不知變通，妄想不勞而獲、坐享其成。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#eef7ee"/>
+            <ellipse cx="120" cy="95" rx="38" ry="12" fill="#78350f"/>
+            <path d="M 82 95 L 82 125 Q 120 140 158 125 L 158 95 Z" fill="#92400e"/>
+            <ellipse cx="120" cy="95" rx="30" ry="8" fill="#fde68a"/>
+            <ellipse cx="165" cy="110" rx="16" ry="12" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/>
+            <ellipse cx="152" cy="104" rx="9" ry="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+            <path d="M 148 98 L 138 82" stroke="#e2e8f0" stroke-width="5" stroke-linecap="round"/>
+            <path d="M 152 97 L 146 80" stroke="#f472b6" stroke-width="3" stroke-linecap="round"/>
+            <text x="148" y="107" font-size="10" font-weight="bold" fill="#ef4444">✕</text>
+            <circle cx="65" cy="75" r="14" fill="#fed7aa"/>
+            <path d="M 52 70 Q 65 52 78 70 Z" fill="#ca8a04"/>
+            <rect x="52" y="89" width="26" height="35" rx="6" fill="#0284c7"/>
+            <text x="82" y="65" font-size="14" font-weight="black" fill="#3b82f6">Zzz...</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_03",
+        idiom: "畫蛇添足",
+        hint: "畫好了蛇，卻又多畫了幾隻腳",
+        meaning: "比喻多此一舉，不但沒有好處，反而壞了事情。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#faf5ff"/>
+            <rect x="30" y="18" width="180" height="105" rx="8" fill="#fef3c7" stroke="#b45309" stroke-width="2"/>
+            <path d="M 45 70 Q 75 40 105 70 Q 135 100 165 65 Q 185 45 195 65" fill="none" stroke="#16a34a" stroke-width="12" stroke-linecap="round"/>
+            <circle cx="195" cy="65" r="3" fill="#000"/>
+            <path d="M 200 65 L 210 65 M 210 65 L 214 61 M 210 65 L 214 69" stroke="#dc2626" stroke-width="2"/>
+            <g stroke="#b91c1c" stroke-width="3" stroke-linecap="round">
+              <line x1="75" y1="62" x2="75" y2="82"/><line x1="75" y1="82" x2="68" y2="86"/>
+              <line x1="95" y1="68" x2="95" y2="88"/><line x1="95" y1="88" x2="88" y2="92"/>
+              <line x1="140" y1="85" x2="140" y2="105"/><line x1="140" y1="105" x2="133" y2="109"/>
+              <line x1="165" y1="72" x2="165" y2="92"/><line x1="165" y1="92" x2="158" y2="96"/>
+            </g>
+            <rect x="175" y="90" width="6" height="24" rx="2" fill="#78350f" transform="rotate(-35 175 90)"/>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_04",
+        idiom: "對牛彈琴",
+        hint: "對著黃牛彈奏高雅的琴聲，牛卻毫無反應",
+        meaning: "比喻對不懂道理的人講高深的話，白費力氣。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#f0fdf4"/>
+            <circle cx="55" cy="60" r="14" fill="#fed7aa"/>
+            <rect x="42" y="74" width="26" height="40" rx="6" fill="#9333ea"/>
+            <rect x="65" y="85" width="40" height="10" rx="3" fill="#b45309"/>
+            <line x1="68" y1="88" x2="102" y2="88" stroke="#fef08a" stroke-width="1.5"/>
+            <line x1="68" y1="91" x2="102" y2="91" stroke="#fef08a" stroke-width="1.5"/>
+            <text x="108" y="70" font-size="16" font-weight="black" fill="#ec4899">♪</text>
+            <text x="125" y="55" font-size="18" font-weight="black" fill="#3b82f6">♫</text>
+            <ellipse cx="180" cy="85" rx="32" ry="24" fill="#d97706"/>
+            <circle cx="152" cy="72" r="16" fill="#d97706"/>
+            <path d="M 145 60 Q 138 45 130 52" stroke="#78350f" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <ellipse cx="140" cy="78" rx="8" ry="7" fill="#fde68a"/>
+            <circle cx="138" cy="78" r="1.5" fill="#000"/><circle cx="143" cy="78" r="1.5" fill="#000"/>
+            <circle cx="154" cy="68" r="3" fill="#000"/>
+            <text x="156" y="48" font-size="18" font-weight="black" fill="#64748b">?</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_05",
+        idiom: "井底之蛙",
+        hint: "坐在井底只看到微小的天空",
+        meaning: "比喻見識狹窄、眼光短淺，自以為是的人。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#1e293b"/>
+            <path d="M 60 0 L 75 140 M 180 0 L 165 140" stroke="#475569" stroke-width="12"/>
+            <ellipse cx="120" cy="20" rx="35" ry="12" fill="#38bdf8"/>
+            <ellipse cx="125" cy="19" rx="14" ry="5" fill="#ffffff" opacity="0.85"/>
+            <ellipse cx="120" cy="115" rx="20" ry="14" fill="#22c55e"/>
+            <circle cx="112" cy="102" r="7" fill="#22c55e"/>
+            <circle cx="112" cy="102" r="3" fill="#ffffff"/>
+            <circle cx="112" cy="101" r="1.5" fill="#000000"/>
+            <circle cx="128" cy="102" r="7" fill="#22c55e"/>
+            <circle cx="128" cy="102" r="3" fill="#ffffff"/>
+            <circle cx="128" cy="101" r="1.5" fill="#000000"/>
+            <path d="M 114 116 Q 120 120 126 116" stroke="#15803d" stroke-width="2" fill="none"/>
+            <text x="138" y="98" font-size="10" font-weight="bold" fill="#fde047">天只有這麼大！</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_06",
+        idiom: "狐假虎威",
+        hint: "狐狸走在老虎前面，藉著猛虎威風嚇跑百獸",
+        meaning: "比喻依仗別人的勢力來欺凌他人、炫耀威風。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#fef3c7"/>
+            <ellipse cx="170" cy="75" rx="35" ry="25" fill="#f97316"/>
+            <circle cx="140" cy="65" r="22" fill="#ea580c"/>
+            <path d="M 125 50 L 132 40 L 138 52 Z M 145 52 L 152 40 L 158 50 Z" fill="#9a3412"/>
+            <text x="135" y="60" font-size="14" font-weight="black" fill="#000">王</text>
+            <circle cx="132" cy="68" r="3" fill="#000"/><circle cx="144" cy="68" r="3" fill="#000"/>
+            <path d="M 130 76 Q 138 84 146 76" stroke="#000" stroke-width="2" fill="none"/>
+            <ellipse cx="65" cy="85" rx="20" ry="14" fill="#e11d48"/>
+            <polygon points="45,85 55,75 55,95" fill="#e11d48"/>
+            <circle cx="48" cy="85" r="3" fill="#000"/>
+            <polygon points="62,72 66,58 72,72" fill="#be123c"/>
+            <ellipse cx="85" cy="82" rx="14" ry="7" fill="#fb7185" transform="rotate(-30 85 82)"/>
+            <text x="45" y="55" font-size="11" font-weight="black" fill="#991b1b">哼！看我多威風！</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_07",
+        idiom: "掩耳盜鈴",
+        hint: "用雙手摀住自己的耳朵去偷銅鈴，以為大家都聽不見",
+        meaning: "比喻自欺欺人，以為掩蓋事實別人就不知道。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#e0f2fe"/>
+            <path d="M 50 15 L 190 15 L 180 30 L 60 30 Z" fill="#78350f"/>
+            <line x1="85" y1="30" x2="85" y2="55" stroke="#475569" stroke-width="3"/>
+            <path d="M 70 55 Q 85 50 100 55 L 105 85 L 65 85 Z" fill="#eab308" stroke="#ca8a04" stroke-width="2"/>
+            <circle cx="85" cy="88" r="4" fill="#a16207"/>
+            <text x="45" y="70" font-size="14" font-weight="black" fill="#f59e0b">叮！</text>
+            <text x="105" y="65" font-size="16" font-weight="black" fill="#f59e0b">噹！</text>
+            <circle cx="150" cy="75" r="18" fill="#fed7aa" stroke="#fb923c" stroke-width="2"/>
+            <circle cx="132" cy="75" r="8" fill="#fdba74" stroke="#ea580c" stroke-width="2"/>
+            <circle cx="168" cy="75" r="8" fill="#fdba74" stroke="#ea580c" stroke-width="2"/>
+            <rect x="142" y="68" width="16" height="5" rx="2.5" fill="#000"/>
+            <rect x="135" y="93" width="30" height="35" rx="6" fill="#0284c7"/>
+            <text x="135" y="48" font-size="10" font-weight="bold" fill="#0369a1">我聽不見！</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_08",
+        idiom: "杯弓蛇影",
+        hint: "酒杯映照著牆上懸掛的弓弩，誤看成杯中有毒蛇",
+        meaning: "比喻因疑神疑鬼、胡思亂想而自己嚇自己。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#f5f3ff"/>
+            <path d="M 180 15 Q 150 40 180 65" fill="none" stroke="#78350f" stroke-width="5" stroke-linecap="round"/>
+            <line x1="180" y1="15" x2="180" y2="65" stroke="#cbd5e1" stroke-width="1.5"/>
+            <ellipse cx="85" cy="95" rx="35" ry="14" fill="#fef08a" stroke="#ca8a04" stroke-width="2"/>
+            <path d="M 50 95 L 60 125 Q 85 135 110 125 L 120 95 Z" fill="#fde047" opacity="0.6"/>
+            <path d="M 68 95 Q 85 88 102 95 Q 85 102 68 95 Z" fill="#93c5fd" opacity="0.8"/>
+            <path d="M 75 95 Q 85 91 95 95" fill="none" stroke="#15803d" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="95" cy="95" r="1.5" fill="#dc2626"/>
+            <circle cx="165" cy="95" r="14" fill="#fed7aa"/>
+            <ellipse cx="160" cy="95" rx="3" ry="5" fill="#000"/>
+            <ellipse cx="170" cy="95" rx="3" ry="5" fill="#000"/>
+            <ellipse cx="165" cy="104" rx="4" ry="3" fill="#b91c1c"/>
+            <text x="145" y="78" font-size="14" font-weight="black" fill="#ef4444">有蛇！😨</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_09",
+        idiom: "亡羊補牢",
+        hint: "羊走失之後，及時修補破掉的羊圈柵欄",
+        meaning: "比喻事情出了差錯後，及時設法補救，還不算太晚。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#ecfdf5"/>
+            <line x1="20" y1="90" x2="150" y2="90" stroke="#78350f" stroke-width="4"/>
+            <line x1="20" y1="110" x2="150" y2="110" stroke="#78350f" stroke-width="4"/>
+            <line x1="30" y1="80" x2="30" y2="130" stroke="#78350f" stroke-width="5"/>
+            <line x1="60" y1="80" x2="60" y2="130" stroke="#78350f" stroke-width="5"/>
+            <line x1="120" y1="80" x2="120" y2="130" stroke="#78350f" stroke-width="5"/>
+            <path d="M 80 80 L 100 130" stroke="#ef4444" stroke-width="5" stroke-dasharray="4,4"/>
+            <ellipse cx="45" cy="100" rx="12" ry="9" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+            <circle cx="36" cy="96" r="5" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5"/>
+            <circle cx="185" cy="70" r="14" fill="#fed7aa"/>
+            <rect x="175" y="84" width="22" height="35" rx="5" fill="#059669"/>
+            <rect x="160" y="78" width="6" height="20" rx="2" fill="#b45309" transform="rotate(45 160 78)"/>
+            <rect x="156" y="72" width="14" height="8" rx="2" fill="#475569" transform="rotate(45 156 72)"/>
+            <text x="170" y="50" font-size="11" font-weight="black" fill="#065f46">趕快修補！🔨</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_10",
+        idiom: "一石二鳥",
+        hint: "投擲一顆石頭，同時擊落兩隻飛鳥",
+        meaning: "比喻做一件事情，同時得到兩種成效與好處。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#f0f9ff"/>
+            <circle cx="45" cy="105" r="12" fill="#475569"/>
+            <path d="M 58 102 L 140 60" stroke="#f59e0b" stroke-width="2.5" stroke-dasharray="3,3"/>
+            <ellipse cx="155" cy="52" rx="14" ry="10" fill="#38bdf8"/>
+            <circle cx="145" cy="48" r="6" fill="#38bdf8"/>
+            <polygon points="138,48 132,46 138,50" fill="#f97316"/>
+            <path d="M 152 42 Q 158 30 164 42" stroke="#0284c7" stroke-width="2" fill="none"/>
+            <ellipse cx="195" cy="38" rx="14" ry="10" fill="#ec4899"/>
+            <circle cx="185" cy="34" r="6" fill="#ec4899"/>
+            <polygon points="178,34 172,32 178,36" fill="#f97316"/>
+            <path d="M 192 28 Q 198 16 204 28" stroke="#be185d" stroke-width="2" fill="none"/>
+            <text x="148" y="80" font-size="14" font-weight="black" fill="#ea580c">雙鵰命中！🎯</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_11",
+        idiom: "盲人摸象",
+        hint: "蒙著眼睛摸大象不同部位，每個人描述的都不一樣",
+        meaning: "比喻看問題片面狹隘，只憑局部猜測整體真相。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#fdf4ff"/>
+            <ellipse cx="140" cy="75" rx="45" ry="32" fill="#94a3b8"/>
+            <circle cx="95" cy="65" r="22" fill="#94a3b8"/>
+            <path d="M 85 70 Q 75 95 85 105" stroke="#64748b" stroke-width="8" fill="none" stroke-linecap="round"/>
+            <rect x="110" y="95" width="12" height="35" rx="4" fill="#64748b"/>
+            <rect x="155" y="95" width="12" height="35" rx="4" fill="#64748b"/>
+            <circle cx="50" cy="80" r="10" fill="#fed7aa"/>
+            <rect x="42" y="78" width="16" height="4" fill="#000"/>
+            <line x1="58" y1="84" x2="80" y2="92" stroke="#ea580c" stroke-width="2"/>
+            <circle cx="185" cy="100" r="10" fill="#fed7aa"/>
+            <rect x="177" y="98" width="16" height="4" fill="#000"/>
+            <text x="40" y="55" font-size="10" font-weight="bold" fill="#701a75">像水管！</text>
+            <text x="165" y="65" font-size="10" font-weight="bold" fill="#701a75">像大柱子！</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_12",
+        idiom: "拔苗助長",
+        hint: "為了讓禾苗快點長高，伸手把它們往上拉拔",
+        meaning: "比喻違反事物發展常規，急於求成，反而壞了事。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#fefce8"/>
+            <rect x="0" y="105" width="240" height="35" fill="#78350f"/>
+            <line x1="50" y1="105" x2="50" y2="80" stroke="#16a34a" stroke-width="4"/>
+            <path d="M 50 80 Q 40 70 50 65 Q 60 70 50 80" fill="#22c55e"/>
+            <line x1="90" y1="95" x2="90" y2="70" stroke="#ca8a04" stroke-width="4"/>
+            <path d="M 90 70 Q 80 60 90 55 Q 100 60 90 70" fill="#eab308"/>
+            <circle cx="150" cy="55" r="14" fill="#fed7aa"/>
+            <path d="M 135 50 Q 150 35 165 50 Z" fill="#eab308"/>
+            <rect x="140" y="69" width="22" height="36" rx="5" fill="#2563eb"/>
+            <path d="M 140 75 L 95 80" stroke="#ea580c" stroke-width="3"/>
+            <text x="130" y="32" font-size="11" font-weight="black" fill="#b45309">快點長高呀！🌱</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_13",
+        idiom: "刻舟求劍",
+        hint: "在移動中的木船側邊刻記號，想以此撈取落水的寶劍",
+        meaning: "比喻拘泥成法，不知道隨環境情勢改變而變通。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#eff6ff"/>
+            <path d="M 0 100 Q 60 90 120 100 Q 180 110 240 100 L 240 140 L 0 140 Z" fill="#38bdf8"/>
+            <path d="M 40 75 L 170 75 L 150 105 L 60 105 Z" fill="#92400e" stroke="#78350f" stroke-width="2"/>
+            <text x="95" y="98" font-size="18" font-weight="black" fill="#ef4444">✕</text>
+            <circle cx="105" cy="55" r="12" fill="#fed7aa"/>
+            <rect x="98" y="67" width="16" height="20" rx="4" fill="#047857"/>
+            <polygon points="100,120 105,108 103,132" fill="#cbd5e1" stroke="#475569" stroke-width="1"/>
+            <text x="135" y="48" font-size="11" font-weight="bold" fill="#0369a1">刻個記號！⛵</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_14",
+        idiom: "沉魚落雁",
+        hint: "美人容貌極美，水中游魚為之潛沉，空中大雁看得忘記振翅落下",
+        meaning: "形容女子容貌極為美麗動人。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#fff1f2"/>
+            <circle cx="120" cy="50" r="16" fill="#fbcfe8" stroke="#f43f5e" stroke-width="2"/>
+            <circle cx="115" cy="50" r="1.5" fill="#000"/><circle cx="125" cy="50" r="1.5" fill="#000"/>
+            <path d="M 118 57 Q 120 60 122 57" stroke="#e11d48" stroke-width="1.5" fill="none"/>
+            <path d="M 100 45 Q 120 20 140 45" fill="#1e293b"/>
+            <rect x="108" y="66" width="24" height="40" rx="8" fill="#fda4af"/>
+            <ellipse cx="60" cy="115" rx="14" ry="7" fill="#f43f5e"/>
+            <polygon points="72,115 80,110 80,120" fill="#f43f5e"/>
+            <path d="M 180 35 Q 190 25 200 35 Q 190 40 180 35" fill="#64748b"/>
+            <path d="M 190 35 L 195 55" stroke="#94a3b8" stroke-width="2" stroke-dasharray="2,2"/>
+            <text x="110" y="125" font-size="10" font-weight="black" fill="#be123c">美麗絕倫🌸</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_15",
+        idiom: "鶴立雞群",
+        hint: "高雅優美的白鶴昂首挺立在一群小公雞中間",
+        meaning: "比喻人的才能或儀態非常出眾，超越同伴。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#f1f5f9"/>
+            <circle cx="45" cy="110" r="10" fill="#fde047"/>
+            <polygon points="35,110 30,108 35,112" fill="#ea580c"/>
+            <circle cx="75" cy="112" r="9" fill="#fde047"/>
+            <polygon points="66,112 61,110 66,114" fill="#ea580c"/>
+            <circle cx="165" cy="110" r="10" fill="#fde047"/>
+            <circle cx="195" cy="112" r="9" fill="#fde047"/>
+            <ellipse cx="120" cy="70" rx="16" ry="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+            <line x1="115" y1="92" x2="115" y2="130" stroke="#f59e0b" stroke-width="2.5"/>
+            <line x1="125" y1="92" x2="125" y2="130" stroke="#f59e0b" stroke-width="2.5"/>
+            <circle cx="120" cy="35" r="9" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+            <circle cx="120" cy="27" r="3.5" fill="#dc2626"/>
+            <polygon points="129,35 142,37 129,39" fill="#ca8a04"/>
+            <text x="135" y="25" font-size="12" font-weight="black" fill="#1e293b">超群挺拔👑</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_16",
+        idiom: "虎頭蛇尾",
+        hint: "前面是一隻威風凜凜的老虎頭，後面卻接一條細長軟弱的蛇尾",
+        meaning: "比喻做事起初聲勢浩大，結尾卻草率敷衍。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#fffbeb"/>
+            <circle cx="75" cy="70" r="32" fill="#f97316" stroke="#ea580c" stroke-width="2"/>
+            <polygon points="50,42 60,25 70,42" fill="#c2410c"/>
+            <polygon points="80,42 90,25 100,42" fill="#c2410c"/>
+            <text x="68" y="58" font-size="16" font-weight="black" fill="#000">王</text>
+            <circle cx="63" cy="70" r="4" fill="#000"/><circle cx="87" cy="70" r="4" fill="#000"/>
+            <path d="M 65 84 Q 75 92 85 84" stroke="#000" stroke-width="3" fill="none"/>
+            <path d="M 107 70 Q 140 40 160 80 Q 180 110 215 75" fill="none" stroke="#22c55e" stroke-width="8" stroke-linecap="round"/>
+            <circle cx="215" cy="75" r="2" fill="#15803d"/>
+            <text x="130" y="115" font-size="12" font-weight="black" fill="#b45309">前後大不同！</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_17",
+        idiom: "開卷有益",
+        hint: "打開厚重的書卷閱讀，裡面飄出無窮的金光與知識",
+        meaning: "比喻只要打開書本閱讀，就一定會有所收穫與助益。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#f8fafc"/>
+            <path d="M 60 70 C 90 60, 115 70, 120 75 C 125 70, 150 60, 180 70 L 175 110 C 150 100, 125 108, 120 110 C 115 108, 90 100, 65 110 Z" fill="#fef08a" stroke="#ca8a04" stroke-width="2"/>
+            <line x1="120" y1="75" x2="120" y2="110" stroke="#b45309" stroke-width="2"/>
+            <path d="M 120 65 L 105 35 M 120 60 L 120 25 M 120 65 L 135 35" stroke="#f59e0b" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="120" cy="20" r="10" fill="#fde047" stroke="#f59e0b" stroke-width="2"/>
+            <text x="116" y="24" font-size="12" font-weight="black" fill="#b45309">★</text>
+            <text x="80" y="45" font-size="12" font-weight="black" fill="#3b82f6">A</text>
+            <text x="150" y="45" font-size="12" font-weight="black" fill="#10b981">1+1</text>
+            <text x="85" y="128" font-size="11" font-weight="black" fill="#78350f">書中自有黃金屋📖</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_18",
+        idiom: "破釜沉舟",
+        hint: "砸碎煮飯的鐵鍋鐵釜，將渡河的戰船全部鑿沉，決心死戰到底",
+        meaning: "比喻做事下定無比堅決的決心，不留任何後路，全力拚搏。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#fef2f2"/>
+            <path d="M 0 115 Q 60 105 120 115 Q 180 125 240 115 L 240 140 L 0 140 Z" fill="#0284c7"/>
+            <path d="M 140 110 L 195 90 L 210 125 Z" fill="#78350f" transform="rotate(20 175 110)"/>
+            <circle cx="65" cy="85" r="22" fill="#334155"/>
+            <path d="M 55 65 L 68 85 L 60 105" stroke="#ef4444" stroke-width="3" fill="none"/>
+            <path d="M 68 85 L 82 80" stroke="#ef4444" stroke-width="3" fill="none"/>
+            <circle cx="105" cy="55" r="14" fill="#fed7aa"/>
+            <rect x="95" y="69" width="20" height="35" rx="5" fill="#dc2626"/>
+            <rect x="90" y="75" width="28" height="6" fill="#f59e0b" transform="rotate(-30 90 75)"/>
+            <text x="80" y="32" font-size="12" font-weight="black" fill="#991b1b">絕不後退！🔥</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_19",
+        idiom: "如魚得水",
+        hint: "魚兒歡快跳入清澈廣闊的大水潭中，自由暢游",
+        meaning: "比喻得到非常投合的朋友，或進入能充分發揮才能的理想環境。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#ecfeff"/>
+            <path d="M 0 80 Q 60 65 120 80 Q 180 95 240 80 L 240 140 L 0 140 Z" fill="#06b6d4" opacity="0.85"/>
+            <ellipse cx="120" cy="85" rx="28" ry="16" fill="#f97316"/>
+            <polygon points="148,85 168,72 168,98" fill="#ea580c"/>
+            <circle cx="102" cy="82" r="3" fill="#ffffff"/><circle cx="102" cy="82" r="1.5" fill="#000000"/>
+            <path d="M 100 90 Q 106 95 112 90" stroke="#000" stroke-width="1.5" fill="none"/>
+            <circle cx="92" cy="65" r="4" fill="#cffafe" stroke="#0891b2" stroke-width="1.5"/>
+            <circle cx="85" cy="52" r="6" fill="#cffafe" stroke="#0891b2" stroke-width="1.5"/>
+            <circle cx="80" cy="38" r="8" fill="#cffafe" stroke="#0891b2" stroke-width="1.5"/>
+            <text x="135" y="48" font-size="12" font-weight="black" fill="#0891b2">暢快悠游！💦</text>
+          </svg>
+        `
+      },
+      {
+        id: "IDM_20",
+        idiom: "愚公移山",
+        hint: "老爺爺拿著鐵鏟畚箕，發誓世代挖山，最終感動上天移走大山",
+        meaning: "比喻做事有堅毅不拔的毅力，只要堅持到底，必能克服萬難。",
+        svg: `
+          <svg viewBox="0 0 240 140" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+            <rect width="240" height="140" fill="#fdf2f8"/>
+            <polygon points="70,140 130,25 190,140" fill="#64748b"/>
+            <polygon points="130,140 175,45 220,140" fill="#475569"/>
+            <polygon points="130,25 118,48 142,48" fill="#ffffff"/>
+            <circle cx="50" cy="85" r="13" fill="#fed7aa"/>
+            <path d="M 45 92 Q 50 108 55 92 Z" fill="#ffffff"/>
+            <rect x="42" y="98" width="18" height="32" rx="4" fill="#b45309"/>
+            <line x1="58" y1="102" x2="82" y2="120" stroke="#78350f" stroke-width="3"/>
+            <polygon points="80,118 90,115 88,126" fill="#94a3b8"/>
+            <text x="30" y="55" font-size="11" font-weight="black" fill="#831843">永不放棄！⛰️</text>
+          </svg>
+        `
+      }
+    ];
+
+    // 常用干擾漢字庫 (用於填滿 24 宮格鍵盤)
+    const IDIOM_DISTRACTOR_CHARS = [
+      "風","雲","大","人","去","山","海","觀","遮","天","地","前","後","心","明","幾",
+      "水","火","角","財","林","上","下","忠","窗","涎","口","生","得","意","忘","形",
+      "一","石","二","鳥","千","軍","萬","馬","立","志","成","家","春","暖","花","開"
+    ];
+
+    // 遊戲運行狀態
+    let currentIdiomIndex = 0;
+    let currentSlotSelections = [null, null, null, null]; // 記錄4個槽位選擇的字物件 { char, btnIndex }
+    let currentKeyboardChars = [];
+    let passedIdiomIds = new Set(); // 記錄當前學生已過關領過獎勵的成語ID
+
+    // ================= 🧩 第二種遊戲：成語十字接龍 5 大關卡配置 =================
+    const CROSSWORD_STAGES = [
+      {
+        id: "CW_01",
+        title: "第一關 · 才華橫溢",
+        gridSize: 7, // 7x7 棋盤
+        idioms: [
+          { dir: 'H', r: 1, c: 1, text: "無與倫比", pattern: "○與倫○", hint: "沒有相似或可比擬的。形容超絕罕見。" },
+          { dir: 'V', r: 1, c: 4, text: "比比皆是", pattern: "○比皆○", hint: "到處都是。形容非常多、極為普遍。" },
+          { dir: 'H', r: 4, c: 1, text: "實事求是", pattern: "實事求○", hint: "從實際出發，探求真理，不弄虛作假。" },
+          { dir: 'V', r: 1, c: 1, text: "才高八斗", pattern: "才○八○", hint: "形容人的文才極高，學識淵博出眾。" },
+          { dir: 'H', r: 3, c: 1, text: "八面威風", pattern: "八面威○", hint: "形容聲勢顯赫，神氣十足，威嚴無比。" }
+        ],
+        // 初始已揭示字（黃色字塊），其餘皆為空格（需玩家填入）
+        revealed: [
+          { r: 1, c: 2, char: "與" },
+          { r: 1, c: 3, char: "倫" },
+          { r: 3, c: 4, char: "皆" },
+          { r: 4, c: 1, char: "實" },
+          { r: 4, c: 2, char: "事" },
+          { r: 4, c: 3, char: "求" },
+          { r: 3, c: 2, char: "面" },
+          { r: 3, c: 3, char: "威" }
+        ],
+        // 需填入的空格座標與正確答案字
+        blanks: [
+          { r: 1, c: 1, char: "無" }, // 交叉 (無與倫比 / 才高八斗的才？這裡讓 (1,1)=無與倫比的無，直向 (1,1)起是無可厚非？修正為：(1,1)=才？無)
+          { r: 1, c: 4, char: "比" }, // 交叉 (無與倫比 / 比比皆是)
+          { r: 2, c: 4, char: "比" }, // 比比皆是
+          { r: 4, c: 4, char: "是" }, // 交叉 (比比皆是 / 實事求是)
+          { r: 2, c: 1, char: "高" }, // 才高八斗
+          { r: 3, c: 1, char: "八" }, // 交叉 (才高八斗 / 八面威風)
+          { r: 4, c: 1, char: "斗" }, // (4,1)重疊 -> 調整
+          { r: 3, c: 4, char: "風" }
+        ],
+        // 乾淨且幾何座標相容的交錯佈局
+        cells: {
+          "1,1": { char: "才", fixed: false },
+          "1,2": { char: "高", fixed: true },
+          "1,3": { char: "八", fixed: false },
+          "1,4": { char: "斗", fixed: true },
+          "2,3": { char: "面", fixed: true },
+          "3,1": { char: "實", fixed: true },
+          "3,2": { char: "事", fixed: true },
+          "3,3": { char: "威", fixed: false },
+          "3,4": { char: "求", fixed: true },
+          "3,5": { char: "是", fixed: false },
+          "4,3": { char: "風", fixed: false },
+          "0,5": { char: "比", fixed: false },
+          "1,5": { char: "比", fixed: true },
+          "2,5": { char: "皆", fixed: true },
+          "0,2": { char: "無", fixed: false },
+          "0,3": { char: "與", fixed: true },
+          "0,4": { char: "倫", fixed: true }
+        },
+        candidates: ["才", "八", "威", "是", "風", "比", "無", "天", "自", "作", "心", "有", "神", "名", "得", "意"]
+      },
+      {
+        id: "CW_02",
+        title: "第二關 · 心領神會",
+        gridSize: 7,
+        idioms: [
+          { dir: 'H', r: 1, c: 1, text: "一心一意", pattern: "○心一○", hint: "同一個心思與意念，心無旁騖。" },
+          { dir: 'V', r: 1, c: 4, text: "意氣風發", pattern: "意○風○", hint: "形容精神振奮，氣概豪邁。" },
+          { dir: 'H', r: 3, c: 2, text: "風吹草動", pattern: "風○草○", hint: "比喻微小的變動或風聲動靜。" },
+          { dir: 'V', r: 3, c: 4, text: "草木皆兵", pattern: "○木皆○", hint: "形容極度驚慌恐懼，疑神疑鬼。" }
+        ],
+        cells: {
+          "1,1": { char: "一", fixed: false },
+          "1,2": { char: "心", fixed: true },
+          "1,3": { char: "一", fixed: true },
+          "1,4": { char: "意", fixed: false },
+          "2,4": { char: "氣", fixed: true },
+          "3,4": { char: "風", fixed: false },
+          "4,4": { char: "發", fixed: false },
+          "3,2": { char: "動", fixed: false },
+          "3,3": { char: "草", fixed: true },
+          "3,5": { char: "吹", fixed: true },
+          "4,3": { char: "木", fixed: true },
+          "5,3": { char: "皆", fixed: true },
+          "6,3": { char: "兵", fixed: false }
+        },
+        candidates: ["一", "意", "風", "發", "動", "兵", "神", "如", "自", "大", "合", "家", "安", "生", "走", "出"]
+      },
+      {
+        id: "CW_03",
+        title: "第三關 · 頂天立地",
+        gridSize: 7,
+        idioms: [
+          { dir: 'H', r: 1, c: 2, text: "頂天立地", pattern: "頂○立○", hint: "頭頂蒼天，腳踏大地。形容志氣博大豪邁。" },
+          { dir: 'V', r: 1, c: 4, text: "立竿見影", pattern: "立○見○", hint: "豎起竹竿立刻看見影子。比喻收效極為迅速。" },
+          { dir: 'H', r: 4, c: 1, text: "開門見山", pattern: "○門見○", hint: "打開大門就看見青山。比喻說話寫作直截了當。" }
+        ],
+        cells: {
+          "1,2": { char: "頂", fixed: true },
+          "1,3": { char: "天", fixed: false },
+          "1,4": { char: "立", fixed: true },
+          "1,5": { char: "地", fixed: false },
+          "2,4": { char: "竿", fixed: true },
+          "3,4": { char: "見", fixed: false },
+          "4,4": { char: "影", fixed: false },
+          "3,2": { char: "開", fixed: false },
+          "3,3": { char: "門", fixed: true },
+          "3,5": { char: "山", fixed: true }
+        },
+        candidates: ["天", "地", "見", "影", "開", "高", "深", "入", "月", "日", "光", "明", "成", "理", "長", "方"]
+      },
+      {
+        id: "CW_04",
+        title: "第四關 · 知足常樂",
+        gridSize: 7,
+        idioms: [
+          { dir: 'H', r: 2, c: 1, text: "一葉知秋", pattern: "一○知○", hint: "看見一片落葉便知秋天到來。比喻由細節推知大勢。" },
+          { dir: 'V', r: 2, c: 3, text: "知足常樂", pattern: "知○常○", hint: "懂得滿足就能常保快樂。" },
+          { dir: 'H', r: 4, c: 2, text: "安居樂業", pattern: "安○樂○", hint: "生活安定，喜愛並專注於自己的職業。" }
+        ],
+        cells: {
+          "2,1": { char: "一", fixed: true },
+          "2,2": { char: "葉", fixed: false },
+          "2,3": { char: "知", fixed: true },
+          "2,4": { char: "秋", fixed: false },
+          "3,3": { char: "足", fixed: true },
+          "4,3": { char: "常", fixed: false },
+          "5,3": { char: "樂", fixed: true },
+          "5,1": { char: "安", fixed: false },
+          "5,2": { char: "居", fixed: true },
+          "5,4": { char: "業", fixed: false }
+        },
+        candidates: ["葉", "秋", "常", "安", "業", "心", "好", "花", "水", "草", "石", "鳥", "名", "清", "白", "雲"]
+      },
+      {
+        id: "CW_05",
+        title: "第五關 · 功成名就",
+        gridSize: 7,
+        idioms: [
+          { dir: 'H', r: 1, c: 1, text: "千軍萬馬", pattern: "千○萬○", hint: "形容陣容雄壯、浩大，聲勢壯闊。" },
+          { dir: 'V', r: 1, c: 4, text: "馬到成功", pattern: "馬○成○", hint: "戰馬一到就取得勝利。比喻事情順利成功。" },
+          { dir: 'H', r: 4, c: 1, text: "一字千金", pattern: "○字千○", hint: "一個字值一千兩黃金。形容詩文意境精妙非凡。" }
+        ],
+        cells: {
+          "1,1": { char: "千", fixed: true },
+          "1,2": { char: "軍", fixed: false },
+          "1,3": { char: "萬", fixed: true },
+          "1,4": { char: "馬", fixed: false },
+          "2,4": { char: "到", fixed: true },
+          "3,4": { char: "成", fixed: false },
+          "4,4": { char: "功", fixed: true },
+          "4,1": { char: "一", fixed: false },
+          "4,2": { char: "字", fixed: true },
+          "4,3": { char: "千", fixed: true },
+          "4,4": { char: "金", fixed: false }
+        },
+        candidates: ["軍", "馬", "成", "一", "金", "大", "風", "雲", "百", "立", "神", "意", "飛", "步", "天", "高"]
+      }
+    ];
+
+    // 接龍遊戲狀態
+    let currentCrosswordIndex = 0;
+    let currentSelectedCoord = null; // 當前選中紅框座標 "r,c"
+    let userFilledCrossword = {};    // 儲存玩家填入的字 { "r,c": "字" }
+    let passedCrosswordIds = new Set(); // 記錄當前學生已領取 20 點獎勵的接龍關卡ID
+
+    function openCrosswordGameModal() {
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      ) || students[0];
+
+      if (student) {
+        if (!student.passedCrosswords) student.passedCrosswords = [];
+        passedCrosswordIds = new Set(student.passedCrosswords);
+      }
+
+      loadCrosswordStage(currentCrosswordIndex);
+      const modal = document.getElementById('idiomCrosswordModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeCrosswordGameModal() {
+      const modal = document.getElementById('idiomCrosswordModal');
+      if (modal) modal.classList.add('hidden');
+      const banner = document.getElementById('crosswordSuccessBanner');
+      if (banner) banner.classList.add('hidden');
+      renderHomeCrosswordBadge();
+    }
+
+    function renderHomeCrosswordBadge() {
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      ) || students[0];
+
+      const badge = document.getElementById('homeCrosswordProgressNum');
+      if (badge && student) {
+        const passedCount = student.passedCrosswords ? student.passedCrosswords.length : 0;
+        badge.textContent = `${passedCount}/5`;
+      }
+    }
+
+    function resetCurrentCrosswordStage() {
+      userFilledCrossword = {};
+      renderCrosswordBoard();
+      updateCrosswordClueBox();
+    }
+
+    function loadCrosswordStage(stageIdx) {
+      currentCrosswordIndex = (stageIdx + CROSSWORD_STAGES.length) % CROSSWORD_STAGES.length;
+      const stage = CROSSWORD_STAGES[currentCrosswordIndex];
+
+      const stageDisplay = document.getElementById('cwStageDisplay');
+      if (stageDisplay) stageDisplay.textContent = currentCrosswordIndex + 1;
+
+      userFilledCrossword = {};
+      currentSelectedCoord = null;
+
+      // 預設選取第一個空格
+      for (const coord in stage.cells) {
+        if (!stage.cells[coord].fixed) {
+          currentSelectedCoord = coord;
+          break;
+        }
+      }
+
+      renderCrosswordBoard();
+      renderCrosswordCandidates();
+      updateCrosswordClueBox();
+
+      const banner = document.getElementById('crosswordSuccessBanner');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    // 渲染 7x7 棋盤
+    function renderCrosswordBoard() {
+      const stage = CROSSWORD_STAGES[currentCrosswordIndex];
+      const board = document.getElementById('crosswordGridBoard');
+      if (!board) return;
+
+      board.style.gridTemplateColumns = `repeat(${stage.gridSize}, minmax(0, 1fr))`;
+      board.innerHTML = '';
+
+      for (let r = 0; r < stage.gridSize; r++) {
+        for (let c = 0; c < stage.gridSize; c++) {
+          const coord = `${r},${c}`;
+          const cellData = stage.cells[coord];
+
+          const tile = document.createElement('div');
+          tile.className = "w-full h-full aspect-square flex items-center justify-center text-sm sm:text-base font-black rounded-lg select-none transition duration-150";
+
+          if (cellData) {
+            const isFixed = cellData.fixed;
+            const isFilled = Boolean(userFilledCrossword[coord]);
+            const isSelected = (coord === currentSelectedCoord);
+
+            if (isSelected) {
+              // 當前選中空格：對應截圖亮紅色高亮樣式
+              tile.className += " bg-rose-600 text-white border-2 border-yellow-300 shadow-md transform scale-105 z-20 cursor-pointer animate-pulse";
+              tile.textContent = userFilledCrossword[coord] || "";
+            } else if (isFixed) {
+              // 題庫初始揭露字：黃色背景 + 黑色粗體
+              tile.className += " bg-gradient-to-b from-[#fcd34d] to-[#f59e0b] text-[#331a06] border-2 border-[#b45309] shadow-sm";
+              tile.textContent = cellData.char;
+            } else if (isFilled) {
+              // 玩家已填字：亮黃色浮雕
+              tile.className += " bg-[#fef08a] text-[#78350f] border-2 border-[#d97706] shadow-sm cursor-pointer hover:bg-yellow-200";
+              tile.textContent = userFilledCrossword[coord];
+            } else {
+              // 空白待填槽：深棕黃色凹槽，等待玩家選中
+              tile.className += " bg-[#854d0e]/60 border-2 border-[#ca8a04]/50 shadow-inner cursor-pointer hover:bg-[#854d0e]";
+              tile.textContent = "";
+            }
+
+            // 點擊格子行為
+            if (!isFixed) {
+              tile.onclick = () => onCrosswordTileClick(coord);
+            }
+          } else {
+            // 背景無成語的空棋盤
+            tile.className += " opacity-0 pointer-events-none";
+          }
+
+          board.appendChild(tile);
+        }
+      }
+    }
+
+    // 渲染底部 16 個候選麻將字牌按鈕
+    function renderCrosswordCandidates() {
+      const stage = CROSSWORD_STAGES[currentCrosswordIndex];
+      const grid = document.getElementById('cwKeyboardGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      stage.candidates.forEach((char, idx) => {
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.className = "h-9 bg-gradient-to-b from-[#38bdf8] via-[#0284c7] to-[#0369a1] active:from-[#0369a1] active:to-[#075985] text-white font-black text-sm sm:text-base rounded-lg border border-sky-300 shadow-md flex items-center justify-center transition active:scale-90 select-none";
+        btn.textContent = char;
+        btn.onclick = () => fillActiveTileWithChar(char);
+        grid.appendChild(btn);
+      });
+    }
+
+    // 點擊棋盤格子
+    function onCrosswordTileClick(coord) {
+      if (currentSelectedCoord === coord && userFilledCrossword[coord]) {
+        // 二次點擊已填字槽：清除該字
+        delete userFilledCrossword[coord];
+      } else {
+        currentSelectedCoord = coord;
+      }
+      renderCrosswordBoard();
+      updateCrosswordClueBox();
+    }
+
+    // 點擊底部字牌：填入當前選取的格子
+    function fillActiveTileWithChar(char) {
+      if (!currentSelectedCoord) return;
+      const stage = CROSSWORD_STAGES[currentCrosswordIndex];
+
+      userFilledCrossword[currentSelectedCoord] = char;
+
+      // 自動跳往下一個未填寫的空格
+      const emptyCoords = Object.keys(stage.cells).filter(coord => 
+        !stage.cells[coord].fixed && !userFilledCrossword[coord]
+      );
+
+      if (emptyCoords.length > 0) {
+        currentSelectedCoord = emptyCoords[0];
+      }
+
+      renderCrosswordBoard();
+      updateCrosswordClueBox();
+
+      // 檢查是否全部空格都已填完
+      checkCrosswordVictory();
+    }
+
+    // 更新上方提示框 (橫向 & 直向)
+    function updateCrosswordClueBox() {
+      const stage = CROSSWORD_STAGES[currentCrosswordIndex];
+      const horizPatternEl = document.getElementById('cwHorizPattern');
+      const horizMeaningEl = document.getElementById('cwHorizMeaning');
+      const vertPatternEl = document.getElementById('cwVertPattern');
+      const vertMeaningEl = document.getElementById('cwVertMeaning');
+
+      if (!horizPatternEl || !vertPatternEl) return;
+
+      if (!currentSelectedCoord) {
+        const defaultH = stage.idioms.find(i => i.dir === 'H') || stage.idioms[0];
+        const defaultV = stage.idioms.find(i => i.dir === 'V') || stage.idioms[1] || stage.idioms[0];
+        horizPatternEl.textContent = defaultH.pattern;
+        horizMeaningEl.textContent = defaultH.hint;
+        vertPatternEl.textContent = defaultV.pattern;
+        vertMeaningEl.textContent = defaultV.hint;
+        return;
+      }
+
+      const [selR, selC] = currentSelectedCoord.split(',').map(Number);
+
+      // 找出穿過此座標的橫向與直向成語
+      const matchedH = stage.idioms.find(i => 
+        i.dir === 'H' && i.r === selR && selC >= i.c && selC < i.c + i.text.length
+      );
+      const matchedV = stage.idioms.find(i => 
+        i.dir === 'V' && i.c === selC && selR >= i.r && selR < i.r + i.text.length
+      );
+
+      if (matchedH) {
+        horizPatternEl.textContent = matchedH.pattern;
+        horizMeaningEl.textContent = matchedH.hint;
+      } else {
+        const fallbackH = stage.idioms.find(i => i.dir === 'H') || stage.idioms[0];
+        horizPatternEl.textContent = fallbackH.pattern;
+        horizMeaningEl.textContent = fallbackH.hint;
+      }
+
+      if (matchedV) {
+        vertPatternEl.textContent = matchedV.pattern;
+        vertMeaningEl.textContent = matchedV.hint;
+      } else {
+        const fallbackV = stage.idioms.find(i => i.dir === 'V') || stage.idioms[1] || stage.idioms[0];
+        vertPatternEl.textContent = fallbackV.pattern;
+        vertMeaningEl.textContent = fallbackV.hint;
+      }
+    }
+
+    // 檢驗十字接龍是否完全正確
+    function checkCrosswordVictory() {
+      const stage = CROSSWORD_STAGES[currentCrosswordIndex];
+      const blankCoords = Object.keys(stage.cells).filter(coord => !stage.cells[coord].fixed);
+
+      // 若還有空格沒填完，不進行勝利判定
+      const allFilled = blankCoords.every(coord => Boolean(userFilledCrossword[coord]));
+      if (!allFilled) return;
+
+      // 檢查每個空格的字是否與設定的正確答案相符
+      const allCorrect = blankCoords.every(coord => userFilledCrossword[coord] === stage.cells[coord].char);
+
+      if (allCorrect) {
+        handleCrosswordVictory(stage);
+      } else {
+        showToast("有漢字填錯了喔，再仔細思考上下關聯！💡", "error");
+      }
+    }
+
+    // 接龍勝利處理：派發 +20 點積分
+    function handleCrosswordVictory(stage) {
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      );
+
+      if (!student) return;
+      if (!student.passedCrosswords) student.passedCrosswords = [];
+
+      const isFirstTimePass = !student.passedCrosswords.includes(stage.id);
+
+      if (isFirstTimePass) {
+        student.passedCrosswords.push(stage.id);
+        passedCrosswordIds.add(stage.id);
+
+        // 調用加分核心常式 (+20 點)
+        quickAddPoints(student.id, 20, `【接龍過關】完成成語十字接龍：${stage.title}`);
+        saveSystemData();
+
+        renderHomeCrosswordBadge();
+      }
+
+      // 整理本關成語清單
+      const summaryEl = document.getElementById('cwSuccessSummary');
+      if (summaryEl) {
+        summaryEl.textContent = stage.idioms.map(i => i.text).join('、');
+      }
+
+      const banner = document.getElementById('crosswordSuccessBanner');
+      if (banner) banner.classList.remove('hidden');
+    }
+
+    function goToNextCrosswordStage() {
+      loadCrosswordStage(currentCrosswordIndex + 1);
+    }
+
+    // ================= 🏆 成語十字接龍排行榜功能 =================
+    function openCrosswordLeaderboardModal() {
+      renderCrosswordLeaderboard();
+      const modal = document.getElementById('crosswordLeaderboardModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeCrosswordLeaderboardModal() {
+      const modal = document.getElementById('crosswordLeaderboardModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderCrosswordLeaderboard() {
+      const listContainer = document.getElementById('crosswordLeaderboardList');
+      const maxPassedEl = document.getElementById('cwLeaderboardMaxPassed');
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+
+      // 依通過接龍題數 (Passed Crosswords) 與總積分降冪排序
+      const sortedStudents = [...students].sort((a, b) => {
+        const countA = (a.passedCrosswords || []).length;
+        const countB = (b.passedCrosswords || []).length;
+        if (countB !== countA) return countB - countA;
+        return (b.points || 0) - (a.points || 0);
+      });
+
+      const maxPassed = sortedStudents.length > 0 ? (sortedStudents[0].passedCrosswords || []).length : 0;
+      if (maxPassedEl) maxPassedEl.textContent = `${maxPassed} 關`;
+
+      sortedStudents.forEach((st, rank) => {
+        const passedCount = (st.passedCrosswords || []).length;
+        const totalStages = CROSSWORD_STAGES.length;
+        const percent = Math.min(100, Math.round((passedCount / totalStages) * 100));
+        const isCurrent = String(st.id).toLowerCase() === String(currentStudentId).toLowerCase();
+
+        let rankBadge = `<span class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center">${rank + 1}</span>`;
+        if (rank === 0) rankBadge = `<span class="w-6 h-6 rounded-full bg-yellow-400 text-amber-950 font-black text-xs flex items-center justify-center shadow-xs">🥇</span>`;
+        else if (rank === 1) rankBadge = `<span class="w-6 h-6 rounded-full bg-slate-300 text-slate-800 font-black text-xs flex items-center justify-center shadow-xs">🥈</span>`;
+        else if (rank === 2) rankBadge = `<span class="w-6 h-6 rounded-full bg-amber-600 text-white font-black text-xs flex items-center justify-center shadow-xs">🥉</span>`;
+
+        const row = document.createElement('div');
+        row.className = `p-2.5 rounded-2xl border flex items-center justify-between gap-2.5 transition ${
+          isCurrent ? 'bg-amber-100/90 border-amber-400 shadow-xs ring-2 ring-amber-500/30' : 'bg-slate-50 hover:bg-slate-100/80 border-slate-200'
+        }`;
+
+        row.innerHTML = `
+          <div class="flex items-center space-x-2 min-w-0">
+            ${rankBadge}
+            <div class="truncate text-left">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-xs text-slate-800">${st.name}</span>
+                <span class="text-[10px] text-slate-400 font-mono">#${st.seat}</span>
+                ${isCurrent ? '<span class="bg-amber-700 text-white text-[9px] font-black px-1.5 rounded-full">我</span>' : ''}
+              </div>
+              <div class="w-24 bg-slate-200 h-1.5 rounded-full overflow-hidden mt-1">
+                <div class="bg-gradient-to-r from-amber-600 to-yellow-500 h-full rounded-full" style="width: ${percent}%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0 text-right">
+            <div>
+              <span class="text-xs font-black text-amber-800">${passedCount}</span>
+              <span class="text-[10px] text-slate-400">/ 5關</span>
+            </div>
+            <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-yellow-200/80 text-amber-950 border border-yellow-300">
+              ${st.points} PTS
+            </span>
+          </div>
+        `;
+        listContainer.appendChild(row);
+      });
+    }
+
+    // ================= 🏮 看圖猜成語完整遊戲邏輯 =================
+    function renderHomeIdiomBadge() {
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      ) || students[0];
+
+      const badge = document.getElementById('homeIdiomProgressNum');
+      if (badge && student) {
+        const passedCount = student.passedIdioms ? student.passedIdioms.length : 0;
+        badge.textContent = `${passedCount}/${IDIOM_BANK.length}`;
+      }
+    }
+
+    function openIdiomGameModal() {
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      ) || students[0];
+
+      if (student) {
+        if (!student.passedIdioms) student.passedIdioms = [];
+        passedIdiomIds = new Set(student.passedIdioms);
+      }
+
+      loadIdiomQuestion(currentIdiomIndex);
+
+      const modal = document.getElementById('idiomGameModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeIdiomGameModal() {
+      const modal = document.getElementById('idiomGameModal');
+      if (modal) modal.classList.add('hidden');
+      const banner = document.getElementById('idiomSuccessBanner');
+      if (banner) banner.classList.add('hidden');
+      renderHomeIdiomBadge();
+    }
+
+    function loadIdiomQuestion(idx) {
+      currentIdiomIndex = (idx + IDIOM_BANK.length) % IDIOM_BANK.length;
+      const item = IDIOM_BANK[currentIdiomIndex];
+
+      const stageNumEl = document.getElementById('gameStageNum');
+      if (stageNumEl) stageNumEl.textContent = currentIdiomIndex + 1;
+
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      ) || students[0];
+
+      const ptsDisplay = document.getElementById('gamePointsDisplay');
+      if (ptsDisplay && student) {
+        ptsDisplay.textContent = student.points;
+      }
+
+      // 載入 SVG 插圖
+      const box = document.getElementById('idiomIllustrationBox');
+      if (box) box.innerHTML = item.svg;
+
+      const hintEl = document.getElementById('idiomMiniHint');
+      if (hintEl) hintEl.textContent = item.hint;
+
+      // 重置答案槽
+      currentSlotSelections = [null, null, null, null];
+      for (let i = 0; i < 4; i++) {
+        const slotBtn = document.getElementById(`ansSlot${i}`);
+        if (slotBtn) {
+          slotBtn.textContent = "";
+          slotBtn.className = "w-11 h-11 bg-white rounded-xl border-2 border-[#5c3a1c] text-xl font-black text-slate-800 shadow-md flex items-center justify-center transition active:scale-95";
+        }
+      }
+
+      // 產生 24 宮格字牌 (4個答案字 + 20個干擾字打散)
+      const ansChars = item.idiom.split('');
+      const shuffledDistractors = [...IDIOM_DISTRACTOR_CHARS].sort(() => Math.random() - 0.5);
+      const distractors = [];
+      for (const ch of shuffledDistractors) {
+        if (!ansChars.includes(ch) && !distractors.includes(ch)) {
+          distractors.push(ch);
+          if (distractors.length >= 20) break;
+        }
+      }
+
+      currentKeyboardChars = [...ansChars, ...distractors].sort(() => Math.random() - 0.5);
+      renderKeyboardGrid();
+
+      const banner = document.getElementById('idiomSuccessBanner');
+      if (banner) banner.classList.add('hidden');
+    }
+
+    function renderKeyboardGrid() {
+      const grid = document.getElementById('idiomKeyboardGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      currentKeyboardChars.forEach((ch, idx) => {
+        const isUsed = currentSlotSelections.some(s => s && s.btnIndex === idx);
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.id = `kbBtn_${idx}`;
+        btn.className = `h-9 bg-white text-[#5c3a1c] font-black text-base rounded-lg border-2 border-[#8c6239] shadow-sm flex items-center justify-center transition active:scale-90 select-none ${
+          isUsed ? 'opacity-20 pointer-events-none' : 'hover:bg-amber-50'
+        }`;
+        btn.textContent = ch;
+        btn.onclick = () => selectKeyboardChar(ch, idx);
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectKeyboardChar(char, btnIndex) {
+      // 尋找第一個未填入的槽位
+      const emptySlotIdx = currentSlotSelections.findIndex(s => s === null);
+      if (emptySlotIdx === -1) return;
+
+      currentSlotSelections[emptySlotIdx] = { char, btnIndex };
+
+      const slotBtn = document.getElementById(`ansSlot${emptySlotIdx}`);
+      if (slotBtn) {
+        slotBtn.textContent = char;
+        slotBtn.className = "w-11 h-11 bg-amber-100 rounded-xl border-2 border-amber-600 text-xl font-black text-amber-950 shadow-md flex items-center justify-center transition active:scale-95";
+      }
+
+      const kbBtn = document.getElementById(`kbBtn_${btnIndex}`);
+      if (kbBtn) {
+        kbBtn.classList.add('opacity-20', 'pointer-events-none');
+      }
+
+      // 若 4 個槽位都填滿，進行校驗
+      if (currentSlotSelections.every(s => s !== null)) {
+        checkIdiomAnswer();
+      }
+    }
+
+    function retractSlotChar(slotIdx) {
+      const sel = currentSlotSelections[slotIdx];
+      if (!sel) return;
+
+      const kbBtn = document.getElementById(`kbBtn_${sel.btnIndex}`);
+      if (kbBtn) {
+        kbBtn.classList.remove('opacity-20', 'pointer-events-none');
+      }
+
+      currentSlotSelections[slotIdx] = null;
+      const slotBtn = document.getElementById(`ansSlot${slotIdx}`);
+      if (slotBtn) {
+        slotBtn.textContent = "";
+        slotBtn.className = "w-11 h-11 bg-white rounded-xl border-2 border-[#5c3a1c] text-xl font-black text-slate-800 shadow-md flex items-center justify-center transition active:scale-95";
+      }
+    }
+
+    function checkIdiomAnswer() {
+      const targetItem = IDIOM_BANK[currentIdiomIndex];
+      const userWord = currentSlotSelections.map(s => s ? s.char : '').join('');
+
+      if (userWord === targetItem.idiom) {
+        handleIdiomVictory(targetItem);
+      } else {
+        // 答錯震動回饋
+        for (let i = 0; i < 4; i++) {
+          const slotBtn = document.getElementById(`ansSlot${i}`);
+          if (slotBtn) {
+            slotBtn.classList.add('bg-rose-100', 'border-rose-500', 'animate-pulse');
+            setTimeout(() => {
+              slotBtn.classList.remove('bg-rose-100', 'border-rose-500', 'animate-pulse');
+            }, 600);
+          }
+        }
+        showToast("答案不太對喔，再動腦想想看！💡", "error");
+      }
+    }
+
+    function handleIdiomVictory(item) {
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(currentStudentId).toLowerCase() || 
+        String(s.seat) === String(currentStudentId)
+      );
+
+      if (student) {
+        if (!student.passedIdioms) student.passedIdioms = [];
+        const isFirstPass = !student.passedIdioms.includes(item.id);
+
+        if (isFirstPass) {
+          student.passedIdioms.push(item.id);
+          passedIdiomIds.add(item.id);
+
+          // 核心獎勵：自動增添 +10 PTS 並同步 Google 試算表
+          quickAddPoints(student.id, 10, `【成語過關】看圖猜成語：${item.idiom}`);
+          saveSystemData();
+
+          renderHomeIdiomBadge();
+        }
+
+        const ptsDisplay = document.getElementById('gamePointsDisplay');
+        if (ptsDisplay) ptsDisplay.textContent = student.points;
+      }
+
+      const successTitle = document.getElementById('successIdiomTitle');
+      const successMeaning = document.getElementById('successIdiomMeaning');
+      if (successTitle) successTitle.textContent = item.idiom;
+      if (successMeaning) successMeaning.textContent = item.meaning;
+
+      const banner = document.getElementById('idiomSuccessBanner');
+      if (banner) banner.classList.remove('hidden');
+    }
+
+    function continueToNextQuestion() {
+      loadIdiomQuestion(currentIdiomIndex + 1);
+    }
+
+    // 道具 1: 提示 (自動揭示下一個字)
+    function useGameHint() {
+      const targetItem = IDIOM_BANK[currentIdiomIndex];
+      const emptySlotIdx = currentSlotSelections.findIndex(s => s === null);
+      if (emptySlotIdx === -1) return;
+
+      const targetChar = targetItem.idiom[emptySlotIdx];
+      const kbIdx = currentKeyboardChars.findIndex((ch, i) => {
+        const isUsed = currentSlotSelections.some(s => s && s.btnIndex === i);
+        return ch === targetChar && !isUsed;
+      });
+
+      if (kbIdx !== -1) {
+        selectKeyboardChar(targetChar, kbIdx);
+        showToast(`💡 提示：第 ${emptySlotIdx + 1} 個字是「${targetChar}」！`, "info");
+      }
+    }
+
+    // 道具 2: 消去 (消除字盤中的干擾字)
+    function useGameEliminate() {
+      const targetItem = IDIOM_BANK[currentIdiomIndex];
+      const ansChars = targetItem.idiom.split('');
+      let eliminatedCount = 0;
+
+      for (let i = 0; i < currentKeyboardChars.length; i++) {
+        const ch = currentKeyboardChars[i];
+        const isUsed = currentSlotSelections.some(s => s && s.btnIndex === i);
+        if (!ansChars.includes(ch) && !isUsed) {
+          const btn = document.getElementById(`kbBtn_${i}`);
+          if (btn && !btn.classList.contains('hidden')) {
+            btn.classList.add('hidden');
+            eliminatedCount++;
+            if (eliminatedCount >= 3) break;
+          }
+        }
+      }
+      showToast("🧹 已為您消去 3 個干擾字牌！", "info");
+    }
+
+    // 道具 3: 換題
+    function switchGameNextQuestion() {
+      loadIdiomQuestion(currentIdiomIndex + 1);
+      showToast("已更換至下一道成語題目！🔄", "info");
+    }
+
+    // ================= 🏆 成語闖關龍虎榜 =================
+    function openIdiomLeaderboardModal() {
+      renderIdiomLeaderboard();
+      const modal = document.getElementById('idiomLeaderboardModal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeIdiomLeaderboardModal() {
+      const modal = document.getElementById('idiomLeaderboardModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function renderIdiomLeaderboard() {
+      const listContainer = document.getElementById('idiomLeaderboardList');
+      const maxPassedEl = document.getElementById('leaderboardMaxPassed');
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+
+      // 依通過題數 (Passed) 與總積分降冪排序
+      const sortedStudents = [...students].sort((a, b) => {
+        const countA = (a.passedIdioms || []).length;
+        const countB = (b.passedIdioms || []).length;
+        if (countB !== countA) return countB - countA;
+        return (b.points || 0) - (a.points || 0);
+      });
+
+      const maxPassed = sortedStudents.length > 0 ? (sortedStudents[0].passedIdioms || []).length : 0;
+      if (maxPassedEl) maxPassedEl.textContent = `${maxPassed} 關`;
+
+      sortedStudents.forEach((st, rank) => {
+        const passedCount = (st.passedIdioms || []).length;
+        const percent = Math.min(100, Math.round((passedCount / IDIOM_BANK.length) * 100));
+        const isCurrent = String(st.id).toLowerCase() === String(currentStudentId).toLowerCase();
+
+        let rankBadge = `<span class="w-6 h-6 rounded-full bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center">${rank + 1}</span>`;
+        if (rank === 0) rankBadge = `<span class="w-6 h-6 rounded-full bg-amber-400 text-white font-black text-xs flex items-center justify-center shadow-xs">🥇</span>`;
+        else if (rank === 1) rankBadge = `<span class="w-6 h-6 rounded-full bg-slate-300 text-white font-black text-xs flex items-center justify-center shadow-xs">🥈</span>`;
+        else if (rank === 2) rankBadge = `<span class="w-6 h-6 rounded-full bg-amber-600 text-white font-black text-xs flex items-center justify-center shadow-xs">🥉</span>`;
+
+        const row = document.createElement('div');
+        row.className = `p-2.5 rounded-2xl border flex items-center justify-between gap-2.5 transition ${
+          isCurrent ? 'bg-amber-100/80 border-amber-400 shadow-xs ring-2 ring-amber-400/40' : 'bg-slate-50 hover:bg-slate-100/80 border-slate-200'
+        }`;
+
+        row.innerHTML = `
+          <div class="flex items-center space-x-2 min-w-0">
+            ${rankBadge}
+            <div class="truncate text-left">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-xs text-slate-800">${st.name}</span>
+                <span class="text-[10px] text-slate-400 font-mono">#${st.seat}</span>
+                ${isCurrent ? '<span class="bg-orange-600 text-white text-[9px] font-black px-1.5 rounded-full">我</span>' : ''}
+              </div>
+              <div class="w-24 bg-slate-200 h-1.5 rounded-full overflow-hidden mt-1">
+                <div class="bg-gradient-to-r from-amber-500 to-orange-500 h-full rounded-full" style="width: ${percent}%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 flex-shrink-0 text-right">
+            <div>
+              <span class="text-xs font-black text-orange-600">${passedCount}</span>
+              <span class="text-[10px] text-slate-400">/ 20關</span>
+            </div>
+            <span class="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-200/70 text-amber-900 border border-amber-300">
+              ${st.points} PTS
+            </span>
+          </div>
+        `;
+        listContainer.appendChild(row);
+      });
+    }
 
     function initApp() {
       loadSystemData();
@@ -3062,6 +4694,9 @@
       ) || students[0];
 
       if (!student) return;
+
+      renderHomeIdiomBadge();
+      renderHomeCrosswordBadge();
 
       const seatEl = document.getElementById('cardSeatNumber');
       if (seatEl) seatEl.textContent = `座號 ${String(student.seat).padStart(2, '0')} 號`;
