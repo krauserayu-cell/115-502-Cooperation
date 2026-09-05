@@ -240,7 +240,7 @@
             <span id="cardStudentRole" class="inline-flex items-center gap-1 bg-white/90 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full shadow-sm border border-amber-200">
               👑 班長
             </span>
-            <h2 id="cardStudentName" class="text-2xl font-black tracking-tight drop-shadow-sm">王小明</h2>
+            <h2 id="cardStudentName" class="text-2xl font-black tracking-tight drop-shadow-sm">東勢金城武</h2>
           </div>
           <p id="cardStudentId" class="text-xs text-amber-100 mt-1 font-mono font-bold">專屬代碼: S001</p>
         </div>
@@ -1615,12 +1615,14 @@
         }
 
         if (incomingMessages && incomingMessages.length > 0) {
-          // 合併雲端留言與本地新留言
-          const localIds = new Set(classMessages.map(m => m.id));
-          incomingMessages.forEach(im => {
-            if (!localIds.has(im.id)) {
-              classMessages.push(im);
-            }
+          // 合併雲端留言與本地已讀狀態，若任一方已讀則維持已讀
+          const localReadMap = new Map(classMessages.map(m => [m.id, m.isRead]));
+          classMessages = incomingMessages.map(im => {
+            const wasReadLocally = localReadMap.get(im.id) === true;
+            return {
+              ...im,
+              isRead: Boolean(im.isRead || wasReadLocally)
+            };
           });
         }
 
@@ -2642,11 +2644,15 @@
       studentListContainer.innerHTML = '';
 
       students.sort((a, b) => a.seat - b.seat).forEach(st => {
-        const msgs = classMessages.filter(m => String(m.studentId).toLowerCase() === String(st.id).toLowerCase());
+        // 雙向相容：同時比對學號 (id) 與座號 (seat)
+        const msgs = classMessages.filter(m => 
+          String(m.studentId).trim().toLowerCase() === String(st.id).trim().toLowerCase() ||
+          String(m.studentId).trim() === String(st.seat).trim()
+        );
         const unreadCount = msgs.filter(m => (m.sender === '學生' || m.sender === '家長') && !m.isRead).length;
         const lastMsg = msgs.length > 0 ? msgs[msgs.length - 1] : null;
 
-        const isSelected = selectedAdminChatStudentId === st.id;
+        const isSelected = selectedAdminChatStudentId === st.id || selectedAdminChatStudentId === String(st.seat);
 
         const item = document.createElement('div');
         item.onclick = () => selectAdminChatStudent(st.id);
@@ -2662,7 +2668,7 @@
             <div class="truncate text-left">
               <div class="flex items-center gap-1.5">
                 <span class="font-bold text-xs text-slate-800">${st.name}</span>
-                ${unreadCount > 0 ? `<span class="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">${unreadCount}</span>` : ''}
+                ${unreadCount > 0 ? `<span class="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full shadow-xs animate-pulse">${unreadCount}</span>` : ''}
               </div>
               <p class="text-[10px] text-slate-400 truncate mt-0.5">
                 ${lastMsg ? `[${lastMsg.sender}] ${lastMsg.content}` : '尚無留言'}
@@ -2678,8 +2684,52 @@
       updateUnreadMessageBadge();
     }
 
+    // 點擊學生時：切換對話並自動將該學生的留言標為已讀且同步雲端
     function selectAdminChatStudent(studentId) {
       selectedAdminChatStudentId = studentId;
+      markStudentMessagesAsReadInternal(studentId, false);
+      renderAdminMessageView();
+    }
+
+    // 核心標記已讀函式：同步本地與 Google 試算表
+    function markStudentMessagesAsReadInternal(studentId, showFeedback = false) {
+      if (!studentId) return;
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(studentId).toLowerCase() || 
+        String(s.seat) === String(studentId)
+      );
+      if (!student) return;
+
+      let hasUnread = false;
+      classMessages.forEach(m => {
+        const isMatch = String(m.studentId).trim().toLowerCase() === String(student.id).trim().toLowerCase() ||
+                        String(m.studentId).trim() === String(student.seat).trim();
+        if (isMatch && !m.isRead) {
+          m.isRead = true;
+          hasUnread = true;
+        }
+      });
+
+      if (hasUnread) {
+        saveSystemData();
+        updateUnreadMessageBadge();
+
+        // 即時向 Google 試算表發送已讀請求
+        sendDataToGoogleSheets({
+          action: "markMessagesRead",
+          studentId: student.id,
+          seat: student.seat
+        });
+
+        if (showFeedback) {
+          showToast(`已將 ${student.name} 的訊息全數標為已讀！`, "info");
+        }
+      }
+    }
+
+    function markCurrentStudentMessagesAsRead() {
+      if (!selectedAdminChatStudentId) return;
+      markStudentMessagesAsReadInternal(selectedAdminChatStudentId, true);
       renderAdminMessageView();
     }
 
@@ -2690,7 +2740,10 @@
       const avatarEl = document.getElementById('adminChatAvatar');
       if (!threadContainer) return;
 
-      const student = students.find(s => s.id === selectedAdminChatStudentId) || students[0];
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(selectedAdminChatStudentId).toLowerCase() || 
+        String(s.seat) === String(selectedAdminChatStudentId)
+      ) || students[0];
       if (!student) {
         threadContainer.innerHTML = `<div class="text-center text-slate-400 text-xs py-8">請選擇學生</div>`;
         return;
@@ -2708,7 +2761,10 @@
         }
       }
 
-      const msgs = classMessages.filter(m => String(m.studentId).toLowerCase() === String(student.id).toLowerCase());
+      const msgs = classMessages.filter(m => 
+        String(m.studentId).trim().toLowerCase() === String(student.id).trim().toLowerCase() ||
+        String(m.studentId).trim() === String(student.seat).trim()
+      );
       threadContainer.innerHTML = '';
 
       if (msgs.length === 0) {
@@ -2814,7 +2870,10 @@
       const content = input ? input.value.trim() : '';
       if (!content || !selectedAdminChatStudentId) return;
 
-      const student = students.find(s => s.id === selectedAdminChatStudentId);
+      const student = students.find(s => 
+        String(s.id).toLowerCase() === String(selectedAdminChatStudentId).toLowerCase() || 
+        String(s.seat) === String(selectedAdminChatStudentId)
+      );
       if (!student) return;
 
       const now = new Date();
@@ -2830,12 +2889,8 @@
       };
 
       classMessages.push(replyMsg);
-      // 同時將此學生先前的未讀訊息標為已讀
-      classMessages.forEach(m => {
-        if (String(m.studentId).toLowerCase() === String(student.id).toLowerCase()) {
-          m.isRead = true;
-        }
-      });
+      // 回覆同時將該學生所有先前的訊息標示為已讀並同步
+      markStudentMessagesAsReadInternal(student.id, false);
 
       saveSystemData();
       input.value = '';
