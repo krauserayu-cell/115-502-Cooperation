@@ -211,7 +211,7 @@
             <span id="cardStudentRole" class="inline-flex items-center gap-1 bg-white/90 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full shadow-sm border border-amber-200">
               👑 班長
             </span>
-            <h2 id="cardStudentName" class="text-2xl font-black tracking-tight drop-shadow-sm">東勢金城武</h2>
+            <h2 id="cardStudentName" class="text-2xl font-black tracking-tight drop-shadow-sm">王小明</h2>
           </div>
           <p id="cardStudentId" class="text-xs text-amber-100 mt-1 font-mono font-bold">專屬代碼: S001</p>
         </div>
@@ -231,9 +231,7 @@
 
             <!-- 動態紙娃娃人偶展示區 -->
             <div class="relative w-44 h-44 mx-auto my-1 flex items-center justify-center cursor-pointer group" onclick="pokeHeroCharacter()" title="點擊勇者聽聽他的冒險加油！">
-              <div class="hero-avatar-anim w-full h-full flex items-center justify-center" id="heroStagePuppet">
-                <!-- 動態注入 SVG 角色 -->
-              </div>
+              <div class="hero-avatar-anim w-full h-full flex items-center justify-center" id="heroStagePuppet"></div>
               <div id="heroQuoteBubble" class="absolute -top-3 right-0 bg-white text-slate-800 text-[10px] font-bold px-2.5 py-1 rounded-xl shadow-md border border-amber-200 opacity-0 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
                 加油！繼續累積點數！✨
               </div>
@@ -603,7 +601,6 @@
         </div>
       </div>
 
-      <!-- 道具列 -->
       <div class="flex justify-center gap-2.5 mb-3">
         <button onclick="useIdiomHint()" class="bg-gradient-to-b from-amber-700 to-amber-900 text-amber-100 text-[11px] font-black px-3 py-1.5 rounded-xl shadow-sm border border-amber-600 hover:brightness-110 flex items-center gap-1">
           <span>💡</span> 提示一字
@@ -616,23 +613,20 @@
         </button>
       </div>
 
-      <!-- 竹簡謎題畫框 -->
       <div class="wood-bamboo-bg p-3 rounded-2xl border-2 border-amber-950 shadow-inner mb-3">
         <div class="w-full aspect-[4/3] bg-amber-50 rounded-xl overflow-hidden border border-amber-900 flex items-center justify-center relative shadow-sm" id="idiomIllustrationBox"></div>
         <div class="flex justify-center gap-2 mt-3" id="idiomAnswerSlots"></div>
       </div>
 
-      <!-- 24 宮格字盤 -->
       <div class="bg-amber-200/70 p-2.5 rounded-2xl border border-amber-400">
         <div class="grid grid-cols-6 gap-1.5" id="idiomLetterTilesContainer"></div>
       </div>
 
-      <!-- 過關橫幅 -->
       <div id="idiomSuccessBanner" class="hidden absolute inset-0 bg-amber-950/85 backdrop-blur-md rounded-3xl p-6 flex flex-col items-center justify-center text-center text-white z-20">
         <div class="w-16 h-16 bg-gradient-to-br from-amber-300 to-yellow-500 rounded-full flex items-center justify-center text-3xl shadow-lg border-2 border-white mb-3 animate-bounce">
           🏆
         </div>
-        <span class="inline-block bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-emerald-400">
+        <span class="inline-block bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-emerald-400" id="idiomVictoryTextBadge">
           恭喜首次過關！獲得 +10 PTS！✨
         </span>
         <h3 class="text-3xl font-black text-amber-200 mb-2" id="successIdiomTitle">甚囂塵上</h3>
@@ -673,7 +667,6 @@
         </div>
       </div>
 
-      <!-- 橫直提示黑板 -->
       <div class="grid grid-cols-2 gap-2 bg-black/60 p-2.5 rounded-xl border border-amber-800/80 mb-2.5 text-xs">
         <div class="border-r border-amber-800/60 pr-2">
           <div class="flex items-center gap-1 text-amber-400 font-bold mb-0.5">
@@ -691,12 +684,10 @@
         </div>
       </div>
 
-      <!-- 棋盤容器 -->
       <div class="bg-[#5a320f] p-2 rounded-2xl border-2 border-amber-900 shadow-inner mb-3 flex items-center justify-center">
         <div id="cwBoardGrid" class="grid gap-1"></div>
       </div>
 
-      <!-- 16 格天藍麻將字牌 -->
       <div class="bg-amber-900/60 p-2 rounded-2xl border border-amber-700">
         <div class="text-[10px] text-amber-300 font-bold mb-1.5 px-1 flex justify-between items-center">
           <span>請選字填入紅色空格：</span>
@@ -705,12 +696,11 @@
         <div class="grid grid-cols-8 gap-1" id="cwMahjongTilesContainer"></div>
       </div>
 
-      <!-- 接龍勝利彈窗 -->
       <div id="crosswordSuccessBanner" class="hidden absolute inset-0 bg-amber-950/90 backdrop-blur-md rounded-3xl p-6 flex flex-col items-center justify-center text-center text-white z-20">
         <div class="w-16 h-16 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center text-3xl shadow-lg border-2 border-white mb-3 animate-bounce">
           🧩
         </div>
-        <span class="inline-block bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-emerald-400">
+        <span class="inline-block bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-emerald-400" id="crosswordVictoryTextBadge">
           🎉 恭喜首次過關！獲得獎勵 +20 PTS！✨
         </span>
         <h3 class="text-2xl font-black text-amber-200 mb-1">大功告成！</h3>
@@ -728,7 +718,7 @@
     </div>
   </div>
 
-  <!-- ================= 模態視窗: 看圖猜成語全班龍虎榜 ================= -->
+  <!-- 模態視窗: 看圖猜成語全班龍虎榜 -->
   <div id="idiomLeaderboardModal" class="no-print fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-amber-100 max-h-[85vh] flex flex-col">
       <div class="flex justify-between items-center mb-4">
@@ -759,7 +749,7 @@
     </div>
   </div>
 
-  <!-- ================= 模態視窗: 成語十字接龍全班龍虎榜 ================= -->
+  <!-- 模態視窗: 成語十字接龍全班龍虎榜 -->
   <div id="crosswordLeaderboardModal" class="no-print fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-amber-100 max-h-[85vh] flex flex-col">
       <div class="flex justify-between items-center mb-4">
@@ -790,7 +780,7 @@
     </div>
   </div>
 
-  <!-- ================= 模態視窗: 角色進化圖鑑 ================= -->
+  <!-- 模態視窗: 角色進化圖鑑 -->
   <div id="evolutionDexModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
@@ -816,7 +806,7 @@
     </div>
   </div>
 
-  <!-- ================= 模態視窗: 加扣分管理與一鍵點數調整 ================= -->
+  <!-- 模態視窗: 加扣分管理與一鍵點數調整 -->
   <div id="pointModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-3">
@@ -834,7 +824,6 @@
         <div class="text-xs text-slate-500 mt-0.5">目前點數：<span id="pointModalCurrentPoints" class="font-bold text-orange-600">0</span> 點</div>
       </div>
 
-      <!-- 常用預設項目一鍵加分 -->
       <div class="mb-4">
         <div class="flex justify-between items-center mb-2">
           <span class="text-xs font-bold text-slate-700">⚡ 常用加扣分項目 (點擊直接加分)：</span>
@@ -845,7 +834,6 @@
         <div id="pointPresetsGrid" class="grid grid-cols-2 gap-2"></div>
       </div>
 
-      <!-- 手動自訂輸入 -->
       <form id="pointForm" onsubmit="submitPointAdjustment(event)" class="space-y-3 pt-3 border-t border-slate-100">
         <input type="hidden" id="pointStudentId">
         <div class="text-xs font-bold text-slate-500">或自訂變更點數：</div>
@@ -881,7 +869,6 @@
       
       <div class="flex-1 overflow-y-auto space-y-2 pr-1 mb-4" id="presetsListContainer"></div>
 
-      <!-- 新增預設項目表單 -->
       <form onsubmit="addNewPresetItem(event)" class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2.5">
         <div class="text-xs font-bold text-slate-700">新增常用項目：</div>
         <div class="grid grid-cols-4 gap-2">
@@ -1222,10 +1209,25 @@
       { id: 2, idiom: "守株待兔", meaning: "比喻死守狹隘經驗，不知變通。", hint: "農夫在枯樹樁旁打瞌睡，旁邊躺著一隻撞昏的兔子。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#ecfdf5"/><rect x="0" y="150" width="300" height="50" fill="#86efac"/><rect x="120" y="110" width="55" height="50" rx="6" fill="#78350f"/><ellipse cx="147" cy="110" rx="27" ry="10" fill="#92400e"/><circle cx="150" cy="80" r="18" fill="#fde047"/><path d="M142,78 Q150,83 158,78" fill="none" stroke="#713f12" stroke-width="2"/><circle cx="85" cy="140" r="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/><ellipse cx="85" cy="115" rx="4" ry="14" fill="#fed7aa" transform="rotate(-30 85 115)"/><text x="79" y="145" font-size="14" font-weight="bold" fill="#ef4444">✕ ✕</text></svg>` },
       { id: 3, idiom: "畫蛇添足", meaning: "比喻多此一舉，不但無益，反而有害。", hint: "屏風上的蛇畫得維妙維肖，卻被多添了四隻腳。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fffbeb"/><rect x="30" y="20" width="240" height="150" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="4"/><path d="M60,95 Q110,40 150,95 T240,95" fill="none" stroke="#16a34a" stroke-width="16" stroke-linecap="round"/><circle cx="245" cy="95" r="10" fill="#15803d"/><line x1="100" y1="103" x2="90" y2="135" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/><line x1="120" y1="103" x2="130" y2="135" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/><line x1="180" y1="103" x2="170" y2="135" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/><line x1="200" y1="103" x2="210" y2="135" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/></svg>` },
       { id: 4, idiom: "對牛彈琴", meaning: "比喻對不懂道理的人講高深的道理。", hint: "樂師對著一頭滿臉困惑的牛彈奏古琴。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f0fdf4"/><circle cx="80" cy="110" r="22" fill="#fed7aa"/><rect x="65" y="132" width="30" height="40" rx="6" fill="#0284c7"/><rect x="50" y="150" width="60" height="14" rx="4" fill="#78350f"/><line x1="55" y1="154" x2="105" y2="154" stroke="#fbbf24" stroke-width="2"/><circle cx="220" cy="110" r="38" fill="#92400e"/><circle cx="195" cy="85" r="8" fill="#fef08a"/><circle cx="245" cy="85" r="8" fill="#fef08a"/><text x="210" y="70" font-size="28" font-weight="black" fill="#dc2626">？</text></svg>` },
-      { id: 5, idiom: "井底之蛙", meaning: "比喻見識狹窄的人。", hint: "深井底下一隻青蛙抬頭看著圓圓的狹小天空。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#1e293b"/><rect x="80" y="0" width="140" height="200" fill="#334155"/><ellipse cx="150" cy="20" rx="50" ry="16" fill="#38bdf8"/><circle cx="150" cy="160" r="20" fill="#22c55e"/><circle cx="143" cy="150" r="5" fill="#ffffff"/><circle cx="157" cy="150" r="5" fill="#ffffff"/></svg>` }
+      { id: 5, idiom: "井底之蛙", meaning: "比喻見識狹窄的人。", hint: "深井底下一隻青蛙抬頭看著圓圓的狹小天空。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#1e293b"/><rect x="80" y="0" width="140" height="200" fill="#334155"/><ellipse cx="150" cy="20" rx="50" ry="16" fill="#38bdf8"/><circle cx="150" cy="160" r="20" fill="#22c55e"/><circle cx="143" cy="150" r="5" fill="#ffffff"/><circle cx="157" cy="150" r="5" fill="#ffffff"/></svg>` },
+      { id: 6, idiom: "狐假虎威", meaning: "比喻藉著有權者的威勢恐嚇他人。", hint: "狐狸走在老虎前面，森林動物望而生畏。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fef2f2"/><ellipse cx="200" cy="110" rx="50" ry="35" fill="#ea580c"/><circle cx="235" cy="90" r="25" fill="#f97316"/><polygon points="205,65 215,80 195,80" fill="#c2410c"/><ellipse cx="90" cy="120" rx="30" ry="20" fill="#ca8a04"/><polygon points="50,115 70,105 70,125" fill="#ca8a04"/></svg>` },
+      { id: 7, idiom: "掩耳盜鈴", meaning: "比喻自欺欺人。", hint: "小偷摀住自己耳朵去偷懸掛在門上的銅鈴鐺。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fefce8"/><rect x="50" y="20" width="10" height="150" fill="#78350f"/><line x1="55" y1="50" x2="120" y2="50" stroke="#78350f" stroke-width="4"/><path d="M110,60 L130,60 L135,90 L105,90 Z" fill="#eab308"/><circle cx="200" cy="100" r="25" fill="#fed7aa"/><circle cx="175" cy="100" r="8" fill="#f97316"/><circle cx="225" cy="100" r="8" fill="#f97316"/></svg>` },
+      { id: 8, idiom: "杯弓蛇影", meaning: "比喻因疑神疑鬼而自相驚擾。", hint: "牆上掛著一張弓，倒映在酒杯裡像一條蠕動的蛇。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f1f5f9"/><path d="M120,40 Q200,60 160,110" fill="none" stroke="#78350f" stroke-width="4"/><ellipse cx="100" cy="150" rx="40" ry="20" fill="#94a3b8"/><path d="M85,145 Q100,140 105,155 T120,150" fill="none" stroke="#15803d" stroke-width="3"/></svg>` },
+      { id: 9, idiom: "亡羊補牢", meaning: "比喻出了差錯及時補救，還不算太晚。", hint: "羊圈破損逃走了一隻羊，農夫正急忙拿木板修補柵欄。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f0fdf4"/><rect x="20" y="100" width="80" height="10" fill="#78350f"/><rect x="140" y="100" width="140" height="10" fill="#78350f"/><circle cx="130" cy="80" r="16" fill="#fed7aa"/><rect x="100" y="95" width="40" height="8" fill="#eab308"/></svg>` },
+      { id: 10, idiom: "一石二鳥", meaning: "比喻做一件事情獲得兩種好處。", hint: "一顆小石子飛向天空，同時擊中了兩隻飛鳥。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#e0f2fe"/><circle cx="70" cy="140" r="10" fill="#64748b"/><path d="M150,70 Q165,55 180,70" fill="none" stroke="#0284c7" stroke-width="3"/><path d="M190,50 Q205,35 220,50" fill="none" stroke="#0284c7" stroke-width="3"/><line x1="80" y1="130" x2="160" y2="70" stroke="#f59e0b" stroke-dasharray="4,4"/></svg>` },
+      { id: 11, idiom: "盲人摸象", meaning: "比喻看問題以偏概全，未能掌握全貌。", hint: "數位盲人分別摸著大象的牙齒、耳朵與大腿。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f8fafc"/><ellipse cx="160" cy="110" rx="70" ry="50" fill="#94a3b8"/><rect x="110" y="140" width="15" height="40" fill="#64748b"/><rect x="190" y="140" width="15" height="40" fill="#64748b"/><circle cx="60" cy="120" r="14" fill="#fed7aa"/><circle cx="260" cy="120" r="14" fill="#fed7aa"/></svg>` },
+      { id: 12, idiom: "拔苗助長", meaning: "比喻急於求成，反而把事情弄糟。", hint: "農夫為了讓禾苗長高，把稻苗一株株往上拔高。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fefce8"/><rect x="0" y="140" width="300" height="60" fill="#84cc16"/><line x1="70" y1="140" x2="70" y2="100" stroke="#15803d" stroke-width="4"/><line x1="120" y1="140" x2="120" y2="75" stroke="#eab308" stroke-width="4"/><line x1="170" y1="140" x2="170" y2="100" stroke="#15803d" stroke-width="4"/><circle cx="120" cy="50" r="14" fill="#fed7aa"/></svg>` },
+      { id: 13, idiom: "刻舟求劍", meaning: "比喻拘泥成法不知變通。", hint: "寶劍從船邊掉落水中，人在船沿上刻下標記。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#e0f2fe"/><path d="M40,110 L260,110 L220,150 L80,150 Z" fill="#78350f"/><line x1="150" y1="105" x2="150" y2="118" stroke="#ef4444" stroke-width="4"/><line x1="150" y1="140" x2="150" y2="185" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3"/><line x1="150" y1="185" x2="150" y2="175" stroke="#facc15" stroke-width="3"/></svg>` },
+      { id: 14, idiom: "沉魚落雁", meaning: "形容女子容貌極為美麗迷人。", hint: "水中游魚驚艷沉底，天邊飛雁看呆落下。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fdf4ff"/><circle cx="150" cy="80" r="28" fill="#fed7aa"/><ellipse cx="70" cy="160" rx="20" ry="8" fill="#38bdf8"/><path d="M230,60 Q245,45 260,60" fill="none" stroke="#ec4899" stroke-width="3"/></svg>` },
+      { id: 15, idiom: "鶴立雞群", meaning: "比喻人的儀表或才能卓越出眾。", hint: "一隻修長高雅的白鶴挺立在一群矮小母雞之中。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f0fdfa"/><circle cx="60" cy="150" r="14" fill="#ea580c"/><circle cx="240" cy="150" r="14" fill="#ea580c"/><line x1="150" y1="70" x2="150" y2="160" stroke="#64748b" stroke-width="3"/><circle cx="150" cy="50" r="12" fill="#ffffff" stroke="#94a3b8"/><polygon points="150,52 165,54 150,58" fill="#f59e0b"/></svg>` },
+      { id: 16, idiom: "虎頭蛇尾", meaning: "比喻做事起初聲勢浩大，後來無聲無息草率了結。", hint: "巨大的威猛老虎頭，接上的卻是細小軟弱的蛇尾巴。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fff7ed"/><circle cx="80" cy="100" r="35" fill="#f97316"/><path d="M115,100 Q180,50 210,110 T280,120" fill="none" stroke="#15803d" stroke-width="5"/></svg>` },
+      { id: 17, idiom: "開卷有益", meaning: "打開書本閱讀必定有所收穫。", hint: "翻開金黃燦爛的書籍，書頁間升起智慧星光。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fefce8"/><polygon points="150,130 90,110 90,150 150,170" fill="#ca8a04"/><polygon points="150,130 210,110 210,150 150,170" fill="#eab308"/><circle cx="150" cy="70" r="6" fill="#f59e0b"/><line x1="150" y1="120" x2="150" y2="85" stroke="#f59e0b" stroke-width="2" stroke-dasharray="2,2"/></svg>` },
+      { id: 18, idiom: "破釜沉舟", meaning: "比喻下定決心奮戰到底，絕不回頭。", hint: "打破煮飯鍋子、鑿沉渡江船隻，誓不退縮。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f8fafc"/><path d="M60,110 L140,110 L120,145 L80,145 Z" fill="#475569" transform="rotate(35 100 130)"/><circle cx="210" cy="120" r="22" fill="#78350f"/><line x1="195" y1="105" x2="225" y2="135" stroke="#ef4444" stroke-width="4"/></svg>` },
+      { id: 19, idiom: "如魚得水", meaning: "比喻得到合適的環境或知心夥伴。", hint: "小魚歡快自在地在清涼透澈的水流中游動翻滾。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#ecfeff"/><path d="M50,100 Q150,80 250,100" fill="none" stroke="#38bdf8" stroke-width="4"/><ellipse cx="140" cy="115" rx="28" ry="14" fill="#f97316"/><polygon points="112,115 95,100 95,130" fill="#ea580c"/></svg>` },
+      { id: 20, idiom: "愚公移山", meaning: "比喻堅持不懈，終能克服困難獲得成功。", hint: "白髮老翁拿著鏟子，堅定不移地面對兩座高聳大山。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f0fdf4"/><polygon points="110,40 180,160 40,160" fill="#475569"/><polygon points="210,70 280,160 140,160" fill="#64748b"/><circle cx="50" cy="140" r="10" fill="#fed7aa"/><line x1="55" y1="140" x2="68" y2="155" stroke="#ca8a04" stroke-width="3"/></svg>` }
     ];
 
-    // 成語十字接龍關卡
+    // 成語十字接龍關卡 (5 關)
     const CROSSWORD_STAGES = [
       {
         id: "CW01",
@@ -1244,10 +1246,82 @@
           ["", "", { char: "實", fixed: false }, { char: "皆", fixed: true }, { char: "是", fixed: false }]
         ],
         distractors: ["天", "地", "人", "和", "大", "家", "風", "生"]
+      },
+      {
+        id: "CW02",
+        title: "一心一意 · 貫徹",
+        idioms: [
+          { text: "一心一意", orientation: "H", row: 1, col: 0, meaning: "心思專一，毫無雜念。" },
+          { text: "意氣風發", orientation: "V", row: 1, col: 3, meaning: "形容精神振奮，氣概豪邁。" },
+          { text: "風吹草動", orientation: "H", row: 3, col: 1, meaning: "微小的變動或風聲。" }
+        ],
+        boardSize: 5,
+        board: [
+          ["", "", "", "", ""],
+          [{ char: "一", fixed: true }, { char: "心", fixed: false }, { char: "一", fixed: true }, { char: "意", fixed: false }, ""],
+          ["", "", "", { char: "氣", fixed: true }, ""],
+          ["", { char: "風", fixed: false }, { char: "吹", fixed: true }, { char: "草", fixed: false }, { char: "動", fixed: true }],
+          ["", "", "", { char: "發", fixed: false }, ""]
+        ],
+        distractors: ["自", "在", "好", "學", "明", "日", "千", "里"]
+      },
+      {
+        id: "CW03",
+        title: "天長地久 · 永恆",
+        idioms: [
+          { text: "天長地久", orientation: "H", row: 2, col: 0, meaning: "跟天地一樣長久。形容時間極長。" },
+          { text: "頂天立地", orientation: "V", row: 0, col: 0, meaning: "頭頂青天，腳踏大地。形容志氣偉岸。" },
+          { text: "立竿見影", orientation: "H", row: 3, col: 0, meaning: "比喻收效極快。" }
+        ],
+        boardSize: 5,
+        board: [
+          [{ char: "頂", fixed: false }, "", "", "", ""],
+          [{ char: "天", fixed: true }, "", "", "", ""],
+          [{ char: "立", fixed: false }, { char: "長", fixed: true }, { char: "地", fixed: false }, { char: "久", fixed: true }, ""],
+          [{ char: "竿", fixed: true }, { char: "見", fixed: false }, { char: "影", fixed: true }, "", ""],
+          [{ char: "地", fixed: false }, "", "", "", ""]
+        ],
+        distractors: ["春", "夏", "秋", "冬", "山", "水", "林", "木"]
+      },
+      {
+        id: "CW04",
+        title: "知足常樂 · 豁達",
+        idioms: [
+          { text: "一葉知秋", orientation: "H", row: 1, col: 1, meaning: "由一片樹葉凋落，知道秋天到來。比喻從微小跡象看出趨勢。" },
+          { text: "知足常樂", orientation: "V", row: 1, col: 3, meaning: "知道滿足的人，永遠快樂。" },
+          { text: "樂在其中", orientation: "H", row: 4, col: 1, meaning: "在某件事中得到樂趣。" }
+        ],
+        boardSize: 5,
+        board: [
+          ["", "", "", "", ""],
+          ["", { char: "一", fixed: false }, { char: "葉", fixed: true }, { char: "知", fixed: false }, { char: "秋", fixed: true }],
+          ["", "", "", { char: "足", fixed: true }, ""],
+          ["", "", "", { char: "常", fixed: false }, ""],
+          ["", { char: "樂", fixed: false }, { char: "在", fixed: true }, { char: "其", fixed: true }, { char: "中", fixed: false }]
+        ],
+        distractors: ["高", "低", "遠", "近", "喜", "怒", "哀", "樂"]
+      },
+      {
+        id: "CW05",
+        title: "千軍萬馬 · 氣勢",
+        idioms: [
+          { text: "一字千金", orientation: "H", row: 0, col: 1, meaning: "形容文章思想文字極好，無可變動。" },
+          { text: "千軍萬馬", orientation: "V", row: 0, col: 3, meaning: "形容兵馬眾多，聲勢浩大。" },
+          { text: "馬到成功", orientation: "H", row: 3, col: 1, meaning: "比喻事情一開始就取得勝利。" }
+        ],
+        boardSize: 5,
+        board: [
+          ["", { char: "一", fixed: false }, { char: "字", fixed: true }, { char: "千", fixed: false }, { char: "金", fixed: true }],
+          ["", "", "", { char: "軍", fixed: true }, ""],
+          ["", "", "", { char: "萬", fixed: false }, ""],
+          ["", { char: "馬", fixed: true }, { char: "到", fixed: false }, { char: "成", fixed: true }, { char: "功", fixed: false }],
+          ["", "", "", "", ""]
+        ],
+        distractors: ["百", "步", "穿", "楊", "神", "通", "廣", "大"]
       }
     ];
 
-    // 全域變數
+    // 全域變數狀態
     let students = [];
     let rewards = [];
     let classEvents = [];
@@ -1259,6 +1333,9 @@
     let isAdminAuthenticated = false;
     let isFetchingGoogleSheet = false;
     let isStudentPersonalMode = false;
+    let isHomeCalendarExpanded = false;
+
+    // 遊戲狀態
     let currentIdiomIndex = 0;
     let currentIdiomGuess = [];
     let passedIdiomIds = new Set();
@@ -1349,7 +1426,6 @@
               const oldMatch = students.find(s => String(s.id).toLowerCase() === rawId.toLowerCase());
               const finalPoints = Number(st.points !== undefined ? st.points : (st['積分'] || 0));
 
-              // 確保已破關記錄在同步時永不丟失
               let localPassedIdioms = oldMatch?.passedIdioms || [];
               try {
                 const saved = localStorage.getItem(`passed_idioms_${rawId}`);
@@ -1420,6 +1496,8 @@
         messages = msg ? JSON.parse(msg) : [];
         const pp = localStorage.getItem('class_points_presets');
         pointPresets = pp ? JSON.parse(pp) : JSON.parse(JSON.stringify(DEFAULT_POINT_PRESETS));
+        const pwd = localStorage.getItem('class_points_admin_pwd');
+        if (pwd) adminPassword = pwd;
       } catch (e) {
         students = [];
       }
@@ -1507,7 +1585,6 @@
       const welcomeEl = document.getElementById('cardWelcomeMessage');
       if (welcomeEl) welcomeEl.textContent = student.welcomeMessage || "🌻 歡迎來到向日葵班班！";
 
-      // 勇者等級與紙娃娃
       const lvl = getStudentLevel(student.points);
       const puppetBox = document.getElementById('heroStagePuppet');
       if (puppetBox) puppetBox.innerHTML = getHeroCharacterSVG(lvl.stage);
@@ -1700,8 +1777,6 @@
       const stageNumEl = document.getElementById('gameCurrentStageNum');
       const themeTitleEl = document.getElementById('gameIdiomThemeTitle');
       const illuBox = document.getElementById('idiomIllustrationBox');
-      const answerSlotsBox = document.getElementById('idiomAnswerSlots');
-      const tilesContainer = document.getElementById('idiomLetterTilesContainer');
       const banner = document.getElementById('idiomSuccessBanner');
 
       if (banner) banner.classList.add('hidden');
@@ -1721,6 +1796,7 @@
       }
       tiles.sort(() => Math.random() - 0.5);
 
+      const tilesContainer = document.getElementById('idiomLetterTilesContainer');
       if (tilesContainer) {
         tilesContainer.innerHTML = '';
         tiles.forEach((char, tIdx) => {
@@ -1775,9 +1851,10 @@
       }
     }
 
-    // 核心過關邏輯：確保首次過關才加 10 分
     function handleIdiomVictory(stage) {
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
+      const victoryBadge = document.getElementById('idiomVictoryTextBadge');
+
       if (student) {
         if (!student.passedIdioms) student.passedIdioms = [];
         const isFirst = !student.passedIdioms.includes(stage.id);
@@ -1791,12 +1868,22 @@
 
           quickAddPoints(student.id, 10, `【成語過關】看圖猜成語：${stage.idiom}`);
           renderHomeIdiomBadge();
+          if (victoryBadge) {
+            victoryBadge.className = "inline-block bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-emerald-400";
+            victoryBadge.textContent = "🎉 恭喜首次過關！獲得 +10 PTS！✨";
+          }
+
           sendDataToGoogleSheets({
             action: "updateGameProgress",
             studentId: student.id,
             seat: student.seat,
             passedIdioms: student.passedIdioms.join(',')
           });
+        } else {
+          if (victoryBadge) {
+            victoryBadge.className = "inline-block bg-amber-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-amber-400";
+            victoryBadge.textContent = "⭐ 此題先前已通關領過獎勵囉！溫故知新！";
+          }
         }
       }
 
@@ -1897,7 +1984,6 @@
       cellEl.classList.add('active-focus');
       activeCrosswordCell = { r, c, el: cellEl };
 
-      // 更新提示黑板
       const stage = CROSSWORD_STAGES[currentCrosswordIndex];
       const across = stage.idioms.find(i => i.orientation === 'H' && i.row === r);
       const down = stage.idioms.find(i => i.orientation === 'V' && i.col === c);
@@ -1982,6 +2068,8 @@
 
     function handleCrosswordVictory(stage) {
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
+      const victoryBadge = document.getElementById('crosswordVictoryTextBadge');
+
       if (student) {
         if (!student.passedCrosswords) student.passedCrosswords = [];
         const isFirst = !student.passedCrosswords.includes(stage.id);
@@ -1995,12 +2083,22 @@
 
           quickAddPoints(student.id, 20, `【接龍過關】成語十字接龍：${stage.title}`);
           renderHomeCrosswordBadge();
+          if (victoryBadge) {
+            victoryBadge.className = "inline-block bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-emerald-400";
+            victoryBadge.textContent = "🎉 恭喜首次過關！獲得獎勵 +20 PTS！✨";
+          }
+
           sendDataToGoogleSheets({
             action: "updateGameProgress",
             studentId: student.id,
             seat: student.seat,
             passedCrosswords: student.passedCrosswords.join(',')
           });
+        } else {
+          if (victoryBadge) {
+            victoryBadge.className = "inline-block bg-amber-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-amber-400";
+            victoryBadge.textContent = "⭐ 本關先前已通關並領過獎勵囉！溫故知新！";
+          }
         }
       }
 
@@ -2166,6 +2264,8 @@
         if (adminView) adminView.classList.remove('hidden');
         renderAdminTable();
         renderAdminChatStudentList();
+        renderRewardsManager();
+        renderAdminEventsTable();
       } else if (viewName === 'print') {
         if (!isAdminAuthenticated) {
           requestAdminAccess('print');
@@ -2190,6 +2290,7 @@
       if (activeEl) activeEl.classList.remove('hidden');
       if (activeBtn) activeBtn.className = "px-4 py-2.5 font-bold text-sm border-b-2 border-orange-500 text-orange-600 flex items-center gap-2 transition whitespace-nowrap";
 
+      if (tabName === 'students') renderAdminTable();
       if (tabName === 'messages') renderAdminChatStudentList();
       if (tabName === 'rewards') renderRewardsManager();
       if (tabName === 'events') renderAdminEventsTable();
@@ -2266,63 +2367,11 @@
             </button>
           </td>
           <td class="py-3 px-4 text-right">
-            <button onclick="openEditStudentModal('${st.id}')" class="text-slate-500 hover:text-orange-600 p-1"><i class="fa-solid fa-pen"></i></button>
+            <button onclick="openEditStudentModal('${st.id}')" class="text-slate-500 hover:text-orange-600 p-1" title="編輯學生"><i class="fa-solid fa-pen"></i></button>
+            <button onclick="deleteStudent('${st.id}')" class="text-rose-500 hover:text-rose-700 p-1 ml-1" title="刪除學生"><i class="fa-solid fa-trash"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
-      });
-    }
-
-    function openPointModal(id) {
-      const student = students.find(s => s.id === id);
-      if (!student) return;
-
-      const sidEl = document.getElementById('pointStudentId');
-      const nameEl = document.getElementById('pointModalStudentName');
-      const ptsEl = document.getElementById('pointModalCurrentPoints');
-      const avBox = document.getElementById('pointModalAvatarBox');
-
-      if (sidEl) sidEl.value = student.id;
-      if (nameEl) nameEl.textContent = `${student.name} (#${student.seat})`;
-      if (ptsEl) ptsEl.textContent = student.points;
-
-      if (avBox) {
-        if (student.avatar && (student.avatar.startsWith('data:image/') || student.avatar.startsWith('http'))) {
-          avBox.innerHTML = `<img src="${student.avatar}" class="w-full h-full object-cover">`;
-        } else {
-          avBox.textContent = student.avatar || '🌟';
-        }
-      }
-
-      renderPointPresetsButtons(student.id);
-      const modal = document.getElementById('pointModal');
-      if (modal) modal.classList.remove('hidden');
-    }
-
-    function closePointModal() {
-      const modal = document.getElementById('pointModal');
-      if (modal) modal.classList.add('hidden');
-    }
-
-    function renderPointPresetsButtons(studentId) {
-      const grid = document.getElementById('pointPresetsGrid');
-      if (!grid) return;
-      grid.innerHTML = '';
-
-      pointPresets.forEach(preset => {
-        const isPos = preset.delta > 0;
-        const btn = document.createElement('button');
-        btn.type = "button";
-        btn.className = `p-2 rounded-xl text-xs font-bold transition flex items-center justify-between border ${isPos ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-200'}`;
-        btn.innerHTML = `
-          <span class="truncate">${preset.emoji || ''} ${preset.reason}</span>
-          <span class="px-1.5 py-0.5 rounded-md ${isPos ? 'bg-emerald-200 text-emerald-900' : 'bg-rose-200 text-rose-900'}">${isPos ? '+' + preset.delta : preset.delta}</span>
-        `;
-        btn.onclick = () => {
-          quickAddPoints(studentId, preset.delta, preset.reason);
-          closePointModal();
-        };
-        grid.appendChild(btn);
       });
     }
 
@@ -2351,41 +2400,913 @@
       });
     }
 
+    function quickBatchAdd(reason, amount) {
+      students.forEach(st => {
+        st.points += amount;
+        if (!st.history) st.history = [];
+        const now = new Date();
+        const timeStr = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        st.history.push({ time: timeStr, reason: `全班：${reason}`, delta: amount });
+      });
+      saveSystemData();
+      renderAdminTable();
+      showToast(`已為全班同學加 ${amount} 點 (${reason})！`, "success");
+    }
+
+    function renderAdminChatStudentList() {
+      const listContainer = document.getElementById('adminChatStudentList');
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+
+      let totalUnread = 0;
+
+      students.sort((a, b) => a.seat - b.seat).forEach(st => {
+        const studentMsgs = messages.filter(m => 
+          String(m.studentId).toLowerCase() === String(st.id).toLowerCase() || 
+          String(m.studentId) === String(st.seat)
+        );
+        const unreadCount = studentMsgs.filter(m => !m.isRead && m.sender !== '老師').length;
+        totalUnread += unreadCount;
+
+        const isSelected = currentAdminChatStudentId === st.id;
+        const lastMsg = studentMsgs.length > 0 ? studentMsgs[studentMsgs.length - 1] : null;
+
+        const item = document.createElement('div');
+        item.className = `p-2.5 rounded-2xl border cursor-pointer transition flex items-center justify-between gap-2 ${isSelected ? 'bg-amber-100/80 border-amber-300 shadow-xs' : 'bg-slate-50 hover:bg-slate-100/80 border-slate-200'}`;
+        item.onclick = () => selectAdminChatStudent(st.id);
+
+        item.innerHTML = `
+          <div class="flex items-center space-x-2.5 min-w-0">
+            <span class="w-6 h-6 rounded-full bg-amber-200/70 text-amber-900 text-xs font-bold flex items-center justify-center flex-shrink-0">
+              ${st.seat}
+            </span>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-xs text-slate-800 truncate">${st.name}</span>
+                ${unreadCount > 0 ? `<span class="bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.2 rounded-full">${unreadCount}</span>` : ''}
+              </div>
+              <p class="text-[10px] text-slate-400 truncate">${lastMsg ? `[${lastMsg.sender}] ${lastMsg.content}` : '尚無留言'}</p>
+            </div>
+          </div>
+          <i class="fa-solid fa-chevron-right text-[10px] text-slate-300"></i>
+        `;
+        listContainer.appendChild(item);
+      });
+
+      const totalBadge = document.getElementById('unreadMessagesTotalBadge');
+      if (totalBadge) {
+        if (totalUnread > 0) {
+          totalBadge.textContent = totalUnread;
+          totalBadge.classList.remove('hidden');
+        } else {
+          totalBadge.classList.add('hidden');
+        }
+      }
+
+      if (!currentAdminChatStudentId && students.length > 0) {
+        selectAdminChatStudent(students[0].id);
+      }
+    }
+
+    function selectAdminChatStudent(studentId) {
+      currentAdminChatStudentId = studentId;
+      const student = students.find(s => s.id === studentId);
+      if (!student) return;
+
+      const nameEl = document.getElementById('adminChatStudentName');
+      const infoEl = document.getElementById('adminChatStudentInfo');
+      const avatarEl = document.getElementById('adminChatAvatar');
+      const box = document.getElementById('adminChatMessagesBox');
+
+      if (nameEl) nameEl.textContent = `[${String(student.seat).padStart(2,'0')} 號] ${student.name} 的親師生聯絡對話`;
+      if (infoEl) infoEl.textContent = `學號: ${student.id} · 目前積分: ${student.points} 點`;
+
+      if (avatarEl) {
+        const av = student.avatar || '🌟';
+        if (av.startsWith('data:image/') || av.startsWith('http')) {
+          avatarEl.innerHTML = `<img src="${av}" class="w-full h-full object-cover">`;
+        } else {
+          avatarEl.textContent = av;
+        }
+      }
+
+      // 自動將該學生的留言標記為已讀
+      markCurrentChatRead();
+
+      // 渲染對話
+      const studentMsgs = messages.filter(m => 
+        String(m.studentId).toLowerCase() === String(student.id).toLowerCase() || 
+        String(m.studentId) === String(student.seat)
+      );
+
+      if (!box) return;
+      box.innerHTML = '';
+
+      if (studentMsgs.length === 0) {
+        box.innerHTML = `<div class="text-center py-12 text-slate-400 text-xs">該學生目前尚無任何親師留言紀錄</div>`;
+        return;
+      }
+
+      studentMsgs.forEach(msg => {
+        const isTeacher = msg.sender === '老師';
+        const div = document.createElement('div');
+        div.className = `flex flex-col group ${isTeacher ? 'items-end' : 'items-start'}`;
+        div.innerHTML = `
+          <div class="flex items-center gap-1.5 mb-1 text-[10px] text-slate-400">
+            <span>${isTeacher ? '🌻 導師回覆' : msg.sender}</span>
+            <span>· ${msg.time}</span>
+            <button onclick="deleteMessage('${msg.id}')" class="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-rose-500 transition px-1" title="刪除此則留言">
+              <i class="fa-solid fa-trash text-[9px]"></i>
+            </button>
+          </div>
+          <div class="p-3 rounded-2xl text-xs max-w-[85%] shadow-xs leading-relaxed ${isTeacher ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-800'}">
+            ${msg.content}
+          </div>
+        `;
+        box.appendChild(div);
+      });
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function markCurrentChatRead() {
+      if (!currentAdminChatStudentId) return;
+      const student = students.find(s => s.id === currentAdminChatStudentId);
+      if (!student) return;
+
+      let hasChanges = false;
+      messages.forEach(m => {
+        if ((String(m.studentId).toLowerCase() === String(student.id).toLowerCase() || String(m.studentId) === String(student.seat)) && !m.isRead) {
+          m.isRead = true;
+          hasChanges = true;
+        }
+      });
+
+      if (hasChanges) {
+        saveSystemData();
+        renderAdminChatStudentList();
+        sendDataToGoogleSheets({
+          action: "markMessagesRead",
+          studentId: student.id,
+          seat: student.seat
+        });
+      }
+    }
+
+    function submitAdminReply(e) {
+      e.preventDefault();
+      const input = document.getElementById('adminReplyInput');
+      const content = input ? input.value.trim() : '';
+      if (!content || !currentAdminChatStudentId) return;
+
+      const now = new Date();
+      const timeStr = `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+      const newMsg = {
+        id: "MSG_" + Date.now(),
+        studentId: currentAdminChatStudentId,
+        sender: "老師",
+        content: content,
+        time: timeStr,
+        isRead: true
+      };
+
+      messages.push(newMsg);
+      saveSystemData();
+      input.value = '';
+      selectAdminChatStudent(currentAdminChatStudentId);
+      renderAdminChatStudentList();
+      showToast("已成功回覆學生留言！", "success");
+
+      sendDataToGoogleSheets({
+        action: "addMessage",
+        message: newMsg
+      });
+    }
+
+    function setAdminReplyPreset(text) {
+      const input = document.getElementById('adminReplyInput');
+      if (input) input.value = text;
+    }
+
+    function deleteMessage(msgId) {
+      messages = messages.filter(m => m.id !== msgId);
+      saveSystemData();
+      if (currentAdminChatStudentId) selectAdminChatStudent(currentAdminChatStudentId);
+      renderAdminChatStudentList();
+      showToast("已刪除該則留言", "info");
+
+      sendDataToGoogleSheets({
+        action: "deleteMessage",
+        id: msgId
+      });
+    }
+
+    function renderRewardsManager() {
+      const container = document.getElementById('rewardsGridContainer');
+      const badge = document.getElementById('rewardCountBadge');
+      if (badge) badge.textContent = rewards.length;
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (rewards.length === 0) {
+        container.innerHTML = `<div class="col-span-full py-8 text-center text-slate-400 text-xs">目前尚未設定任何獎勵項目</div>`;
+        return;
+      }
+
+      rewards.forEach(rw => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between";
+        card.innerHTML = `
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-2xl">${rw.emoji || '🎁'}</span>
+              <span class="bg-amber-100 text-amber-900 text-xs font-black px-2.5 py-0.5 rounded-full">${rw.points} PTS</span>
+            </div>
+            <h4 class="font-bold text-sm text-slate-800 mb-1">${rw.title}</h4>
+            <p class="text-xs text-slate-400">${rw.desc || '無特定規則說明'}</p>
+          </div>
+          <div class="flex justify-end gap-2 pt-3 mt-3 border-t border-slate-100">
+            <button onclick="openEditRewardModal('${rw.id}')" class="text-xs text-slate-500 hover:text-orange-600 font-semibold">編輯</button>
+            <button onclick="deleteRewardItem('${rw.id}')" class="text-xs text-rose-500 hover:text-rose-700 font-semibold ml-2">刪除</button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function openAddRewardModal() {
+      document.getElementById('rewardModalTitle').textContent = "新增獎勵項目";
+      document.getElementById('editRewardId').value = "";
+      document.getElementById('rewardEmojiInput').value = "🎁";
+      document.getElementById('rewardPointsInput').value = "30";
+      document.getElementById('rewardTitleInput').value = "";
+      document.getElementById('rewardDescInput').value = "";
+      document.getElementById('rewardModal').classList.remove('hidden');
+    }
+
+    function openEditRewardModal(id) {
+      const rw = rewards.find(r => r.id === id);
+      if (!rw) return;
+      document.getElementById('rewardModalTitle').textContent = "編輯獎勵項目";
+      document.getElementById('editRewardId').value = rw.id;
+      document.getElementById('rewardEmojiInput').value = rw.emoji || "🎁";
+      document.getElementById('rewardPointsInput').value = rw.points;
+      document.getElementById('rewardTitleInput').value = rw.title;
+      document.getElementById('rewardDescInput').value = rw.desc || "";
+      document.getElementById('rewardModal').classList.remove('hidden');
+    }
+
+    function closeRewardModal() {
+      document.getElementById('rewardModal').classList.add('hidden');
+    }
+
+    function saveRewardItem(e) {
+      e.preventDefault();
+      const origId = document.getElementById('editRewardId').value;
+      const emoji = document.getElementById('rewardEmojiInput').value.trim() || "🎁";
+      const points = parseInt(document.getElementById('rewardPointsInput').value, 10) || 10;
+      const title = document.getElementById('rewardTitleInput').value.trim();
+      const desc = document.getElementById('rewardDescInput').value.trim();
+
+      if (origId) {
+        const idx = rewards.findIndex(r => r.id === origId);
+        if (idx !== -1) rewards[idx] = { id: origId, emoji, points, title, desc };
+        showToast(`已更新獎勵「${title}」`, "success");
+      } else {
+        const newId = "R" + String(Date.now()).slice(-4);
+        rewards.push({ id: newId, emoji, points, title, desc });
+        showToast(`已新增獎勵「${title}」`, "success");
+      }
+
+      saveSystemData();
+      closeRewardModal();
+      renderRewardsManager();
+      renderStudentCard();
+
+      sendDataToGoogleSheets({ action: "saveRewards", rewards: rewards });
+    }
+
+    function deleteRewardItem(id) {
+      rewards = rewards.filter(r => r.id !== id);
+      saveSystemData();
+      renderRewardsManager();
+      renderStudentCard();
+      showToast("獎勵項目已刪除", "info");
+      sendDataToGoogleSheets({ action: "saveRewards", rewards: rewards });
+    }
+
+    function formatCleanDate(raw) {
+      if (!raw) return '';
+      const str = String(raw).trim();
+      const m = str.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+      if (m) return `${m[1]}/${String(m[2]).padStart(2,'0')}/${String(m[3]).padStart(2,'0')}`;
+      const d = new Date(str);
+      if (!isNaN(d.getTime())) {
+        return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+      }
+      return str;
+    }
+
+    function getDaysDiff(dateStr) {
+      if (!dateStr) return 0;
+      const clean = formatCleanDate(dateStr);
+      const today = new Date();
+      today.setHours(0,0,0,0);
+      const target = new Date(clean);
+      target.setHours(0,0,0,0);
+      if (isNaN(target.getTime())) return 0;
+      return Math.ceil((target.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    }
+
+    function renderAdminEventsTable() {
+      const tbody = document.getElementById('adminEventsTableBody');
+      const badge = document.getElementById('eventCountBadge');
+      if (badge) badge.textContent = classEvents.length;
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (classEvents.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center py-6 text-slate-400 text-xs">目前尚未設定任何班級行事曆事件</td></tr>`;
+        return;
+      }
+
+      classEvents.forEach(ev => {
+        const diff = getDaysDiff(ev.date);
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-amber-50/40 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono font-bold">${formatCleanDate(ev.date)}</td>
+          <td class="py-3 px-4">${diff >= 0 ? `<span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-md text-xs">倒數 ${diff} 天</span>` : '<span class="text-slate-400 text-xs">已過期</span>'}</td>
+          <td class="py-3 px-4 font-bold text-slate-800">${ev.title}</td>
+          <td class="py-3 px-4"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full text-xs">${ev.tag || '其他'}</span></td>
+          <td class="py-3 px-4 text-xs text-slate-500 max-w-[200px] truncate">${ev.desc || ''}</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="openEditEventModal('${ev.id}')" class="text-slate-500 hover:text-orange-600 p-1"><i class="fa-solid fa-pen"></i></button>
+            <button onclick="deleteEventItem('${ev.id}')" class="text-rose-500 hover:text-rose-700 p-1 ml-1"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openAddEventModal() {
+      document.getElementById('eventModalTitle').textContent = "新增行事曆事件";
+      document.getElementById('editEventId').value = "";
+      document.getElementById('eventDateInput').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('eventTagInput').value = "考試測驗";
+      document.getElementById('eventTitleInput').value = "";
+      document.getElementById('eventDescInput').value = "";
+      document.getElementById('eventModal').classList.remove('hidden');
+    }
+
+    function openEditEventModal(id) {
+      const ev = classEvents.find(e => e.id === id);
+      if (!ev) return;
+      document.getElementById('eventModalTitle').textContent = "編輯行事曆事件";
+      document.getElementById('editEventId').value = ev.id;
+      document.getElementById('eventDateInput').value = ev.date;
+      document.getElementById('eventTagInput').value = ev.tag || "其他";
+      document.getElementById('eventTitleInput').value = ev.title;
+      document.getElementById('eventDescInput').value = ev.desc || "";
+      document.getElementById('eventModal').classList.remove('hidden');
+    }
+
+    function closeEventModal() {
+      document.getElementById('eventModal').classList.add('hidden');
+    }
+
+    function saveEventItem(e) {
+      e.preventDefault();
+      const origId = document.getElementById('editEventId').value;
+      const date = document.getElementById('eventDateInput').value;
+      const tag = document.getElementById('eventTagInput').value;
+      const title = document.getElementById('eventTitleInput').value.trim();
+      const desc = document.getElementById('eventDescInput').value.trim();
+
+      if (origId) {
+        const idx = classEvents.findIndex(ev => ev.id === origId);
+        if (idx !== -1) classEvents[idx] = { id: origId, date, tag, title, desc };
+        showToast(`已更新事件「${title}」`, "success");
+      } else {
+        const newId = "EV" + String(Date.now()).slice(-4);
+        classEvents.push({ id: newId, date, tag, title, desc });
+        showToast(`已新增事件「${title}」`, "success");
+      }
+
+      saveSystemData();
+      closeEventModal();
+      renderAdminEventsTable();
+      renderHomeCountdown();
+      sendDataToGoogleSheets({ action: "saveEvents", events: classEvents });
+    }
+
+    function deleteEventItem(id) {
+      classEvents = classEvents.filter(e => e.id !== id);
+      saveSystemData();
+      renderAdminEventsTable();
+      renderHomeCountdown();
+      showToast("行事曆事件已刪除", "info");
+      sendDataToGoogleSheets({ action: "saveEvents", events: classEvents });
+    }
+
+    function renderHomeCountdown() {
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}/${String(today.getMonth()+1).padStart(2,'0')}/${String(today.getDate()).padStart(2,'0')}`;
+      const curDateEl = document.getElementById('currentDateDisplay');
+      if (curDateEl) curDateEl.textContent = dateStr;
+
+      const sorted = [...classEvents].filter(ev => getDaysDiff(ev.date) >= 0).sort((a,b) => getDaysDiff(a.date) - getDaysDiff(b.date));
+      const titleEl = document.getElementById('countdownEventTitle');
+      const descEl = document.getElementById('countdownEventDesc');
+      const daysEl = document.getElementById('countdownDaysNum');
+      const tagEl = document.getElementById('countdownEventTag');
+      const badgeEl = document.getElementById('countdownBadge');
+
+      if (sorted.length > 0) {
+        const top = sorted[0];
+        const diff = getDaysDiff(top.date);
+        if (titleEl) titleEl.textContent = top.title;
+        if (descEl) descEl.textContent = top.desc || `預定日期：${formatCleanDate(top.date)}`;
+        if (daysEl) daysEl.textContent = diff;
+        if (tagEl) tagEl.textContent = top.tag;
+        if (badgeEl) badgeEl.textContent = diff === 0 ? "今天截止" : "倒數中";
+      } else {
+        if (titleEl) titleEl.textContent = "目前無待辦重要事件";
+        if (descEl) descEl.textContent = "快樂學習，享受校園生活！";
+        if (daysEl) daysEl.textContent = "0";
+      }
+
+      const listContainer = document.getElementById('homeCalendarList');
+      if (!listContainer) return;
+      listContainer.innerHTML = '';
+      classEvents.forEach(ev => {
+        const diff = getDaysDiff(ev.date);
+        const div = document.createElement('div');
+        div.className = "bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded-xl flex items-center justify-between text-xs";
+        div.innerHTML = `
+          <span class="truncate">${ev.title}</span>
+          <span class="font-bold text-[10px] bg-white/20 px-2 py-0.5 rounded-md">${diff >= 0 ? `${diff}天後` : '已過期'}</span>
+        `;
+        listContainer.appendChild(div);
+      });
+    }
+
+    function toggleHomeCalendarList() {
+      const list = document.getElementById('homeCalendarList');
+      const chevron = document.getElementById('calendarChevron');
+      const btn = document.getElementById('toggleCalendarBtn');
+      if (!list) return;
+
+      isHomeCalendarExpanded = !isHomeCalendarExpanded;
+      if (isHomeCalendarExpanded) {
+        list.classList.remove('hidden');
+        if (chevron) chevron.className = "fa-solid fa-chevron-up text-[10px]";
+        if (btn) btn.querySelector('span').textContent = "收起日程";
+      } else {
+        list.classList.add('hidden');
+        if (chevron) chevron.className = "fa-solid fa-chevron-down text-[10px]";
+        if (btn) btn.querySelector('span').textContent = "查看全部事項";
+      }
+    }
+
+    function openAddStudentModal() {
+      document.getElementById('modalTitle').textContent = "新增學生";
+      document.getElementById('editOriginalId').value = "";
+      document.getElementById('inputSeat').value = students.length + 1;
+      document.getElementById('inputId').value = `S${String(students.length + 1).padStart(3, '0')}`;
+      document.getElementById('inputName').value = "";
+      document.getElementById('inputRole').value = "";
+      document.getElementById('inputWelcomeMessage').value = "🌻 歡迎來到向日葵班班！";
+      document.getElementById('inputAvatar').value = "🌟";
+      document.getElementById('inputPoints').value = "0";
+      document.getElementById('studentModal').classList.remove('hidden');
+    }
+
+    function openEditStudentModal(id) {
+      const st = students.find(s => s.id === id);
+      if (!st) return;
+      document.getElementById('modalTitle').textContent = "編輯學生資料";
+      document.getElementById('editOriginalId').value = st.id;
+      document.getElementById('inputSeat').value = st.seat;
+      document.getElementById('inputId').value = st.id;
+      document.getElementById('inputName').value = st.name;
+      document.getElementById('inputRole').value = st.role || "";
+      document.getElementById('inputWelcomeMessage').value = st.welcomeMessage || "";
+      document.getElementById('inputAvatar').value = st.avatar || "🌟";
+      document.getElementById('inputPoints').value = st.points;
+      document.getElementById('studentModal').classList.remove('hidden');
+    }
+
+    function closeStudentModal() {
+      document.getElementById('studentModal').classList.add('hidden');
+    }
+
+    function saveStudent(e) {
+      e.preventDefault();
+      const origId = document.getElementById('editOriginalId').value;
+      const seat = parseInt(document.getElementById('inputSeat').value, 10);
+      const id = document.getElementById('inputId').value.trim();
+      const name = document.getElementById('inputName').value.trim();
+      const role = document.getElementById('inputRole').value.trim();
+      const welcomeMessage = document.getElementById('inputWelcomeMessage').value.trim() || "🌻 歡迎來到向日葵班班！";
+      const avatar = document.getElementById('inputAvatar').value.trim() || "🌟";
+      const points = parseInt(document.getElementById('inputPoints').value, 10) || 0;
+
+      if (origId) {
+        const idx = students.findIndex(s => s.id === origId);
+        if (idx !== -1) {
+          students[idx] = { ...students[idx], seat, id, name, role, welcomeMessage, avatar, points };
+        }
+        showToast(`已更新學生 ${name} 的資料`, "success");
+      } else {
+        students.push({
+          id, seat, name, role, welcomeMessage, avatar, points,
+          passedIdioms: [], passedCrosswords: [], history: []
+        });
+        showToast(`已新增學生 ${name}`, "success");
+      }
+
+      saveSystemData();
+      closeStudentModal();
+      refreshAllViews();
+
+      sendDataToGoogleSheets({
+        action: "saveStudent",
+        origId: origId,
+        id: id,
+        seat: seat,
+        name: name,
+        role: role,
+        points: points,
+        avatar: avatar,
+        welcomeMessage: welcomeMessage
+      });
+    }
+
+    function deleteStudent(id) {
+      const st = students.find(s => s.id === id);
+      if (!st) return;
+      students = students.filter(s => s.id !== id);
+      saveSystemData();
+      refreshAllViews();
+      showToast(`已刪除學生 ${st.name}`, "info");
+
+      sendDataToGoogleSheets({ action: "deleteStudent", id: id });
+    }
+
+    function openPointModal(id) {
+      const st = students.find(s => s.id === id);
+      if (!st) return;
+      document.getElementById('pointStudentId').value = st.id;
+      document.getElementById('pointModalStudentName').textContent = `${st.name} (#${st.seat})`;
+      document.getElementById('pointModalCurrentPoints').textContent = st.points;
+      const avBox = document.getElementById('pointModalAvatarBox');
+      if (avBox) {
+        if (st.avatar && (st.avatar.startsWith('data:image/') || st.avatar.startsWith('http'))) {
+          avBox.innerHTML = `<img src="${st.avatar}" class="w-full h-full object-cover">`;
+        } else {
+          avBox.textContent = st.avatar || '🌟';
+        }
+      }
+      renderPointPresetsButtons(st.id);
+      document.getElementById('pointModal').classList.remove('hidden');
+    }
+
+    function closePointModal() {
+      document.getElementById('pointModal').classList.add('hidden');
+    }
+
+    function renderPointPresetsButtons(studentId) {
+      const grid = document.getElementById('pointPresetsGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      pointPresets.forEach(preset => {
+        const isPos = preset.delta > 0;
+        const btn = document.createElement('button');
+        btn.type = "button";
+        btn.className = `p-2 rounded-xl text-xs font-bold transition flex items-center justify-between border ${isPos ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border-emerald-200' : 'bg-rose-50 hover:bg-rose-100 text-rose-800 border-rose-200'}`;
+        btn.innerHTML = `
+          <span class="truncate">${preset.emoji || ''} ${preset.reason}</span>
+          <span class="px-1.5 py-0.5 rounded-md ${isPos ? 'bg-emerald-200 text-emerald-900' : 'bg-rose-200 text-rose-900'}">${isPos ? '+' + preset.delta : preset.delta}</span>
+        `;
+        btn.onclick = () => {
+          quickAddPoints(studentId, preset.delta, preset.reason);
+          closePointModal();
+        };
+        grid.appendChild(btn);
+      });
+    }
+
     function submitPointAdjustment(e) {
       e.preventDefault();
       const sid = document.getElementById('pointStudentId').value;
       const amount = parseInt(document.getElementById('pointChangeAmount').value, 10);
       const reason = document.getElementById('pointReason').value.trim();
       if (isNaN(amount) || !reason) {
-        showToast("請填寫有效的變更點數與原因", "error");
+        showToast("請填寫有效數值與原因", "error");
         return;
       }
       quickAddPoints(sid, amount, reason);
       closePointModal();
     }
 
-    function showToast(msg, type = "success") {
-      const toast = document.getElementById('toast');
-      const toastMsg = document.getElementById('toastMsg');
-      const toastIcon = document.getElementById('toastIcon');
-      if (!toast || !toastMsg) return;
-      toastMsg.textContent = msg;
-      if (type === "success" && toastIcon) toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg flex-shrink-0";
-      else if (type === "error" && toastIcon) toastIcon.className = "fa-solid fa-triangle-exclamation text-rose-400 text-lg flex-shrink-0";
-      else if (toastIcon) toastIcon.className = "fa-solid fa-circle-info text-sky-400 text-lg flex-shrink-0";
+    function openPresetsManageModal() {
+      renderPresetsList();
+      document.getElementById('presetsManageModal').classList.remove('hidden');
+    }
 
-      toast.classList.remove('translate-y-24', 'opacity-0');
-      toast.classList.add('translate-y-0', 'opacity-100');
-      setTimeout(() => {
-        toast.classList.remove('translate-y-0', 'opacity-100');
-        toast.classList.add('translate-y-24', 'opacity-0');
-      }, 3000);
+    function closePresetsManageModal() {
+      document.getElementById('presetsManageModal').classList.add('hidden');
+    }
+
+    function renderPresetsList() {
+      const container = document.getElementById('presetsListContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      pointPresets.forEach((p, idx) => {
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between p-2 rounded-xl bg-slate-50 border border-slate-200 text-xs";
+        div.innerHTML = `
+          <div class="flex items-center space-x-2">
+            <span>${p.emoji}</span>
+            <span class="font-bold text-slate-800">${p.reason}</span>
+            <span class="font-bold ${p.delta > 0 ? 'text-emerald-600' : 'text-rose-600'}">${p.delta > 0 ? '+' + p.delta : p.delta}</span>
+          </div>
+          <button onclick="deletePresetItem('${p.id}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash text-[10px]"></i></button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addNewPresetItem(e) {
+      e.preventDefault();
+      const emoji = document.getElementById('newPresetEmoji').value.trim() || "⭐";
+      const reason = document.getElementById('newPresetReason').value.trim();
+      const delta = parseInt(document.getElementById('newPresetDelta').value, 10) || 1;
+      if (!reason) return;
+      pointPresets.push({ id: "P_" + Date.now(), emoji, reason, delta });
+      saveSystemData();
+      renderPresetsList();
+      showToast("已成功新增加扣分項目！", "success");
+    }
+
+    function deletePresetItem(id) {
+      pointPresets = pointPresets.filter(p => p.id !== id);
+      saveSystemData();
+      renderPresetsList();
+    }
+
+    function resetDefaultPointPresets() {
+      pointPresets = JSON.parse(JSON.stringify(DEFAULT_POINT_PRESETS));
+      saveSystemData();
+      renderPresetsList();
+      showToast("已恢復預設加扣分項目", "info");
+    }
+
+    function openWelcomeMessageModal(studentId) {
+      const st = students.find(s => s.id === studentId);
+      if (!st) return;
+      document.getElementById('welcomeModalStudentId').value = st.id;
+      document.getElementById('welcomeModalStudentName').textContent = `${st.name} (#${st.seat})`;
+      document.getElementById('welcomeModalInput').value = st.welcomeMessage || "🌻 歡迎來到向日葵班班！";
+      document.getElementById('welcomeMessageModal').classList.remove('hidden');
+    }
+
+    function closeWelcomeMessageModal() {
+      document.getElementById('welcomeMessageModal').classList.add('hidden');
+    }
+
+    function saveWelcomeMessage(e) {
+      e.preventDefault();
+      const id = document.getElementById('welcomeModalStudentId').value;
+      const msg = document.getElementById('welcomeModalInput').value.trim();
+      const st = students.find(s => s.id === id);
+      if (!st || !msg) return;
+      st.welcomeMessage = msg;
+      saveSystemData();
+      renderAdminTable();
+      if (currentStudentId === id) renderStudentCard();
+      closeWelcomeMessageModal();
+      showToast("已儲存勉勵詞並同步試算表！", "success");
+
+      sendDataToGoogleSheets({ action: "updateWelcomeMessage", id: id, welcomeMessage: msg });
+    }
+
+    function openChangePasswordModal() {
+      document.getElementById('currentPasswordInput').value = '';
+      document.getElementById('newPasswordInput').value = '';
+      document.getElementById('confirmNewPasswordInput').value = '';
+      document.getElementById('changePasswordModal').classList.remove('hidden');
+    }
+
+    function closeChangePasswordModal() {
+      document.getElementById('changePasswordModal').classList.add('hidden');
+    }
+
+    function saveNewPassword(e) {
+      e.preventDefault();
+      const curr = document.getElementById('currentPasswordInput').value.trim();
+      const next = document.getElementById('newPasswordInput').value.trim();
+      const confirm = document.getElementById('confirmNewPasswordInput').value.trim();
+      if (curr !== adminPassword) {
+        showToast("目前密碼錯誤！", "error");
+        return;
+      }
+      if (next.length < 4) {
+        showToast("新密碼長度至少需 4 碼！", "error");
+        return;
+      }
+      if (next !== confirm) {
+        showToast("兩次輸入密碼不符！", "error");
+        return;
+      }
+      adminPassword = next;
+      localStorage.setItem('class_points_admin_pwd', adminPassword);
+      closeChangePasswordModal();
+      showToast("管理密碼已成功修改！", "success");
+    }
+
+    function openClaimModal(studentId) {
+      const st = students.find(s => s.id === studentId);
+      if (!st) return;
+      document.getElementById('claimStudentId').value = st.id;
+      document.getElementById('claimStudentName').textContent = `${st.name} (#${st.seat})`;
+      document.getElementById('claimCurrentPoints').textContent = `${st.points} 點`;
+
+      const sel = document.getElementById('claimRewardSelect');
+      sel.innerHTML = '';
+      rewards.forEach(rw => {
+        const opt = document.createElement('option');
+        opt.value = rw.id;
+        opt.textContent = `${rw.emoji} ${rw.title} (扣除 ${rw.points} 點)`;
+        sel.appendChild(opt);
+      });
+      if (rewards.length > 0) onClaimRewardSelected(rewards[0].id);
+      document.getElementById('claimModal').classList.remove('hidden');
+    }
+
+    function closeClaimModal() {
+      document.getElementById('claimModal').classList.add('hidden');
+    }
+
+    function onClaimRewardSelected(rwId) {
+      const rw = rewards.find(r => r.id === rwId);
+      if (rw) document.getElementById('claimDeductAmount').textContent = rw.points;
+    }
+
+    function submitClaimReward(e) {
+      e.preventDefault();
+      const sid = document.getElementById('claimStudentId').value;
+      const rwid = document.getElementById('claimRewardSelect').value;
+      const st = students.find(s => s.id === sid);
+      const rw = rewards.find(r => r.id === rwid);
+      if (!st || !rw) return;
+      quickAddPoints(st.id, -rw.points, `[兌換獎勵] ${rw.title}`);
+      closeClaimModal();
+    }
+
+    function openStudentAvatarModal() {
+      const st = students.find(s => s.id === currentStudentId) || students[0];
+      if (!st) return;
+      tempSelectedAvatar = st.avatar || '🌟';
+      updateAvatarPreview(tempSelectedAvatar);
+      document.getElementById('avatarModal').classList.remove('hidden');
+    }
+
+    function closeStudentAvatarModal() {
+      document.getElementById('avatarModal').classList.add('hidden');
+    }
+
+    function updateAvatarPreview(val) {
+      const box = document.getElementById('avatarPreviewSpan');
+      if (!box) return;
+      if (val && (val.startsWith('data:image/') || val.startsWith('http'))) {
+        box.innerHTML = `<img src="${val}" class="w-full h-full object-cover">`;
+      } else {
+        box.textContent = val || '🌟';
+      }
+    }
+
+    function setAvatarPreset(emoji) {
+      tempSelectedAvatar = emoji;
+      updateAvatarPreview(emoji);
+    }
+
+    function handleAvatarFileUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = 96;
+          canvas.height = 96;
+          const ctx = canvas.getContext('2d');
+          const min = Math.min(img.width, img.height);
+          ctx.drawImage(img, (img.width-min)/2, (img.height-min)/2, min, min, 0, 0, 96, 96);
+          const compressed = canvas.toDataURL('image/jpeg', 0.65);
+          tempSelectedAvatar = compressed;
+          updateAvatarPreview(compressed);
+        };
+        img.src = evt.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function saveSelectedAvatar() {
+      const st = students.find(s => s.id === currentStudentId);
+      if (!st) return;
+      st.avatar = tempSelectedAvatar;
+      saveSystemData();
+      renderStudentCard();
+      renderAdminTable();
+      closeStudentAvatarModal();
+      showToast("個人頭貼已成功更新！", "success");
+      sendDataToGoogleSheets({ action: "updateAvatar", id: st.id, seat: st.seat, avatar: st.avatar });
+    }
+
+    function openEvolutionDexModal() {
+      renderEvolutionDexCards();
+      document.getElementById('evolutionDexModal').classList.remove('hidden');
+    }
+
+    function closeEvolutionDexModal() {
+      document.getElementById('evolutionDexModal').classList.add('hidden');
+    }
+
+    function renderEvolutionDexCards() {
+      const container = document.getElementById('evolutionDexCardsContainer');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const stages = [
+        { stage: 1, title: "初階探索者 🌟", pts: "0 ~ 499 點", gear: "初心者木劍 · 發芽嫩苗 · 草葉新手服" },
+        { stage: 2, title: "進階小達人 🌿", pts: "500 ~ 999 點", gear: "精鋼鐵劍 · 守護盾 · 翠綠披風" },
+        { stage: 3, title: "黃金勇者 ⚔️", pts: "1000 ~ 1999 點", gear: "黃金王者巨劍 · 戰盔 · 耀眼戰鎧" },
+        { stage: 4, title: "鑽石探險家 💎", pts: "2000 ~ 4999 點", gear: "星辰鑽石神杖 · 蔚藍法袍 · 浮空鑽石水晶" },
+        { stage: 5, title: "傳奇榮譽大師 👑", pts: "5000+ 點", gear: "創世向日葵神劍 · 拍動熾天使神翼 · 尊爵皇冠" }
+      ];
+
+      stages.forEach(item => {
+        const div = document.createElement('div');
+        div.className = "flex items-center space-x-3 p-3 rounded-2xl bg-amber-50/60 border border-amber-200/80";
+        div.innerHTML = `
+          <div class="w-16 h-16 flex items-center justify-center bg-white rounded-xl shadow-xs flex-shrink-0 p-1">
+            ${getHeroCharacterSVG(item.stage)}
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h4 class="font-black text-xs text-amber-950">${item.title}</h4>
+              <span class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.2 rounded-full font-bold">${item.pts}</span>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">${item.gear}</p>
+          </div>
+        `;
+        container.appendChild(div);
+      });
     }
 
     function refreshAllViews() {
+      updateStudentSelector();
       renderStudentCard();
       renderAdminTable();
+      renderRewardsManager();
+      renderAdminEventsTable();
+      renderHomeCountdown();
       renderQRCards();
+    }
+
+    function updateStudentSelector() {
+      const sel = document.getElementById('studentSelector');
+      if (!sel) return;
+      sel.innerHTML = '';
+      students.sort((a,b) => a.seat - b.seat).forEach(st => {
+        const opt = document.createElement('option');
+        opt.value = st.id;
+        opt.textContent = `[${String(st.seat).padStart(2,'0')} 號] ${st.name} (${st.points} 點)`;
+        if (st.id === currentStudentId) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function onStudentSelectChange(val) {
+      currentStudentId = val;
+      renderStudentCard();
+    }
+
+    function copyCurrentStudentUrl() {
+      const baseUrl = window.location.origin + window.location.pathname;
+      const targetUrl = `${baseUrl}?sid=${currentStudentId}`;
+      const tempInput = document.createElement('input');
+      tempInput.value = targetUrl;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast("已成功複製該學生的專屬查詢網址！", "success");
+      } catch(e){}
+      document.body.removeChild(tempInput);
     }
 
     function renderQRCards() {
@@ -2426,6 +3347,62 @@
       if (!bubble) return;
       bubble.style.opacity = '1';
       setTimeout(() => { bubble.style.opacity = '0'; }, 2000);
+    }
+
+    function exportData() {
+      const data = {
+        students, rewards, classEvents, messages, pointPresets, adminPassword,
+        exportDate: new Date().toISOString()
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sunflower_class_backup_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("系統完整資料備份已匯出！", "success");
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const parsed = JSON.parse(evt.target.result);
+          if (parsed.students) students = parsed.students;
+          if (parsed.rewards) rewards = parsed.rewards;
+          if (parsed.classEvents) classEvents = parsed.classEvents;
+          if (parsed.messages) messages = parsed.messages;
+          if (parsed.pointPresets) pointPresets = parsed.pointPresets;
+          saveSystemData();
+          refreshAllViews();
+          showToast("已成功匯入備份資料！", "success");
+        } catch(err) {
+          showToast("檔案格式錯誤，無法匯入！", "error");
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    }
+
+    function showToast(msg, type = "success") {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+      if (!toast || !toastMsg) return;
+      toastMsg.textContent = msg;
+      if (type === "success" && toastIcon) toastIcon.className = "fa-solid fa-circle-check text-emerald-400 text-lg flex-shrink-0";
+      else if (type === "error" && toastIcon) toastIcon.className = "fa-solid fa-triangle-exclamation text-rose-400 text-lg flex-shrink-0";
+      else if (toastIcon) toastIcon.className = "fa-solid fa-circle-info text-sky-400 text-lg flex-shrink-0";
+
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3000);
     }
   </script>
 </body>
