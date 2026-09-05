@@ -1426,20 +1426,43 @@
               const oldMatch = students.find(s => String(s.id).toLowerCase() === rawId.toLowerCase());
               const finalPoints = Number(st.points !== undefined ? st.points : (st['積分'] || 0));
 
-              let localPassedIdioms = oldMatch?.passedIdioms || [];
+              // 🛡️ 三重防刷防覆蓋機制：整合舊紀錄、本機快取、雲端清單與歷史紀錄
+              let localPassedIdioms = (oldMatch?.passedIdioms || []).map(String);
               try {
                 const saved = localStorage.getItem(`passed_idioms_${rawId}`);
-                if (saved) localPassedIdioms = Array.from(new Set([...localPassedIdioms, ...JSON.parse(saved)]));
+                if (saved) localPassedIdioms = Array.from(new Set([...localPassedIdioms, ...JSON.parse(saved).map(String)]));
               } catch(e){}
-              const cloudPassedIdioms = Array.isArray(st.passedIdioms) ? st.passedIdioms : String(st.passedIdioms || st['成語過關'] || '').split(',').filter(Boolean);
+              const cloudPassedIdioms = (Array.isArray(st.passedIdioms) ? st.passedIdioms : String(st.passedIdioms || st['成語過關'] || '').split(',').filter(Boolean)).map(String);
+              
+              // 🛡️ 次級比對：從歷史紀錄中逆向提取已通關的成語
+              const historyList = (oldMatch?.history && oldMatch.history.length > 0) ? oldMatch.history : (st.history || []);
+              historyList.forEach(h => {
+                if (h && h.reason) {
+                  IDIOM_STAGES.forEach(stage => {
+                    if (h.reason.includes(stage.idiom)) {
+                      localPassedIdioms.push(String(stage.id));
+                    }
+                  });
+                }
+              });
               const finalPassedIdioms = Array.from(new Set([...localPassedIdioms, ...cloudPassedIdioms]));
 
-              let localPassedCrosswords = oldMatch?.passedCrosswords || [];
+              let localPassedCrosswords = (oldMatch?.passedCrosswords || []).map(String);
               try {
                 const savedCw = localStorage.getItem(`passed_crosswords_${rawId}`);
-                if (savedCw) localPassedCrosswords = Array.from(new Set([...localPassedCrosswords, ...JSON.parse(savedCw)]));
+                if (savedCw) localPassedCrosswords = Array.from(new Set([...localPassedCrosswords, ...JSON.parse(savedCw).map(String)]));
               } catch(e){}
-              const cloudPassedCrosswords = Array.isArray(st.passedCrosswords) ? st.passedCrosswords : String(st.passedCrosswords || st['接龍過關'] || '').split(',').filter(Boolean);
+              const cloudPassedCrosswords = (Array.isArray(st.passedCrosswords) ? st.passedCrosswords : String(st.passedCrosswords || st['接龍過關'] || '').split(',').filter(Boolean)).map(String);
+              
+              historyList.forEach(h => {
+                if (h && h.reason) {
+                  CROSSWORD_STAGES.forEach(stage => {
+                    if (h.reason.includes(stage.title)) {
+                      localPassedCrosswords.push(String(stage.id));
+                    }
+                  });
+                }
+              });
               const finalPassedCrosswords = Array.from(new Set([...localPassedCrosswords, ...cloudPassedCrosswords]));
 
               return {
@@ -1452,7 +1475,7 @@
                 welcomeMessage: String(st.welcomeMessage || st['專屬勉勵詞'] || oldMatch?.welcomeMessage || "🌻 歡迎來到向日葵班班！"),
                 passedIdioms: finalPassedIdioms,
                 passedCrosswords: finalPassedCrosswords,
-                history: (oldMatch?.history && oldMatch.history.length > 0) ? oldMatch.history : (st.history || [])
+                history: historyList
               };
             });
 
@@ -1757,7 +1780,12 @@
     function openIdiomGameModal() {
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
       if (student) {
-        passedIdiomIds = new Set(student.passedIdioms || []);
+        passedIdiomIds = new Set((student.passedIdioms || []).map(String));
+        // 🎯 智慧尋關：自動尋找該學生尚未通關的第一個關卡
+        const firstUnpassedIdx = IDIOM_STAGES.findIndex(stage => !passedIdiomIds.has(String(stage.id)));
+        if (firstUnpassedIdx !== -1) {
+          currentIdiomIndex = firstUnpassedIdx;
+        }
       }
       const modal = document.getElementById('idiomGameModal');
       if (modal) modal.classList.remove('hidden');
@@ -1773,6 +1801,7 @@
       if (idx >= IDIOM_STAGES.length) idx = 0;
       currentIdiomIndex = idx;
       const stage = IDIOM_STAGES[idx];
+      const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
 
       const stageNumEl = document.getElementById('gameCurrentStageNum');
       const themeTitleEl = document.getElementById('gameIdiomThemeTitle');
@@ -1781,7 +1810,14 @@
 
       if (banner) banner.classList.add('hidden');
       if (stageNumEl) stageNumEl.textContent = stage.id;
-      if (themeTitleEl) themeTitleEl.textContent = `第 ${stage.id} 關`;
+      
+      // 標註當前關卡是否已通關
+      const isAlreadyDone = student && (student.passedIdioms || []).map(String).includes(String(stage.id));
+      if (themeTitleEl) {
+        themeTitleEl.innerHTML = isAlreadyDone 
+          ? `<span class="text-emerald-700 font-black">第 ${stage.id} 關 (已過關)</span>` 
+          : `第 ${stage.id} 關`;
+      }
       if (illuBox) illuBox.innerHTML = stage.illustration;
 
       currentIdiomGuess = ["", "", "", ""];
@@ -1857,11 +1893,17 @@
 
       if (student) {
         if (!student.passedIdioms) student.passedIdioms = [];
-        const isFirst = !student.passedIdioms.includes(stage.id);
+        
+        // 🛡️ 關鍵防刷判定：強制轉為字串進行精準比對，同時比對點數歷史紀錄
+        const stageIdStr = String(stage.id);
+        const alreadyInPassed = student.passedIdioms.map(String).includes(stageIdStr);
+        const alreadyInHistory = (student.history || []).some(h => h.reason && h.reason.includes(stage.idiom));
+        
+        const isFirst = !alreadyInPassed && !alreadyInHistory;
 
         if (isFirst) {
-          student.passedIdioms.push(stage.id);
-          passedIdiomIds.add(stage.id);
+          student.passedIdioms.push(stageIdStr);
+          passedIdiomIds.add(stageIdStr);
           try {
             localStorage.setItem(`passed_idioms_${student.id}`, JSON.stringify(student.passedIdioms));
           } catch(e){}
@@ -1880,9 +1922,17 @@
             passedIdioms: student.passedIdioms.join(',')
           });
         } else {
+          // 🛑 已通關：溫故知新，絕對不重複加分！
+          if (!alreadyInPassed) {
+            student.passedIdioms.push(stageIdStr);
+            passedIdiomIds.add(stageIdStr);
+            try {
+              localStorage.setItem(`passed_idioms_${student.id}`, JSON.stringify(student.passedIdioms));
+            } catch(e){}
+          }
           if (victoryBadge) {
             victoryBadge.className = "inline-block bg-amber-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-amber-400";
-            victoryBadge.textContent = "⭐ 此題先前已通關領過獎勵囉！溫故知新！";
+            victoryBadge.textContent = "⭐ 此題先前已通關領過獎勵囉！溫故知新！（不重複加分）";
           }
         }
       }
@@ -1924,7 +1974,14 @@
 
     function openCrosswordGameModal() {
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
-      if (student) passedCrosswordIds = new Set(student.passedCrosswords || []);
+      if (student) {
+        passedCrosswordIds = new Set((student.passedCrosswords || []).map(String));
+        // 🎯 自動尋找尚未通過的第一道接龍題目
+        const firstUnpassedIdx = CROSSWORD_STAGES.findIndex(stage => !passedCrosswordIds.has(String(stage.id)));
+        if (firstUnpassedIdx !== -1) {
+          currentCrosswordIndex = firstUnpassedIdx;
+        }
+      }
       const modal = document.getElementById('crosswordGameModal');
       if (modal) modal.classList.remove('hidden');
       loadCrosswordStage(currentCrosswordIndex);
@@ -1939,12 +1996,19 @@
       if (idx >= CROSSWORD_STAGES.length) idx = 0;
       currentCrosswordIndex = idx;
       const stage = CROSSWORD_STAGES[idx];
+      const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
 
       const stageNumEl = document.getElementById('cwStageNum');
       const titleEl = document.getElementById('cwStageTitle');
       const banner = document.getElementById('crosswordSuccessBanner');
       if (stageNumEl) stageNumEl.textContent = idx + 1;
-      if (titleEl) titleEl.textContent = stage.title;
+
+      const isAlreadyDone = student && (student.passedCrosswords || []).map(String).includes(String(stage.id));
+      if (titleEl) {
+        titleEl.innerHTML = isAlreadyDone 
+          ? `<span class="text-emerald-400 font-bold">${stage.title} (已破關)</span>` 
+          : stage.title;
+      }
       if (banner) banner.classList.add('hidden');
 
       crosswordUserAnswers = {};
@@ -2072,11 +2136,17 @@
 
       if (student) {
         if (!student.passedCrosswords) student.passedCrosswords = [];
-        const isFirst = !student.passedCrosswords.includes(stage.id);
+        
+        // 🛡️ 十字接龍雙重防刷防洗分檢驗
+        const stageIdStr = String(stage.id);
+        const alreadyInPassed = student.passedCrosswords.map(String).includes(stageIdStr);
+        const alreadyInHistory = (student.history || []).some(h => h.reason && h.reason.includes(stage.title));
+
+        const isFirst = !alreadyInPassed && !alreadyInHistory;
 
         if (isFirst) {
-          student.passedCrosswords.push(stage.id);
-          passedCrosswordIds.add(stage.id);
+          student.passedCrosswords.push(stageIdStr);
+          passedCrosswordIds.add(stageIdStr);
           try {
             localStorage.setItem(`passed_crosswords_${student.id}`, JSON.stringify(student.passedCrosswords));
           } catch(e){}
@@ -2095,9 +2165,17 @@
             passedCrosswords: student.passedCrosswords.join(',')
           });
         } else {
+          // 🛑 已通關：不重複派發 20 點！
+          if (!alreadyInPassed) {
+            student.passedCrosswords.push(stageIdStr);
+            passedCrosswordIds.add(stageIdStr);
+            try {
+              localStorage.setItem(`passed_crosswords_${student.id}`, JSON.stringify(student.passedCrosswords));
+            } catch(e){}
+          }
           if (victoryBadge) {
             victoryBadge.className = "inline-block bg-amber-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-amber-400";
-            victoryBadge.textContent = "⭐ 本關先前已通關並領過獎勵囉！溫故知新！";
+            victoryBadge.textContent = "⭐ 本關先前已通關並領過獎勵囉！溫故知新！（不重複加分）";
           }
         }
       }
