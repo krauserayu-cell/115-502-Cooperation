@@ -104,7 +104,6 @@
     <!-- ================= 視圖 1: 學生專屬查詢頁面 (Student View) ================= -->
     <section id="studentView" class="block">
 
-      <!-- 🌻 向日葵班班 首頁專屬主視覺橫幅 -->
       <div class="max-w-md mx-auto mb-4 bg-white rounded-3xl overflow-hidden shadow-lg border border-amber-200/80 transition hover:shadow-xl">
         <div class="relative w-full aspect-square max-h-72 bg-gradient-to-b from-amber-100 to-amber-50 flex items-center justify-center overflow-hidden">
           <img src="0716-1.png" alt="向日葵班班首頁插畫" class="w-full h-full object-contain p-2" onerror="this.onerror=null; this.src='https://placehold.co/400x300/f59e0b/ffffff?text=🌻+Sun+Flower';">
@@ -114,7 +113,6 @@
         </div>
       </div>
 
-      <!-- ⏰ 班級重要事件即時倒數與行事曆小卡 -->
       <div class="max-w-md mx-auto mb-5 bg-gradient-to-br from-orange-500 via-amber-500 to-amber-600 rounded-3xl p-4 sm:p-5 text-white shadow-lg border border-amber-300/40 relative overflow-hidden">
         <div class="flex items-center justify-between mb-3 relative z-10">
           <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-white/20 backdrop-blur-md border border-white/30 text-white">
@@ -166,7 +164,6 @@
 
       <div id="studentCardContainer" class="max-w-md mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-amber-100 transform transition">
         
-        <!-- 頂部漸層背景與頭像 -->
         <div class="bg-gradient-to-br from-amber-400 via-orange-400 to-rose-400 p-6 text-white text-center relative shadow-inner">
           <div class="absolute top-4 right-4 bg-white/25 backdrop-blur-md px-3 py-1 rounded-full text-xs font-black tracking-wider border border-white/30">
             <span id="cardSeatNumber">座號 01 號</span>
@@ -192,7 +189,6 @@
 
         <div class="p-6">
           
-          <!-- 🎮 楓之谷風格紙娃娃勇者養成舞台 -->
           <div class="mb-6 bg-gradient-to-b from-amber-50 to-orange-50/50 rounded-3xl p-5 border border-amber-200 text-center relative overflow-hidden shadow-sm">
             <div class="flex items-center justify-between mb-2">
               <span class="inline-flex items-center gap-1 text-[11px] font-black bg-amber-200/80 text-amber-900 px-2.5 py-1 rounded-full">
@@ -209,7 +205,6 @@
               </div>
             </div>
 
-            <!-- 動態紙娃娃人偶展示區 -->
             <div class="relative w-44 h-44 mx-auto my-1 flex items-center justify-center cursor-pointer group" onclick="pokeHeroCharacter()" title="點擊勇者聽聽他的冒險加油！">
               <div class="hero-avatar-anim w-full h-full flex items-center justify-center" id="heroStagePuppet"></div>
               <div id="heroQuoteBubble" class="absolute -top-3 right-0 bg-white text-slate-800 text-[10px] font-bold px-2.5 py-1 rounded-xl shadow-md border border-amber-200 opacity-0 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
@@ -217,24 +212,20 @@
               </div>
             </div>
 
-            <!-- 裝備稱號標籤 -->
             <div class="inline-block bg-white/90 border border-amber-200 px-3 py-1 rounded-full text-[11px] font-black text-amber-900 shadow-2xs mb-2" id="heroGearTag">
               初心者木劍 · 草葉新手服
             </div>
 
-            <!-- 積分展示 -->
             <div class="flex items-center justify-center my-1">
               <span id="cardPoints" class="text-5xl font-black text-orange-600 tracking-tight">0</span>
               <span class="text-lg font-black text-amber-500 ml-2 self-end mb-1">PTS</span>
             </div>
 
-            <!-- 等級徽章 -->
             <div class="inline-flex items-center gap-1.5 bg-amber-200/80 text-amber-900 px-3.5 py-1 rounded-full text-xs font-black shadow-2xs" id="cardBadge">
               <i class="fa-solid fa-shield-halved text-amber-700"></i>
               <span id="cardLevelName">初階探索者 🌟</span>
             </div>
 
-            <!-- 進度條 -->
             <div class="mt-4">
               <div class="flex justify-between text-xs text-slate-500 font-semibold mb-1.5">
                 <span>升級進度</span>
@@ -247,7 +238,6 @@
 
           </div>
 
-          <!-- ✨ 好習慣打卡：每日「微笑特工」任務區塊 -->
           <div class="mb-6 bg-gradient-to-b from-emerald-50 to-teal-50/60 rounded-3xl p-4 sm:p-5 border border-emerald-200 shadow-sm">
             <div class="flex items-center justify-between mb-3">
               <span class="inline-flex items-center gap-1.5 text-xs font-black bg-emerald-200/80 text-emerald-900 px-3 py-1 rounded-full">
@@ -259,19 +249,16 @@
             </div>
 
             <p class="text-xs text-slate-600 mb-3 leading-relaxed">
-              每日落實班級品格好習慣，完成勾選後即可向老師申請驗證，累積滿 5 次即可獲得 <strong class="text-orange-600">+10 PTS</strong> 獎勵！
+              每日落實班級品格好習慣，完成打卡即可累積次數，集滿 5 次即可申請領取 <strong class="text-orange-600">+10 PTS</strong> 獎勵！(每項每日限打卡一次)
             </p>
 
-            <div class="space-y-2 mb-3" id="smileAgentChecklist">
-              <!-- 動態勾選項目 -->
-            </div>
+            <div class="space-y-2 mb-3" id="smileAgentChecklist"></div>
 
-            <button type="button" onclick="applySmileAgentReward()" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs rounded-2xl shadow-md transition flex items-center justify-center gap-1.5 border border-emerald-400">
+            <button type="button" id="smileRewardBtn" onclick="applySmileAgentReward()" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs rounded-2xl shadow-md transition flex items-center justify-center gap-1.5 border border-emerald-400">
               <i class="fa-solid fa-award"></i> 申請驗證領取 +10 點 (滿5次)
             </button>
           </div>
 
-          <!-- 💌 老師專屬勉勵卡片 -->
           <div class="mb-5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200 shadow-sm relative">
             <div class="flex items-center gap-2 mb-1.5">
               <div class="w-7 h-7 rounded-full overflow-hidden border-2 border-amber-300 bg-white flex-shrink-0 flex items-center justify-center shadow-xs">
@@ -286,7 +273,6 @@
             </p>
           </div>
 
-          <!-- 老師自訂獎勵兌換區塊 -->
           <div class="mb-6">
             <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center justify-between">
               <span><i class="fa-solid fa-gift mr-1.5 text-orange-500"></i> 班級點數獎勵兌換庫</span>
@@ -295,7 +281,6 @@
             <div id="studentRewardList" class="space-y-2.5"></div>
           </div>
 
-          <!-- 最近積分變更歷史紀錄 -->
           <div class="mb-6">
             <h3 class="text-sm font-bold text-slate-700 mb-3 flex items-center justify-between">
               <span><i class="fa-solid fa-clock-rotate-left mr-1.5 text-slate-400"></i> 最近點數紀錄</span>
@@ -304,7 +289,6 @@
             <div id="cardHistoryList" class="space-y-2 max-h-48 overflow-y-auto pr-1"></div>
           </div>
 
-          <!-- 💬 親師生獨立私密聯絡留言板 -->
           <div class="bg-gradient-to-b from-amber-50/50 to-orange-50/30 rounded-2xl p-4 border border-amber-200">
             <div class="flex items-center justify-between mb-3">
               <h3 class="text-sm font-bold text-slate-800 flex items-center gap-1.5">
@@ -386,7 +370,6 @@
         </div>
       </div>
 
-      <!-- 後台頁籤 -->
       <div class="flex space-x-2 border-b border-slate-200 mb-6 overflow-x-auto">
         <button id="adminTabStudentsBtn" onclick="switchAdminTab('students')" class="px-4 py-2.5 font-bold text-sm border-b-2 border-orange-500 text-orange-600 flex items-center gap-2 transition whitespace-nowrap">
           <i class="fa-solid fa-users"></i> 學生名單與積分 (<span id="studentCountBadge">0</span>)
@@ -402,12 +385,11 @@
         </button>
       </div>
 
-      <!-- 分頁 1: 學生名單 -->
       <div id="adminTabStudents" class="block">
         <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-wrap items-center justify-between gap-4">
           <div class="relative flex-1 min-w-[240px]">
             <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 transform -translate-y-1/2 text-slate-400 text-sm"></i>
-            <input type="text" id="adminSearchInput" oninput="renderAdminTable()" placeholder="搜尋姓名、座號或學號..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white">
+            <input type="text" id="adminSearchInput" oninput="renderAdminTable()" placeholder="搜尋姓名,座號或學號..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white">
           </div>
           <div class="flex items-center gap-2 text-xs font-bold text-slate-600 flex-wrap">
             <button onclick="openPresetsManageModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-300 transition flex items-center gap-1.5">
@@ -442,10 +424,8 @@
         </div>
       </div>
 
-      <!-- 分頁 2: 親師生私訊信箱 -->
       <div id="adminTabMessages" class="hidden">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white rounded-3xl border border-slate-200 p-4 shadow-sm min-h-[500px]">
-          <!-- 左側：學生留言清單 -->
           <div class="md:col-span-1 border-r border-slate-100 pr-3">
             <div class="flex justify-between items-center mb-3">
               <h4 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
@@ -456,7 +436,6 @@
             <div id="adminChatStudentList" class="space-y-1.5 max-h-[540px] overflow-y-auto pr-1"></div>
           </div>
 
-          <!-- 右側：與該學生的對話視窗 -->
           <div class="md:col-span-2 flex flex-col justify-between pl-1">
             <div>
               <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
@@ -472,13 +451,11 @@
                 </button>
               </div>
 
-              <!-- 對話記錄 -->
               <div id="adminChatMessagesBox" class="space-y-3 max-h-[380px] overflow-y-auto pr-2 mb-3">
                 <div class="text-center py-12 text-slate-400 text-xs">請點選左側學生檢視留言紀錄</div>
               </div>
             </div>
 
-            <!-- 回覆框 -->
             <form onsubmit="submitAdminReply(event)" class="pt-3 border-t border-slate-100">
               <div class="flex items-center gap-1.5 mb-2 overflow-x-auto pb-1 text-[11px]">
                 <span class="text-slate-400 flex-shrink-0">快速回覆：</span>
@@ -498,7 +475,6 @@
         </div>
       </div>
 
-      <!-- 分頁 3: 獎勵設定 -->
       <div id="adminTabRewards" class="hidden">
         <div class="flex justify-between items-center mb-4">
           <div>
@@ -512,7 +488,6 @@
         <div id="rewardsGridContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
       </div>
 
-      <!-- 分頁 4: 行事曆設定 -->
       <div id="adminTabEvents" class="hidden">
         <div class="flex justify-between items-center mb-4 flex-wrap gap-2">
           <div>
@@ -563,7 +538,6 @@
 
   </main>
 
-  <!-- 模態視窗: 角色進化圖鑑 -->
   <div id="evolutionDexModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
@@ -594,7 +568,6 @@
     </div>
   </div>
 
-  <!-- 模態視窗: 加扣分管理與一鍵點數調整 -->
   <div id="pointModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 max-h-[92vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-3">
@@ -642,7 +615,6 @@
     </div>
   </div>
 
-  <!-- 模態視窗: 管理常用加扣分預設項目 -->
   <div id="presetsManageModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[88vh] flex flex-col">
       <div class="flex justify-between items-center mb-3">
@@ -674,7 +646,6 @@
     </div>
   </div>
 
-  <!-- 模態視窗: 編輯勉勵詞 -->
   <div id="welcomeMessageModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-4">
@@ -692,14 +663,13 @@
           <textarea id="welcomeModalInput" rows="3" required placeholder="例如：這週在分組活動表現很棒，繼續保持積極的心情喔！" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
         </div>
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-          <button type="button" onclick="closeWelcomeMessageModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold">取消</button>
+          <button type="button" onclick="closeWelcomeMessageModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
           <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存勉勵詞</button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- 模態視窗: 登入驗證 -->
   <div id="adminLoginModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
       <div class="text-center mb-5">
@@ -721,7 +691,6 @@
     </div>
   </div>
 
-  <!-- 模態視窗: 修改密碼 -->
   <div id="changePasswordModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-4">
@@ -753,7 +722,6 @@
     </div>
   </div>
 
-  <!-- 模態視窗: 新增/編輯學生 -->
   <div id="studentModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-5">
@@ -813,7 +781,6 @@
     </div>
   </div>
 
-  <!-- 模態視窗: 新增/編輯獎勵項目 -->
   <div id="rewardModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-5">
@@ -850,7 +817,6 @@
     </div>
   </div>
 
-  <!-- 模態視窗: 核銷獎勵 -->
   <div id="claimModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
       <div class="text-center mb-4">
@@ -887,7 +853,6 @@
     </div>
   </div>
 
-  <!-- 模態視窗: 更換個人頭貼 -->
   <div id="avatarModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-4">
@@ -933,7 +898,6 @@
     </div>
   </div>
 
-  <!-- 模態視窗: 新增/編輯行事曆事件 -->
   <div id="eventModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-5">
@@ -987,11 +951,9 @@
   </footer>
 
   <script>
-    // Google Apps Script API 網址
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxWQhC0bDnz4ITKoSGACvJeYlzDCGVOoYDMcoP3dIyAtBk5C1bpTajpj-R_xycdcBjW/exec";
     const DEFAULT_ADMIN_PASSWORD = "8888";
 
-    // 預設加扣分快捷項目
     const DEFAULT_POINT_PRESETS = [
       { id: "P01", emoji: "🙋‍♂️", reason: "課堂優良發言", delta: 1 },
       { id: "P02", emoji: "📝", reason: "作業優秀工整", delta: 2 },
@@ -1002,14 +964,14 @@
       { id: "P07", emoji: "📢", reason: "課堂喧嘩分心", delta: -1 }
     ];
 
-    // 微笑特工好習慣打卡預設任務
     const SMILE_AGENT_TASKS = [
       { id: "T1", title: "桌面保持整潔", desc: "書本與文具井然有序" },
       { id: "T2", title: "午餐後確實潔牙", desc: "照顧口腔健康好習慣" },
-      { id: "T3", title: "上課前準備好書本", desc: "提早預備專心學習" }
+      { id: "T3", title: "上課前準備好書本", desc: "提早預備專心學習" },
+      { id: "T4", title: "午餐不挑食", desc: "營養均衡吃光光" },
+      { id: "T5", title: "走廊排隊能安靜", desc: "守秩序輕聲慢步" }
     ];
 
-    // 全域變數狀態
     let students = [];
     let rewards = [];
     let classEvents = [];
@@ -1022,9 +984,7 @@
     let isFetchingGoogleSheet = false;
     let isStudentPersonalMode = false;
     let isHomeCalendarExpanded = false;
-
     let tempSelectedAvatar = '🌟';
-    let currentDexGender = 'boy';
 
     function renderStudentCard() {
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase()) || students[0];
@@ -1063,7 +1023,6 @@
       const welcomeEl = document.getElementById('cardWelcomeMessage');
       if (welcomeEl) welcomeEl.textContent = student.welcomeMessage || "🌻 歡迎來到向日葵班班！";
 
-      // 👧 / 👦 判斷目前性別
       const gender = student.gender || 'boy';
       updateGenderUIButtons(gender);
 
@@ -1073,7 +1032,6 @@
       const levelEl = document.getElementById('cardLevelName');
       if (levelEl) levelEl.textContent = lvl.name;
 
-      // 裝備標籤
       const gearTag = document.getElementById('heroGearTag');
       if (gearTag) {
         if (gender === 'girl') {
@@ -1116,7 +1074,6 @@
       if (updatedEl) updatedEl.textContent = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
     }
 
-    // 更新性別按鈕外觀
     function updateGenderUIButtons(gender) {
       const btnBoy = document.getElementById('genderBtnBoy');
       const btnGirl = document.getElementById('genderBtnGirl');
@@ -1131,7 +1088,6 @@
       }
     }
 
-    // 點擊切換性別
     function setStudentGender(gender) {
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
       if (!student) return;
@@ -1143,9 +1099,6 @@
     }
 
     function openEvolutionDexModal() {
-      const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
-      currentDexGender = student?.gender || 'boy';
-      renderEvolutionDexCards();
       document.getElementById('evolutionDexModal').classList.remove('hidden');
     }
 
@@ -1153,149 +1106,127 @@
       document.getElementById('evolutionDexModal').classList.add('hidden');
     }
 
-    function setDexGender(gender) {
-      currentDexGender = gender;
-      const tabBoy = document.getElementById('dexTabBoy');
-      const tabGirl = document.getElementById('dexTabGirl');
-      if (tabBoy && tabGirl) {
-        if (gender === 'girl') {
-          tabGirl.className = "px-4 py-1.5 rounded-xl transition bg-pink-500 text-white shadow-xs";
-          tabBoy.className = "px-4 py-1.5 rounded-xl transition text-amber-800 hover:text-pink-600";
-        } else {
-          tabBoy.className = "px-4 py-1.5 rounded-xl transition bg-orange-500 text-white shadow-xs";
-          tabGirl.className = "px-4 py-1.5 rounded-xl transition text-amber-800 hover:text-orange-600";
-        }
-      }
-      renderEvolutionDexCards();
-    }
-
-    function renderEvolutionDexCards() {
-      const container = document.getElementById('evolutionDexCardsContainer');
-      if (!container) return;
-      container.innerHTML = '';
-
-      const isGirl = currentDexGender === 'girl';
-
-      const stages = [
-        { 
-          stage: 1, 
-          title: isGirl ? "初階探索者 🌸" : "初階探索者 🌟", 
-          pts: "0 ~ 499 點", 
-          gear: isGirl ? "初心者木劍 · 粉紅蝴蝶結 · 草葉冒險短裙" : "初心者木劍 · 發芽嫩苗 · 草葉新手服" 
-        },
-        { 
-          stage: 2, 
-          title: isGirl ? "進階小達人 🍀" : "進階小達人 🌿", 
-          pts: "500 ~ 999 點", 
-          gear: isGirl ? "精鋼細劍 · 四葉草髮夾 · 翠綠百褶裙" : "精鋼長劍 · 守護盾 · 翠綠冒險披肩" 
-        },
-        { 
-          stage: 3, 
-          title: isGirl ? "黃金女武神 ⚔️" : "黃金勇者 ⚔️", 
-          pts: "1000 ~ 1999 點", 
-          gear: isGirl ? "金光細劍 · 女武神紅寶石金冠 · 黃金戰甲裙" : "王者巨劍 · 騎士戰盔 · 黃金耀眼重甲" 
-        },
-        { 
-          stage: 4, 
-          title: isGirl ? "星光探險家 💎" : "鑽石探險家 💎", 
-          pts: "2000 ~ 4999 點", 
-          gear: isGirl ? "星辰鑽石杖 · 鑽石星冠 · 璀璨水晶裙 · 愛心寶石" : "星辰鑽石神杖 · 鑽石王冠 · 蔚藍法袍 · 浮空鑽石水晶" 
-        },
-        { 
-          stage: 5, 
-          title: isGirl ? "傳奇榮譽天女 👑" : "傳奇榮譽大師 👑", 
-          pts: "5000+ 點", 
-          gear: isGirl ? "星月聖神杖 · 至尊向日葵花冠 · 天使雙色神翼" : "創世向日葵神劍 · 尊爵皇冠 · 熾天使拍動神翼" 
-        }
-      ];
-
-      stages.forEach(item => {
-        const div = document.createElement('div');
-        div.className = "flex items-center space-x-3 p-3 rounded-2xl bg-amber-50/60 border border-amber-200/80";
-        div.innerHTML = `
-          <div class="w-16 h-16 flex items-center justify-center bg-white rounded-xl shadow-xs flex-shrink-0 p-1 overflow-hidden">
-            ${getHeroCharacterSVG(item.stage, currentDexGender)}
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h4 class="font-black text-xs text-amber-950">${item.title}</h4>
-              <span class="text-[10px] bg-amber-200 text-amber-900 px-2 py-0.2 rounded-full font-bold">${item.pts}</span>
-            </div>
-            <p class="text-[11px] text-slate-500 mt-1">${item.gear}</p>
-          </div>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    // 渲染微笑特工打卡清單
+    // 🌻 雲端與本地嚴格防刷分打卡渲染邏輯
     function renderSmileAgentChecklist(student) {
       const container = document.getElementById('smileAgentChecklist');
       const countEl = document.getElementById('smileAgentCount');
-      if (!container || !countEl) return;
+      if (!container || !countEl) container.innerHTML = '';
+
+      if (!student.smileLogs) student.smileLogs = {};
+      const todayStr = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+      
+      if (!student.smileLogs[todayStr]) {
+        student.smileLogs[todayStr] = { tasks: {}, rewardClaimed: false };
+      }
+      const todayLog = student.smileLogs[todayStr];
+
+      // 計算今天已完成打卡數量
+      let checkedCountToday = Object.keys(todayLog.tasks).length;
+      countEl.textContent = checkedCountToday;
       container.innerHTML = '';
 
-      if (!student.smileCount) student.smileCount = 0;
-      countEl.textContent = student.smileCount;
-
-      if (!student.smileTasks) student.smileTasks = {};
-
       SMILE_AGENT_TASKS.forEach(task => {
-        const isChecked = !!student.smileTasks[task.id];
-        const div = document.createElement('label');
-        div.className = `flex items-center justify-between p-2.5 rounded-2xl border transition cursor-pointer ${isChecked ? 'bg-emerald-100/70 border-emerald-300' : 'bg-white border-emerald-200/80 hover:bg-emerald-50/40'}`;
+        const isDone = !!todayLog.tasks[task.id];
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between p-2.5 rounded-2xl border transition " + 
+          (isDone ? "bg-slate-100 border-slate-200" : "bg-white border-emerald-200/80 hover:bg-emerald-50/40");
+        
         div.innerHTML = `
           <div class="flex items-center gap-2.5">
-            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleSmileTask('${task.id}')" class="w-4 h-4 accent-emerald-600 rounded">
             <div>
               <p class="text-xs font-black text-slate-800">${task.title}</p>
               <p class="text-[10px] text-slate-500">${task.desc}</p>
             </div>
           </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isChecked ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'}">
-            ${isChecked ? '已完成' : '待打卡'}
-          </span>
+          <button type="button" onclick="recordSmileAgentCheckin('${task.id}', '${task.title}')" 
+            class="px-3 py-1.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1 ${
+              isDone ? 'bg-slate-300 text-slate-600 cursor-not-allowed' : 'bg-emerald-600 hover:bg-emerald-700 text-white'
+            }" ${isDone ? 'disabled' : ''}>
+            <i class="fa-solid ${isDone ? 'fa-check' : 'fa-plus'}"></i> ${isDone ? '今日已打卡' : '打卡 +1'}
+          </button>
         `;
         container.appendChild(div);
       });
+
+      const rewardBtn = document.getElementById('smileRewardBtn');
+      if (rewardBtn) {
+        if (todayLog.rewardClaimed) {
+          rewardBtn.className = "w-full py-2.5 bg-slate-300 text-slate-600 font-black text-xs rounded-2xl shadow-xs transition flex items-center justify-center gap-1.5 cursor-not-allowed";
+          rewardBtn.innerHTML = `<i class="fa-solid fa-check-double"></i> 今日已領取過驗證獎勵`;
+          rewardBtn.disabled = true;
+        } else {
+          rewardBtn.className = "w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 text-white font-black text-xs rounded-2xl shadow-md transition flex items-center justify-center gap-1.5 border border-emerald-400";
+          rewardBtn.innerHTML = `<i class="fa-solid fa-award"></i> 申請驗證領取 +10 點 (滿5次)`;
+          rewardBtn.disabled = false;
+        }
+      }
     }
 
-    function toggleSmileTask(taskId) {
+    function recordSmileAgentCheckin(taskId, taskTitle) {
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
       if (!student) return;
-      if (!student.smileTasks) student.smileTasks = {};
-      if (!student.smileCount) student.smileCount = 0;
+      if (!student.smileLogs) student.smileLogs = {};
+      const todayStr = new Date().toISOString().slice(0, 10);
+      if (!student.smileLogs[todayStr]) {
+        student.smileLogs[todayStr] = { tasks: {}, rewardClaimed: false };
+      }
+      const todayLog = student.smileLogs[todayStr];
 
-      const wasChecked = student.smileTasks[taskId];
-      student.smileTasks[taskId] = !wasChecked;
-
-      if (!wasChecked) {
-        student.smileCount += 1;
-        showToast("打卡成功！好習慣養成中 🌱", "success");
-      } else {
-        student.smileCount = Math.max(0, student.smileCount - 1);
+      if (todayLog.tasks[taskId]) {
+        return showToast("這個好習慣項目今天已經打卡過了喔！", "error");
       }
 
+      todayLog.tasks[taskId] = true;
+      
       saveSystemData();
       renderStudentCard();
-      sendDataToGoogleSheets({ action: 'updateSmileAgent', studentId: student.id, smileCount: student.smileCount, smileTasks: JSON.stringify(student.smileTasks) });
+      showToast(`【${taskTitle}】今日打卡成功！🌱`, "success");
+      
+      // 🌻 同步寫入 Google 試算表雲端防刷紀錄
+      sendDataToGoogleSheets({ 
+        action: 'updateSmileAgentCloud', 
+        studentId: student.id, 
+        date: todayStr,
+        tasks: todayLog.tasks,
+        rewardClaimed: todayLog.rewardClaimed
+      });
     }
 
     function applySmileAgentReward() {
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
       if (!student) return;
-      if (!student.smileCount) student.smileCount = 0;
+      if (!student.smileLogs) student.smileLogs = {};
+      const todayStr = new Date().toISOString().slice(0, 10);
+      if (!student.smileLogs[todayStr]) {
+        student.smileLogs[todayStr] = { tasks: {}, rewardClaimed: false };
+      }
+      const todayLog = student.smileLogs[todayStr];
 
-      if (student.smileCount < 5) {
-        return showToast(`目前累計打卡 ${student.smileCount} 次，還差 ${5 - student.smileCount} 次即可向老師申請驗證！`, "info");
+      if (todayLog.rewardClaimed) {
+        return showToast("今天已經領取過微笑特工獎勵囉！請明天再接再厲！", "error");
       }
 
-      student.smileCount -= 5; // 扣除 5 次門檻
+      const checkedCountToday = Object.keys(todayLog.tasks).length;
+      if (checkedCountToday < 5) {
+        return showToast(`今天目前累計打卡 ${checkedCountToday} 次，還差 ${5 - checkedCountToday} 次即可申請驗證！`, "info");
+      }
+
+      todayLog.rewardClaimed = true;
+      
       saveSystemData();
       quickAddPoints(student.id, 10, "【好習慣打卡】微笑特工任務達標獎勵");
       renderStudentCard();
+      
       showToast("🎉 恭喜通過微笑特工驗證！獲得 +10 積分獎勵！", "success");
-      sendDataToGoogleSheets({ action: 'updateSmileAgent', studentId: student.id, smileCount: student.smileCount, smileTasks: JSON.stringify(student.smileTasks || {}) });
+      
+      // 🌻 同步寫入雲端防刷紀錄
+      sendDataToGoogleSheets({ 
+        action: 'updateSmileAgentCloud', 
+        studentId: student.id, 
+        date: todayStr,
+        tasks: todayLog.tasks,
+        rewardClaimed: todayLog.rewardClaimed
+      });
     }
 
     function refreshAllViews() {
@@ -1466,8 +1397,7 @@
               avatar: st.avatar || old?.avatar || "🌟",
               points: Number(st.points ?? old?.points ?? 0),
               welcomeMessage: st.welcomeMessage || old?.welcomeMessage || "🌻 歡迎來到向日葵班班！",
-              smileCount: Number(st.smileCount ?? old?.smileCount ?? 0),
-              smileTasks: st.smileTasks ? (typeof st.smileTasks === 'string' ? JSON.parse(st.smileTasks) : st.smileTasks) : (old?.smileTasks || {}),
+              smileLogs: st.smileLogs || old?.smileLogs || {},
               history: Array.isArray(st.history) && st.history.length > 0 ? st.history : (old?.history || [])
             };
           });
@@ -1622,7 +1552,6 @@
         </svg>`;
       }
 
-      // 👦 男生人偶
       if (stage === 1) {
         return `<svg viewBox="0 0 160 160" class="w-full h-full drop-shadow-md">
           <circle cx="80" cy="80" r="30" fill="#fed7aa" stroke="#fbbf24" stroke-width="2"/>
@@ -1738,8 +1667,7 @@
     }
 
     function closeAdminLoginModal() {
-      const modal = document.getElementById('adminLoginModal');
-      if (modal) modal.classList.add('hidden');
+      document.getElementById('adminLoginModal').classList.add('hidden');
     }
 
     function verifyAdminPassword(e) {
@@ -2055,7 +1983,7 @@
           students[idx] = { ...students[idx], seat, id, name, gender, role, welcomeMessage: welcome, avatar, points };
         }
       } else {
-        students.push({ id, seat, name, gender, role, welcomeMessage: welcome, avatar, points, smileCount: 0, smileTasks: {}, history: [] });
+        students.push({ id, seat, name, gender, role, welcomeMessage: welcome, avatar, points, smileLogs: {}, history: [] });
       }
       saveSystemData();
       closeStudentModal();
