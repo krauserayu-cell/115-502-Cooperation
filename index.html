@@ -247,6 +247,30 @@
 
           </div>
 
+          <!-- ✨ 好習慣打卡：每日「微笑特工」任務區塊 -->
+          <div class="mb-6 bg-gradient-to-b from-emerald-50 to-teal-50/60 rounded-3xl p-4 sm:p-5 border border-emerald-200 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+              <span class="inline-flex items-center gap-1.5 text-xs font-black bg-emerald-200/80 text-emerald-900 px-3 py-1 rounded-full">
+                <i class="fa-solid fa-seedling text-emerald-600"></i> 微笑特工 · 好習慣打卡
+              </span>
+              <span class="text-[11px] font-bold text-emerald-800 bg-white/80 px-2.5 py-1 rounded-full border border-emerald-200 shadow-2xs">
+                累計打卡：<strong id="smileAgentCount" class="text-emerald-700">0</strong> / 5 次
+              </span>
+            </div>
+
+            <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+              每日落實班級品格好習慣，完成勾選後即可向老師申請驗證，累積滿 5 次即可獲得 <strong class="text-orange-600">+10 PTS</strong> 獎勵！
+            </p>
+
+            <div class="space-y-2 mb-3" id="smileAgentChecklist">
+              <!-- 動態勾選項目 -->
+            </div>
+
+            <button type="button" onclick="applySmileAgentReward()" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs rounded-2xl shadow-md transition flex items-center justify-center gap-1.5 border border-emerald-400">
+              <i class="fa-solid fa-award"></i> 申請驗證領取 +10 點 (滿5次)
+            </button>
+          </div>
+
           <!-- 💌 老師專屬勉勵卡片 -->
           <div class="mb-5 bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200 shadow-sm relative">
             <div class="flex items-center gap-2 mb-1.5">
@@ -557,7 +581,7 @@
       </div>
 
       <p class="text-xs text-slate-500 mb-4 leading-relaxed">
-        就像《楓之谷》一樣，只要認真上課、作業優良、主動發問，點數累積愈多，角色就會換上更帥氣強大的武器神裝喔！
+        就像《楓之谷》一樣，只要認真上課、作業優良、主動發問與養成良好習慣，點數累積愈多，角色就會換上更帥氣強大的武器神裝喔！
       </p>
 
       <div class="space-y-3" id="evolutionDexCardsContainer"></div>
@@ -978,6 +1002,13 @@
       { id: "P07", emoji: "📢", reason: "課堂喧嘩分心", delta: -1 }
     ];
 
+    // 微笑特工好習慣打卡預設任務
+    const SMILE_AGENT_TASKS = [
+      { id: "T1", title: "桌面保持整潔", desc: "書本與文具井然有序" },
+      { id: "T2", title: "午餐後確實潔牙", desc: "照顧口腔健康好習慣" },
+      { id: "T3", title: "上課前準備好書本", desc: "提早預備專心學習" }
+    ];
+
     // 全域變數狀態
     let students = [];
     let rewards = [];
@@ -1076,6 +1107,7 @@
       if (progTextEl) progTextEl.textContent = needed > 0 ? `距離升級還差 ${needed} 點` : `已晉升至最高榮譽！`;
       if (progBarEl) progBarEl.style.width = `${percent}%`;
 
+      renderSmileAgentChecklist(student);
       renderStudentRewardsList(student);
       renderStudentHistoryList(student);
       renderStudentChatMessages(student);
@@ -1194,6 +1226,76 @@
         `;
         container.appendChild(div);
       });
+    }
+
+    // 渲染微笑特工打卡清單
+    function renderSmileAgentChecklist(student) {
+      const container = document.getElementById('smileAgentChecklist');
+      const countEl = document.getElementById('smileAgentCount');
+      if (!container || !countEl) return;
+      container.innerHTML = '';
+
+      if (!student.smileCount) student.smileCount = 0;
+      countEl.textContent = student.smileCount;
+
+      if (!student.smileTasks) student.smileTasks = {};
+
+      SMILE_AGENT_TASKS.forEach(task => {
+        const isChecked = !!student.smileTasks[task.id];
+        const div = document.createElement('label');
+        div.className = `flex items-center justify-between p-2.5 rounded-2xl border transition cursor-pointer ${isChecked ? 'bg-emerald-100/70 border-emerald-300' : 'bg-white border-emerald-200/80 hover:bg-emerald-50/40'}`;
+        div.innerHTML = `
+          <div class="flex items-center gap-2.5">
+            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleSmileTask('${task.id}')" class="w-4 h-4 accent-emerald-600 rounded">
+            <div>
+              <p class="text-xs font-black text-slate-800">${task.title}</p>
+              <p class="text-[10px] text-slate-500">${task.desc}</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded-full ${isChecked ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-500'}">
+            ${isChecked ? '已完成' : '待打卡'}
+          </span>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function toggleSmileTask(taskId) {
+      const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
+      if (!student) return;
+      if (!student.smileTasks) student.smileTasks = {};
+      if (!student.smileCount) student.smileCount = 0;
+
+      const wasChecked = student.smileTasks[taskId];
+      student.smileTasks[taskId] = !wasChecked;
+
+      if (!wasChecked) {
+        student.smileCount += 1;
+        showToast("打卡成功！好習慣養成中 🌱", "success");
+      } else {
+        student.smileCount = Math.max(0, student.smileCount - 1);
+      }
+
+      saveSystemData();
+      renderStudentCard();
+      sendDataToGoogleSheets({ action: 'updateSmileAgent', studentId: student.id, smileCount: student.smileCount, smileTasks: JSON.stringify(student.smileTasks) });
+    }
+
+    function applySmileAgentReward() {
+      const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
+      if (!student) return;
+      if (!student.smileCount) student.smileCount = 0;
+
+      if (student.smileCount < 5) {
+        return showToast(`目前累計打卡 ${student.smileCount} 次，還差 ${5 - student.smileCount} 次即可向老師申請驗證！`, "info");
+      }
+
+      student.smileCount -= 5; // 扣除 5 次門檻
+      saveSystemData();
+      quickAddPoints(student.id, 10, "【好習慣打卡】微笑特工任務達標獎勵");
+      renderStudentCard();
+      showToast("🎉 恭喜通過微笑特工驗證！獲得 +10 積分獎勵！", "success");
+      sendDataToGoogleSheets({ action: 'updateSmileAgent', studentId: student.id, smileCount: student.smileCount, smileTasks: JSON.stringify(student.smileTasks || {}) });
     }
 
     function refreshAllViews() {
@@ -1364,6 +1466,8 @@
               avatar: st.avatar || old?.avatar || "🌟",
               points: Number(st.points ?? old?.points ?? 0),
               welcomeMessage: st.welcomeMessage || old?.welcomeMessage || "🌻 歡迎來到向日葵班班！",
+              smileCount: Number(st.smileCount ?? old?.smileCount ?? 0),
+              smileTasks: st.smileTasks ? (typeof st.smileTasks === 'string' ? JSON.parse(st.smileTasks) : st.smileTasks) : (old?.smileTasks || {}),
               history: Array.isArray(st.history) && st.history.length > 0 ? st.history : (old?.history || [])
             };
           });
@@ -1951,7 +2055,7 @@
           students[idx] = { ...students[idx], seat, id, name, gender, role, welcomeMessage: welcome, avatar, points };
         }
       } else {
-        students.push({ id, seat, name, gender, role, welcomeMessage: welcome, avatar, points, history: [] });
+        students.push({ id, seat, name, gender, role, welcomeMessage: welcome, avatar, points, smileCount: 0, smileTasks: {}, history: [] });
       }
       saveSystemData();
       closeStudentModal();
