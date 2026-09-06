@@ -43,32 +43,6 @@
       transform-origin: 10% 70%;
       animation: wingFlap 2.2s ease-in-out infinite alternate;
     }
-    .wood-bamboo-bg {
-      background-color: #8c531b;
-      background-image: repeating-linear-gradient(90deg, #9d6023, #9d6023 20px, #7c4513 20px, #7c4513 24px);
-    }
-    .cw-board-cell {
-      background-color: #f7d37a;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 2px 4px rgba(0,0,0,0.15);
-    }
-    .cw-board-cell.empty-slot {
-      background-color: #c98838;
-      box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-    }
-    .cw-board-cell.active-focus {
-      background-color: #dc2626 !important;
-      color: white !important;
-      box-shadow: 0 0 0 3px #fef08a, 0 4px 8px rgba(220,38,38,0.4) !important;
-    }
-    .mahjong-tile {
-      background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
-      box-shadow: 0 4px 0 #1d4ed8, 0 6px 6px rgba(0,0,0,0.25);
-      transition: all 0.1s ease;
-    }
-    .mahjong-tile:active {
-      transform: translateY(3px);
-      box-shadow: 0 1px 0 #1d4ed8, 0 2px 4px rgba(0,0,0,0.2);
-    }
   </style>
 </head>
 <body class="bg-amber-50/40 text-slate-800 min-h-screen font-sans antialiased flex flex-col">
@@ -269,28 +243,6 @@
               <div class="w-full bg-amber-100/80 h-3 rounded-full overflow-hidden p-0.5 border border-amber-200">
                 <div id="cardProgressBar" class="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400 h-full rounded-full transition-all duration-500 shadow-sm" style="width: 10%;"></div>
               </div>
-            </div>
-
-            <!-- 遊戲 1: 看圖猜成語 (20 關) -->
-            <div class="flex items-center gap-2 mt-4">
-              <button onclick="openIdiomGameModal()" class="flex-1 py-2.5 px-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-2xl font-black text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 border border-amber-300">
-                <span>🏮 看圖猜成語 (<span id="homeIdiomBadge">0</span>/20)</span>
-                <span class="bg-amber-100 text-amber-900 text-[10px] px-2 py-0.5 rounded-full font-bold">過關 +10 PTS</span>
-              </button>
-              <button onclick="openIdiomLeaderboardModal()" class="py-2.5 px-3 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-2xl font-black text-xs border border-amber-300 transition shadow-xs flex items-center gap-1.5 flex-shrink-0" title="查看成語過關全班排行榜">
-                <i class="fa-solid fa-trophy text-amber-600"></i> 龍虎榜
-              </button>
-            </div>
-
-            <!-- 遊戲 2: 成語十字接龍 (5 關) -->
-            <div class="flex items-center gap-2 mt-2">
-              <button onclick="openCrosswordGameModal()" class="flex-1 py-2.5 px-3 bg-gradient-to-r from-amber-700 via-amber-800 to-orange-900 hover:from-amber-800 hover:to-orange-950 text-white rounded-2xl font-black text-xs sm:text-sm shadow-md transition flex items-center justify-center gap-2 border border-amber-600">
-                <span>🧩 成語十字接龍 (<span id="homeCrosswordBadge">0</span>/5)</span>
-                <span class="bg-amber-200 text-amber-950 text-[10px] px-2 py-0.5 rounded-full font-bold">過關 +20 PTS</span>
-              </button>
-              <button onclick="openCrosswordLeaderboardModal()" class="py-2.5 px-3 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-2xl font-black text-xs border border-amber-300 transition shadow-xs flex items-center gap-1.5 flex-shrink-0" title="查看成語接龍全班排行榜">
-                <i class="fa-solid fa-trophy text-amber-600"></i> 龍虎榜
-              </button>
             </div>
 
           </div>
@@ -587,206 +539,6 @@
 
   </main>
 
-  <!-- ================= 模態視窗: 看圖猜成語遊戲舞台 ================= -->
-  <div id="idiomGameModal" class="no-print fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
-    <div class="bg-amber-100/95 rounded-3xl max-w-sm w-full p-4 shadow-2xl border-4 border-amber-800 text-slate-800 flex flex-col relative max-h-[96vh] overflow-y-auto">
-      
-      <div class="flex justify-between items-center mb-3">
-        <div class="flex items-center gap-2">
-          <span class="bg-amber-900 text-amber-100 text-xs font-black px-3 py-1 rounded-full border border-amber-700">
-            第 <span id="gameCurrentStageNum">1</span> / 20 關
-          </span>
-          <span class="text-xs font-bold text-amber-950" id="gameIdiomThemeTitle">智慧成語</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <div class="bg-amber-500/20 px-2.5 py-1 rounded-full border border-amber-600/30 flex items-center gap-1 text-xs font-black text-amber-900">
-            <span>🪙</span> <span id="gamePointsDisplay">0</span> PTS
-          </div>
-          <button onclick="closeIdiomGameModal()" class="w-7 h-7 bg-amber-200 hover:bg-amber-300 text-amber-900 rounded-full flex items-center justify-center font-bold text-xs">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
-        </div>
-      </div>
-
-      <div class="flex justify-center gap-2.5 mb-3">
-        <button onclick="useIdiomHint()" class="bg-gradient-to-b from-amber-700 to-amber-900 text-amber-100 text-[11px] font-black px-3 py-1.5 rounded-xl shadow-sm border border-amber-600 hover:brightness-110 flex items-center gap-1">
-          <span>💡</span> 提示一字
-        </button>
-        <button onclick="useIdiomEliminate()" class="bg-gradient-to-b from-red-700 to-red-900 text-red-100 text-[11px] font-black px-3 py-1.5 rounded-xl shadow-sm border border-red-600 hover:brightness-110 flex items-center gap-1">
-          <span>🧹</span> 消干擾字
-        </button>
-        <button onclick="skipToNextStage()" class="bg-gradient-to-b from-amber-600 to-amber-800 text-white text-[11px] font-black px-3 py-1.5 rounded-xl shadow-sm border border-amber-500 hover:brightness-110 flex items-center gap-1">
-          <span>🔄</span> 換下一題
-        </button>
-      </div>
-
-      <div class="wood-bamboo-bg p-3 rounded-2xl border-2 border-amber-950 shadow-inner mb-3">
-        <div class="w-full aspect-[4/3] bg-amber-50 rounded-xl overflow-hidden border border-amber-900 flex items-center justify-center relative shadow-sm" id="idiomIllustrationBox"></div>
-        <div class="flex justify-center gap-2 mt-3" id="idiomAnswerSlots"></div>
-      </div>
-
-      <div class="bg-amber-200/70 p-2.5 rounded-2xl border border-amber-400">
-        <div class="grid grid-cols-6 gap-1.5" id="idiomLetterTilesContainer"></div>
-      </div>
-
-      <div id="idiomSuccessBanner" class="hidden absolute inset-0 bg-amber-950/85 backdrop-blur-md rounded-3xl p-6 flex flex-col items-center justify-center text-center text-white z-20">
-        <div class="w-16 h-16 bg-gradient-to-br from-amber-300 to-yellow-500 rounded-full flex items-center justify-center text-3xl shadow-lg border-2 border-white mb-3 animate-bounce">
-          🏆
-        </div>
-        <span class="inline-block bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-emerald-400" id="idiomVictoryTextBadge">
-          恭喜首次過關！獲得 +10 PTS！✨
-        </span>
-        <h3 class="text-3xl font-black text-amber-200 mb-2" id="successIdiomTitle">甚囂塵上</h3>
-        <p class="text-xs text-amber-100/90 leading-relaxed bg-black/30 p-3 rounded-2xl border border-white/10 mb-4 max-w-xs" id="successIdiomMeaning">
-          形容傳聞四起，議論紛紛。
-        </p>
-        <div class="flex gap-2">
-          <button onclick="loadNextIdiomStage()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs px-5 py-2.5 rounded-xl shadow-md transition">
-            挑戰下一關 ➔
-          </button>
-          <button onclick="closeIdiomGameModal()" class="bg-white/20 hover:bg-white/30 text-white font-bold text-xs px-3 py-2.5 rounded-xl transition">
-            關閉
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- ================= 模態視窗: 成語十字接龍填字遊戲 ================= -->
-  <div id="crosswordGameModal" class="no-print fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 hidden">
-    <div class="bg-amber-950 rounded-3xl max-w-sm w-full p-3.5 shadow-2xl border-4 border-amber-700 text-white flex flex-col relative max-h-[98vh] overflow-y-auto">
-      
-      <div class="flex justify-between items-center mb-2 px-1">
-        <div class="flex items-center gap-2">
-          <span class="bg-amber-800 text-amber-100 text-xs font-black px-2.5 py-0.5 rounded-full border border-amber-600">
-            第 <span id="cwStageNum">1</span> / 5 關
-          </span>
-          <span class="text-xs font-bold text-amber-300" id="cwStageTitle">成語接龍</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <button onclick="openCrosswordLeaderboardModal()" class="bg-amber-700/80 hover:bg-amber-600 text-amber-100 text-xs font-bold px-2 py-0.5 rounded-lg border border-amber-500">
-            🏆 榜單
-          </button>
-          <button onclick="closeCrosswordGameModal()" class="w-6 h-6 bg-amber-800 hover:bg-amber-700 rounded-full flex items-center justify-center font-bold text-xs text-amber-200">
-            ✕
-          </button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-2 gap-2 bg-black/60 p-2.5 rounded-xl border border-amber-800/80 mb-2.5 text-xs">
-        <div class="border-r border-amber-800/60 pr-2">
-          <div class="flex items-center gap-1 text-amber-400 font-bold mb-0.5">
-            <span class="bg-red-600 text-white text-[10px] px-1 py-0.2 rounded">橫 ➔</span>
-            <span id="cwPromptAcrossMask">--</span>
-          </div>
-          <p class="text-[10px] text-amber-100/80 line-clamp-2" id="cwPromptAcrossMeaning">點擊格子查看提示</p>
-        </div>
-        <div class="pl-1">
-          <div class="flex items-center gap-1 text-amber-400 font-bold mb-0.5">
-            <span class="bg-red-800 text-white text-[10px] px-1 py-0.2 rounded">直 ↓</span>
-            <span id="cwPromptDownMask">--</span>
-          </div>
-          <p class="text-[10px] text-amber-100/80 line-clamp-2" id="cwPromptDownMeaning">點擊格子查看提示</p>
-        </div>
-      </div>
-
-      <div class="bg-[#5a320f] p-2 rounded-2xl border-2 border-amber-900 shadow-inner mb-3 flex items-center justify-center">
-        <div id="cwBoardGrid" class="grid gap-1"></div>
-      </div>
-
-      <div class="bg-amber-900/60 p-2 rounded-2xl border border-amber-700">
-        <div class="text-[10px] text-amber-300 font-bold mb-1.5 px-1 flex justify-between items-center">
-          <span>請選字填入紅色空格：</span>
-          <button onclick="clearCurrentFocusedSlot()" class="text-amber-200 underline text-[10px]">清空格子</button>
-        </div>
-        <div class="grid grid-cols-8 gap-1" id="cwMahjongTilesContainer"></div>
-      </div>
-
-      <div id="crosswordSuccessBanner" class="hidden absolute inset-0 bg-amber-950/90 backdrop-blur-md rounded-3xl p-6 flex flex-col items-center justify-center text-center text-white z-20">
-        <div class="w-16 h-16 bg-gradient-to-br from-amber-400 to-yellow-500 rounded-full flex items-center justify-center text-3xl shadow-lg border-2 border-white mb-3 animate-bounce">
-          🧩
-        </div>
-        <span class="inline-block bg-emerald-600 text-white text-xs font-black px-3 py-1 rounded-full mb-3 shadow-sm border border-emerald-400" id="crosswordVictoryTextBadge">
-          🎉 恭喜首次過關！獲得獎勵 +20 PTS！✨
-        </span>
-        <h3 class="text-2xl font-black text-amber-200 mb-1">大功告成！</h3>
-        <p class="text-xs text-amber-100/90 mb-4 max-w-xs" id="cwSuccessSummary"></p>
-        <div class="flex gap-2">
-          <button onclick="loadNextCrosswordStage()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 text-white font-black text-xs px-5 py-2.5 rounded-xl shadow-md">
-            下一關 ➔
-          </button>
-          <button onclick="closeCrosswordGameModal()" class="bg-white/20 hover:bg-white/30 text-white font-bold text-xs px-3 py-2.5 rounded-xl">
-            關閉
-          </button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- 模態視窗: 看圖猜成語全班龍虎榜 -->
-  <div id="idiomLeaderboardModal" class="no-print fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-amber-100 max-h-[85vh] flex flex-col">
-      <div class="flex justify-between items-center mb-4">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl">🏆</span>
-          <div>
-            <h3 class="text-base font-black text-slate-800">看圖猜成語 · 智慧龍虎榜</h3>
-            <p class="text-xs text-slate-500">全班挑戰進度 · 每過一關獲得 +10 積分！</p>
-          </div>
-        </div>
-        <button onclick="closeIdiomLeaderboardModal()" class="text-slate-400 hover:text-slate-600 p-1">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 mb-4 text-center">
-        <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200">
-          <div class="text-[11px] text-amber-800 font-bold">總關卡數</div>
-          <div class="text-2xl font-black text-amber-900">20 關</div>
-        </div>
-        <div class="bg-orange-50 p-3 rounded-2xl border border-orange-200">
-          <div class="text-[11px] text-orange-800 font-bold">目前最高破關</div>
-          <div class="text-2xl font-black text-orange-900" id="leaderboardMaxPassed">0 關</div>
-        </div>
-      </div>
-
-      <div class="flex-1 overflow-y-auto space-y-2 pr-1" id="idiomLeaderboardList"></div>
-    </div>
-  </div>
-
-  <!-- 模態視窗: 成語十字接龍全班龍虎榜 -->
-  <div id="crosswordLeaderboardModal" class="no-print fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-amber-100 max-h-[85vh] flex flex-col">
-      <div class="flex justify-between items-center mb-4">
-        <div class="flex items-center gap-2">
-          <span class="text-2xl">🧩</span>
-          <div>
-            <h3 class="text-base font-black text-slate-800">成語十字接龍 · 智慧龍虎榜</h3>
-            <p class="text-xs text-slate-500">全班接龍棋盤進度 · 每通一關獎勵 +20 積分！</p>
-          </div>
-        </div>
-        <button onclick="closeCrosswordLeaderboardModal()" class="text-slate-400 hover:text-slate-600 p-1">
-          <i class="fa-solid fa-xmark text-lg"></i>
-        </button>
-      </div>
-
-      <div class="grid grid-cols-2 gap-3 mb-4 text-center">
-        <div class="bg-amber-50 p-3 rounded-2xl border border-amber-200">
-          <div class="text-[11px] text-amber-800 font-bold">總關卡數</div>
-          <div class="text-2xl font-black text-amber-900">5 關</div>
-        </div>
-        <div class="bg-orange-50 p-3 rounded-2xl border border-orange-200">
-          <div class="text-[11px] text-orange-800 font-bold">目前最高破關</div>
-          <div class="text-2xl font-black text-orange-900" id="cwLeaderboardMaxPassed">0 關</div>
-        </div>
-      </div>
-
-      <div class="flex-1 overflow-y-auto space-y-2 pr-1" id="crosswordLeaderboardList"></div>
-    </div>
-  </div>
-
   <!-- 模態視窗: 角色進化圖鑑 -->
   <div id="evolutionDexModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
@@ -805,7 +557,7 @@
       </div>
 
       <p class="text-xs text-slate-500 mb-4 leading-relaxed">
-        就像《楓之谷》一樣，只要認真上課、作業優良、主動發問與解開成語謎題，點數累積愈多，角色就會換上更帥氣強大的武器神裝喔！
+        就像《楓之谷》一樣，只要認真上課、作業優良、主動發問，點數累積愈多，角色就會換上更帥氣強大的武器神裝喔！
       </p>
 
       <div class="space-y-3" id="evolutionDexCardsContainer"></div>
@@ -1226,124 +978,6 @@
       { id: "P07", emoji: "📢", reason: "課堂喧嘩分心", delta: -1 }
     ];
 
-    // 20 關經典成語題目庫
-    const IDIOM_STAGES = [
-      { id: 1, idiom: "甚囂塵上", meaning: "形容傳聞四起，議論紛紛。", hint: "兩人在滾滾灰塵中高聲談話，周圍人群紛紛議論。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fef3c7"/><ellipse cx="150" cy="175" rx="140" ry="25" fill="#e2e8f0"/><ellipse cx="100" cy="155" rx="55" ry="30" fill="#cbd5e1" opacity="0.8"/><ellipse cx="200" cy="155" rx="55" ry="30" fill="#cbd5e1" opacity="0.8"/><ellipse cx="150" cy="140" rx="70" ry="35" fill="#94a3b8" opacity="0.7"/><circle cx="50" cy="120" r="14" fill="#94a3b8"/><rect x="42" y="134" width="16" height="30" rx="4" fill="#64748b"/><circle cx="250" cy="120" r="14" fill="#94a3b8"/><rect x="242" y="134" width="16" height="30" rx="4" fill="#64748b"/><circle cx="120" cy="95" r="22" fill="#fed7aa"/><rect x="106" y="117" width="28" height="38" rx="6" fill="#15803d"/><circle cx="180" cy="95" r="22" fill="#fed7aa"/><rect x="166" y="117" width="28" height="38" rx="6" fill="#475569"/><line x1="120" y1="65" x2="110" y2="45" stroke="#b45309" stroke-width="3" stroke-linecap="round"/><line x1="130" y1="60" x2="135" y2="40" stroke="#b45309" stroke-width="3" stroke-linecap="round"/><line x1="180" y1="65" x2="190" y2="45" stroke="#b45309" stroke-width="3" stroke-linecap="round"/><line x1="170" y1="60" x2="165" y2="40" stroke="#b45309" stroke-width="3" stroke-linecap="round"/></svg>` },
-      { id: 2, idiom: "守株待兔", meaning: "比喻死守狹隘經驗，不知變通。", hint: "農夫在枯樹樁旁打瞌睡，旁邊躺著一隻撞昏的兔子。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#ecfdf5"/><rect x="0" y="150" width="300" height="50" fill="#86efac"/><rect x="120" y="110" width="55" height="50" rx="6" fill="#78350f"/><ellipse cx="147" cy="110" rx="27" ry="10" fill="#92400e"/><circle cx="150" cy="80" r="18" fill="#fde047"/><path d="M142,78 Q150,83 158,78" fill="none" stroke="#713f12" stroke-width="2"/><circle cx="85" cy="140" r="16" fill="#ffffff" stroke="#94a3b8" stroke-width="2"/><ellipse cx="85" cy="115" rx="4" ry="14" fill="#fed7aa" transform="rotate(-30 85 115)"/><text x="79" y="145" font-size="14" font-weight="bold" fill="#ef4444">✕ ✕</text></svg>` },
-      { id: 3, idiom: "畫蛇添足", meaning: "比喻多此一舉，不但無益，反而有害。", hint: "屏風上的蛇畫得維妙維肖，卻被多添了四隻腳。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fffbeb"/><rect x="30" y="20" width="240" height="150" rx="8" fill="#fef3c7" stroke="#78350f" stroke-width="4"/><path d="M60,95 Q110,40 150,95 T240,95" fill="none" stroke="#16a34a" stroke-width="16" stroke-linecap="round"/><circle cx="245" cy="95" r="10" fill="#15803d"/><line x1="100" y1="103" x2="90" y2="135" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/><line x1="120" y1="103" x2="130" y2="135" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/><line x1="180" y1="103" x2="170" y2="135" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/><line x1="200" y1="103" x2="210" y2="135" stroke="#dc2626" stroke-width="5" stroke-linecap="round"/></svg>` },
-      { id: 4, idiom: "對牛彈琴", meaning: "比喻對不懂道理的人講高深的道理。", hint: "樂師對著一頭滿臉困惑的牛彈奏古琴。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f0fdf4"/><circle cx="80" cy="110" r="22" fill="#fed7aa"/><rect x="65" y="132" width="30" height="40" rx="6" fill="#0284c7"/><rect x="50" y="150" width="60" height="14" rx="4" fill="#78350f"/><line x1="55" y1="154" x2="105" y2="154" stroke="#fbbf24" stroke-width="2"/><circle cx="220" cy="110" r="38" fill="#92400e"/><circle cx="195" cy="85" r="8" fill="#fef08a"/><circle cx="245" cy="85" r="8" fill="#fef08a"/><text x="210" y="70" font-size="28" font-weight="black" fill="#dc2626">？</text></svg>` },
-      { id: 5, idiom: "井底之蛙", meaning: "比喻見識狹窄的人。", hint: "深井底下一隻青蛙抬頭看著圓圓的狹小天空。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#1e293b"/><rect x="80" y="0" width="140" height="200" fill="#334155"/><ellipse cx="150" cy="20" rx="50" ry="16" fill="#38bdf8"/><circle cx="150" cy="160" r="20" fill="#22c55e"/><circle cx="143" cy="150" r="5" fill="#ffffff"/><circle cx="157" cy="150" r="5" fill="#ffffff"/></svg>` },
-      { id: 6, idiom: "狐假虎威", meaning: "比喻藉著有權者的威勢恐嚇他人。", hint: "狐狸走在老虎前面，森林動物望而生畏。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fef2f2"/><ellipse cx="200" cy="110" rx="50" ry="35" fill="#ea580c"/><circle cx="235" cy="90" r="25" fill="#f97316"/><polygon points="205,65 215,80 195,80" fill="#c2410c"/><ellipse cx="90" cy="120" rx="30" ry="20" fill="#ca8a04"/><polygon points="50,115 70,105 70,125" fill="#ca8a04"/></svg>` },
-      { id: 7, idiom: "掩耳盜鈴", meaning: "比喻自欺欺人。", hint: "小偷摀住自己耳朵去偷懸掛在門上的銅鈴鐺。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fefce8"/><rect x="50" y="20" width="10" height="150" fill="#78350f"/><line x1="55" y1="50" x2="120" y2="50" stroke="#78350f" stroke-width="4"/><path d="M110,60 L130,60 L135,90 L105,90 Z" fill="#eab308"/><circle cx="200" cy="100" r="25" fill="#fed7aa"/><circle cx="175" cy="100" r="8" fill="#f97316"/><circle cx="225" cy="100" r="8" fill="#f97316"/></svg>` },
-      { id: 8, idiom: "杯弓蛇影", meaning: "比喻因疑神疑鬼而自相驚擾。", hint: "牆上掛著一張弓，倒映在酒杯裡像一條蠕動的蛇。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f1f5f9"/><path d="M120,40 Q200,60 160,110" fill="none" stroke="#78350f" stroke-width="4"/><ellipse cx="100" cy="150" rx="40" ry="20" fill="#94a3b8"/><path d="M85,145 Q100,140 105,155 T120,150" fill="none" stroke="#15803d" stroke-width="3"/></svg>` },
-      { id: 9, idiom: "亡羊補牢", meaning: "比喻出了差錯及時補救，還不算太晚。", hint: "羊圈破損逃走了一隻羊，農夫正急忙拿木板修補柵欄。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f0fdf4"/><rect x="20" y="100" width="80" height="10" fill="#78350f"/><rect x="140" y="100" width="140" height="10" fill="#78350f"/><circle cx="130" cy="80" r="16" fill="#fed7aa"/><rect x="100" y="95" width="40" height="8" fill="#eab308"/></svg>` },
-      { id: 10, idiom: "一石二鳥", meaning: "比喻做一件事情獲得兩種好處。", hint: "一顆小石子飛向天空，同時擊中了兩隻飛鳥。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#e0f2fe"/><circle cx="70" cy="140" r="10" fill="#64748b"/><path d="M150,70 Q165,55 180,70" fill="none" stroke="#0284c7" stroke-width="3"/><path d="M190,50 Q205,35 220,50" fill="none" stroke="#0284c7" stroke-width="3"/><line x1="80" y1="130" x2="160" y2="70" stroke="#f59e0b" stroke-dasharray="4,4"/></svg>` },
-      { id: 11, idiom: "盲人摸象", meaning: "比喻看問題以偏概全，未能掌握全貌。", hint: "數位盲人分別摸著大象的牙齒、耳朵與大腿。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f8fafc"/><ellipse cx="160" cy="110" rx="70" ry="50" fill="#94a3b8"/><rect x="110" y="140" width="15" height="40" fill="#64748b"/><rect x="190" y="140" width="15" height="40" fill="#64748b"/><circle cx="60" cy="120" r="14" fill="#fed7aa"/><circle cx="260" cy="120" r="14" fill="#fed7aa"/></svg>` },
-      { id: 12, idiom: "拔苗助長", meaning: "比喻急於求成，反而把事情弄糟。", hint: "農夫為了讓禾苗長高，把稻苗一株株往上拔高。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fefce8"/><rect x="0" y="140" width="300" height="60" fill="#84cc16"/><line x1="70" y1="140" x2="70" y2="100" stroke="#15803d" stroke-width="4"/><line x1="120" y1="140" x2="120" y2="75" stroke="#eab308" stroke-width="4"/><line x1="170" y1="140" x2="170" y2="100" stroke="#15803d" stroke-width="4"/><circle cx="120" cy="50" r="14" fill="#fed7aa"/></svg>` },
-      { id: 13, idiom: "刻舟求劍", meaning: "比喻拘泥成法不知變通。", hint: "寶劍從船邊掉落水中，人在船沿上刻下標記。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#e0f2fe"/><path d="M40,110 L260,110 L220,150 L80,150 Z" fill="#78350f"/><line x1="150" y1="105" x2="150" y2="118" stroke="#ef4444" stroke-width="4"/><line x1="150" y1="140" x2="150" y2="185" stroke="#94a3b8" stroke-width="2" stroke-dasharray="3,3"/><line x1="150" y1="185" x2="150" y2="175" stroke="#facc15" stroke-width="3"/></svg>` },
-      { id: 14, idiom: "沉魚落雁", meaning: "形容女子容貌極為美麗迷人。", hint: "水中游魚驚艷沉底，天邊飛雁看呆落下。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fdf4ff"/><circle cx="150" cy="80" r="28" fill="#fed7aa"/><ellipse cx="70" cy="160" rx="20" ry="8" fill="#38bdf8"/><path d="M230,60 Q245,45 260,60" fill="none" stroke="#ec4899" stroke-width="3"/></svg>` },
-      { id: 15, idiom: "鶴立雞群", meaning: "比喻人的儀表或才能卓越出眾。", hint: "一隻修長高雅的白鶴挺立在一群矮小母雞之中。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f0fdfa"/><circle cx="60" cy="150" r="14" fill="#ea580c"/><circle cx="240" cy="150" r="14" fill="#ea580c"/><line x1="150" y1="70" x2="150" y2="160" stroke="#64748b" stroke-width="3"/><circle cx="150" cy="50" r="12" fill="#ffffff" stroke="#94a3b8"/><polygon points="150,52 165,54 150,58" fill="#f59e0b"/></svg>` },
-      { id: 16, idiom: "虎頭蛇尾", meaning: "比喻做事起初聲勢浩大，後來無聲無息草率了結。", hint: "巨大的威猛老虎頭，接上的卻是細小軟弱的蛇尾巴。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fff7ed"/><circle cx="80" cy="100" r="35" fill="#f97316"/><path d="M115,100 Q180,50 210,110 T280,120" fill="none" stroke="#15803d" stroke-width="5"/></svg>` },
-      { id: 17, idiom: "開卷有益", meaning: "打開書本閱讀必定有所收穫。", hint: "翻開金黃燦爛的書籍，書頁間升起智慧星光。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#fefce8"/><polygon points="150,130 90,110 90,150 150,170" fill="#ca8a04"/><polygon points="150,130 210,110 210,150 150,170" fill="#eab308"/><circle cx="150" cy="70" r="6" fill="#f59e0b"/><line x1="150" y1="120" x2="150" y2="85" stroke="#f59e0b" stroke-width="2" stroke-dasharray="2,2"/></svg>` },
-      { id: 18, idiom: "破釜沉舟", meaning: "比喻下定決心奮戰到底，絕不回頭。", hint: "打破煮飯鍋子、鑿沉渡江船隻，誓不退縮。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f8fafc"/><path d="M60,110 L140,110 L120,145 L80,145 Z" fill="#475569" transform="rotate(35 100 130)"/><circle cx="210" cy="120" r="22" fill="#78350f"/><line x1="195" y1="105" x2="225" y2="135" stroke="#ef4444" stroke-width="4"/></svg>` },
-      { id: 19, idiom: "如魚得水", meaning: "比喻得到合適的環境或知心夥伴。", hint: "小魚歡快自在地在清涼透澈的水流中游動翻滾。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#ecfeff"/><path d="M50,100 Q150,80 250,100" fill="none" stroke="#38bdf8" stroke-width="4"/><ellipse cx="140" cy="115" rx="28" ry="14" fill="#f97316"/><polygon points="112,115 95,100 95,130" fill="#ea580c"/></svg>` },
-      { id: 20, idiom: "愚公移山", meaning: "比喻堅持不懈，終能克服困難獲得成功。", hint: "白髮老翁拿著鏟子，堅定不移地面對兩座高聳大山。", illustration: `<svg viewBox="0 0 300 200" class="w-full h-full"><rect width="300" height="200" fill="#f0fdf4"/><polygon points="110,40 180,160 40,160" fill="#475569"/><polygon points="210,70 280,160 140,160" fill="#64748b"/><circle cx="50" cy="140" r="10" fill="#fed7aa"/><line x1="55" y1="140" x2="68" y2="155" stroke="#ca8a04" stroke-width="3"/></svg>` }
-    ];
-
-    // 成語十字接龍關卡 (5 關)
-    const CROSSWORD_STAGES = [
-      {
-        id: "CW01",
-        title: "無與倫比 · 貫通",
-        idioms: [
-          { text: "無與倫比", orientation: "H", row: 2, col: 0, meaning: "沒有相類似或可比擬的。形容極其出眾。" },
-          { text: "比比皆是", orientation: "V", row: 2, col: 3, meaning: "到處都是。形容非常多。" },
-          { text: "實事求是", orientation: "H", row: 4, col: 2, meaning: "做事切合實際，不誇大求真。" }
-        ],
-        boardSize: 5,
-        board: [
-          ["", "", "", "", ""],
-          ["", "", "", "", ""],
-          [{ char: "無", fixed: true }, { char: "與", fixed: false }, { char: "倫", fixed: true }, { char: "比", fixed: false }, ""],
-          ["", "", "", { char: "比", fixed: true }, ""],
-          ["", "", { char: "實", fixed: false }, { char: "皆", fixed: true }, { char: "是", fixed: false }]
-        ],
-        distractors: ["天", "地", "人", "和", "大", "家", "風", "生"]
-      },
-      {
-        id: "CW02",
-        title: "一心一意 · 貫徹",
-        idioms: [
-          { text: "一心一意", orientation: "H", row: 1, col: 0, meaning: "心思專一，毫無雜念。" },
-          { text: "意氣風發", orientation: "V", row: 1, col: 3, meaning: "形容精神振奮，氣概豪邁。" },
-          { text: "風吹草動", orientation: "H", row: 3, col: 1, meaning: "微小的變動或風聲。" }
-        ],
-        boardSize: 5,
-        board: [
-          ["", "", "", "", ""],
-          [{ char: "一", fixed: true }, { char: "心", fixed: false }, { char: "一", fixed: true }, { char: "意", fixed: false }, ""],
-          ["", "", "", { char: "氣", fixed: true }, ""],
-          ["", { char: "風", fixed: false }, { char: "吹", fixed: true }, { char: "草", fixed: false }, { char: "動", fixed: true }],
-          ["", "", "", { char: "發", fixed: false }, ""]
-        ],
-        distractors: ["自", "在", "好", "學", "明", "日", "千", "里"]
-      },
-      {
-        id: "CW03",
-        title: "天長地久 · 永恆",
-        idioms: [
-          { text: "天長地久", orientation: "H", row: 2, col: 0, meaning: "跟天地一樣長久。形容時間極長。" },
-          { text: "頂天立地", orientation: "V", row: 0, col: 0, meaning: "頭頂青天，腳踏大地。形容志氣偉岸。" },
-          { text: "立竿見影", orientation: "H", row: 3, col: 0, meaning: "比喻收效極快。" }
-        ],
-        boardSize: 5,
-        board: [
-          [{ char: "頂", fixed: false }, "", "", "", ""],
-          [{ char: "天", fixed: true }, "", "", "", ""],
-          [{ char: "立", fixed: false }, { char: "長", fixed: true }, { char: "地", fixed: false }, { char: "久", fixed: true }, ""],
-          [{ char: "竿", fixed: true }, { char: "見", fixed: false }, { char: "影", fixed: true }, "", ""],
-          [{ char: "地", fixed: false }, "", "", "", ""]
-        ],
-        distractors: ["春", "夏", "秋", "冬", "山", "水", "林", "木"]
-      },
-      {
-        id: "CW04",
-        title: "知足常樂 · 豁達",
-        idioms: [
-          { text: "一葉知秋", orientation: "H", row: 1, col: 1, meaning: "由一片樹葉凋落，知道秋天到來。比喻從微小跡象看出趨勢。" },
-          { text: "知足常樂", orientation: "V", row: 1, col: 3, meaning: "知道滿足的人，永遠快樂。" },
-          { text: "樂在其中", orientation: "H", row: 4, col: 1, meaning: "在某件事中得到樂趣。" }
-        ],
-        boardSize: 5,
-        board: [
-          ["", "", "", "", ""],
-          ["", { char: "一", fixed: false }, { char: "葉", fixed: true }, { char: "知", fixed: false }, { char: "秋", fixed: true }],
-          ["", "", "", { char: "足", fixed: true }, ""],
-          ["", "", "", { char: "常", fixed: false }, ""],
-          ["", { char: "樂", fixed: false }, { char: "在", fixed: true }, { char: "其", fixed: true }, { char: "中", fixed: false }]
-        ],
-        distractors: ["高", "低", "遠", "近", "喜", "怒", "哀", "樂"]
-      },
-      {
-        id: "CW05",
-        title: "千軍萬馬 · 氣勢",
-        idioms: [
-          { text: "一字千金", orientation: "H", row: 0, col: 1, meaning: "形容文章思想文字極好，無可變動。" },
-          { text: "千軍萬馬", orientation: "V", row: 0, col: 3, meaning: "形容兵馬眾多，聲勢浩大。" },
-          { text: "馬到成功", orientation: "H", row: 3, col: 1, meaning: "比喻事情一開始就取得勝利。" }
-        ],
-        boardSize: 5,
-        board: [
-          ["", { char: "一", fixed: false }, { char: "字", fixed: true }, { char: "千", fixed: false }, { char: "金", fixed: true }],
-          ["", "", "", { char: "軍", fixed: true }, ""],
-          ["", "", "", { char: "萬", fixed: false }, ""],
-          ["", { char: "馬", fixed: true }, { char: "到", fixed: false }, { char: "成", fixed: true }, { char: "功", fixed: false }],
-          ["", "", "", "", ""]
-        ],
-        distractors: ["百", "步", "穿", "楊", "神", "通", "廣", "大"]
-      }
-    ];
-
     // 全域變數狀態
     let students = [];
     let rewards = [];
@@ -1358,14 +992,6 @@
     let isStudentPersonalMode = false;
     let isHomeCalendarExpanded = false;
 
-    // 遊戲狀態
-    let currentIdiomIndex = 0;
-    let currentIdiomGuess = [];
-    let passedIdiomIds = new Set();
-    let currentCrosswordIndex = 0;
-    let crosswordUserAnswers = {};
-    let activeCrosswordCell = null;
-    let passedCrosswordIds = new Set();
     let tempSelectedAvatar = '🌟';
     let currentDexGender = 'boy';
 
@@ -1450,8 +1076,6 @@
       if (progTextEl) progTextEl.textContent = needed > 0 ? `距離升級還差 ${needed} 點` : `已晉升至最高榮譽！`;
       if (progBarEl) progBarEl.style.width = `${percent}%`;
 
-      renderHomeIdiomBadge();
-      renderHomeCrosswordBadge();
       renderStudentRewardsList(student);
       renderStudentHistoryList(student);
       renderStudentChatMessages(student);
@@ -1623,15 +1247,21 @@
       students.sort((a, b) => a.seat - b.seat).forEach(st => {
         const studentUrl = `${baseUrl}?sid=${st.id}`;
         const card = document.createElement('div');
-        card.className = "bg-white p-4 rounded-3xl border-2 border-dashed border-amber-300 shadow-sm flex flex-col items-center text-center page-break relative";
+        card.className = "bg-white p-4 rounded-3xl border-2 border-dashed border-amber-300 shadow-sm flex flex-col items-center text-center page-break relative overflow-hidden";
         const qrId = `qrcode_${st.id}`;
+        
+        let avatarHTML = st.avatar || '🌟';
+        if (avatarHTML.startsWith('data:image/') || avatarHTML.startsWith('http')) {
+          avatarHTML = `<img src="${avatarHTML}" class="w-full h-full object-cover rounded-full">`;
+        }
+
         card.innerHTML = `
           <div class="w-full flex justify-between items-center text-xs font-bold text-slate-500 mb-2">
             <span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded-md">座號 ${String(st.seat).padStart(2,'0')}</span>
             <span class="text-slate-400 font-mono">${st.id}</span>
           </div>
-          <div class="text-2xl mb-1">${st.avatar || '🌟'}</div>
-          <h4 class="font-black text-slate-800 text-base mb-1">${st.name}</h4>
+          <div class="w-10 h-10 mx-auto mb-1 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-xl overflow-hidden shadow-2xs">${avatarHTML}</div>
+          <h4 class="font-black text-slate-800 text-base mb-1 truncate w-full">${st.name}</h4>
           <div id="${qrId}" class="p-2 bg-white border border-amber-100 rounded-2xl flex items-center justify-center mb-2 min-h-[120px]"></div>
           <p class="text-[11px] font-bold text-amber-900">向日葵班班 · 掃碼查存摺</p>
         `;
@@ -1734,8 +1364,6 @@
               avatar: st.avatar || old?.avatar || "🌟",
               points: Number(st.points ?? old?.points ?? 0),
               welcomeMessage: st.welcomeMessage || old?.welcomeMessage || "🌻 歡迎來到向日葵班班！",
-              passedIdioms: Array.isArray(st.passedIdioms) ? st.passedIdioms : (old?.passedIdioms || []),
-              passedCrosswords: Array.isArray(st.passedCrosswords) ? st.passedCrosswords : (old?.passedCrosswords || []),
               history: Array.isArray(st.history) && st.history.length > 0 ? st.history : (old?.history || [])
             };
           });
@@ -2323,7 +1951,7 @@
           students[idx] = { ...students[idx], seat, id, name, gender, role, welcomeMessage: welcome, avatar, points };
         }
       } else {
-        students.push({ id, seat, name, gender, role, welcomeMessage: welcome, avatar, points, passedIdioms: [], passedCrosswords: [], history: [] });
+        students.push({ id, seat, name, gender, role, welcomeMessage: welcome, avatar, points, history: [] });
       }
       saveSystemData();
       closeStudentModal();
@@ -2744,294 +2372,6 @@
       closeStudentAvatarModal();
       showToast("個人頭像已成功保存！", "success");
       sendDataToGoogleSheets({ action: 'updateAvatar', id: st.id, avatar: st.avatar });
-    }
-
-    function renderHomeIdiomBadge() {
-      const st = students.find(s => s.id === currentStudentId);
-      const passed = st?.passedIdioms?.length || 0;
-      const badge = document.getElementById('homeIdiomBadge');
-      if (badge) badge.textContent = passed;
-    }
-
-    function openIdiomGameModal() {
-      const st = students.find(s => s.id === currentStudentId);
-      passedIdiomIds = new Set((st?.passedIdioms || []).map(String));
-      const firstUnpassed = IDIOM_STAGES.findIndex(s => !passedIdiomIds.has(String(s.id)));
-      currentIdiomIndex = firstUnpassed !== -1 ? firstUnpassed : 0;
-      loadIdiomStage(currentIdiomIndex);
-      document.getElementById('idiomGameModal')?.classList.remove('hidden');
-    }
-
-    function closeIdiomGameModal() {
-      document.getElementById('idiomGameModal')?.classList.add('hidden');
-    }
-
-    function loadIdiomStage(idx) {
-      currentIdiomIndex = idx;
-      const stage = IDIOM_STAGES[idx];
-      document.getElementById('gameCurrentStageNum').textContent = stage.id;
-      document.getElementById('gameIdiomThemeTitle').textContent = stage.idiom;
-      document.getElementById('idiomIllustrationBox').innerHTML = stage.illustration;
-
-      currentIdiomGuess = [];
-      renderIdiomSlotsAndTiles(stage);
-      document.getElementById('idiomSuccessBanner')?.classList.add('hidden');
-    }
-
-    function renderIdiomSlotsAndTiles(stage) {
-      const slots = document.getElementById('idiomAnswerSlots');
-      slots.innerHTML = '';
-      for (let i = 0; i < 4; i++) {
-        const slot = document.createElement('div');
-        slot.className = "w-11 h-11 bg-white rounded-xl border-2 border-amber-900 shadow-sm flex items-center justify-center text-lg font-black text-amber-950 cursor-pointer";
-        slot.textContent = currentIdiomGuess[i] || "";
-        slot.onclick = () => removeIdiomChar(i);
-        slots.appendChild(slot);
-      }
-
-      const pool = document.getElementById('idiomLetterTilesContainer');
-      pool.innerHTML = '';
-      const chars = Array.from(new Set((stage.idiom + "風雨雷電山海日月天地人心中好學知足常樂").split(''))).slice(0, 24).sort(() => Math.random() - 0.5);
-
-      chars.forEach(ch => {
-        const tile = document.createElement('button');
-        tile.className = "h-10 bg-white rounded-xl border border-amber-300 font-bold text-sm text-slate-800 shadow-xs hover:bg-amber-100 transition";
-        tile.textContent = ch;
-        tile.onclick = () => appendIdiomChar(ch, tile);
-        pool.appendChild(tile);
-      });
-    }
-
-    function appendIdiomChar(ch, btn) {
-      if (currentIdiomGuess.length >= 4) return;
-      currentIdiomGuess.push(ch);
-      btn.disabled = true;
-      btn.classList.add('opacity-30');
-      const stage = IDIOM_STAGES[currentIdiomIndex];
-      renderIdiomSlotsOnly();
-      if (currentIdiomGuess.length === 4) {
-        if (currentIdiomGuess.join('') === stage.idiom) {
-          handleIdiomVictory(stage);
-        } else {
-          showToast("成語拼法不對喔，再想想看！", "error");
-        }
-      }
-    }
-
-    function renderIdiomSlotsOnly() {
-      const slots = document.getElementById('idiomAnswerSlots').children;
-      for (let i = 0; i < 4; i++) {
-        slots[i].textContent = currentIdiomGuess[i] || "";
-      }
-    }
-
-    function removeIdiomChar(idx) {
-      if (!currentIdiomGuess[idx]) return;
-      currentIdiomGuess.splice(idx, 1);
-      renderIdiomSlotsOnly();
-    }
-
-    function handleIdiomVictory(stage) {
-      const st = students.find(s => s.id === currentStudentId);
-      if (!st) return;
-      const isFirst = !st.passedIdioms?.includes(String(stage.id));
-      if (isFirst) {
-        if (!st.passedIdioms) st.passedIdioms = [];
-        st.passedIdioms.push(String(stage.id));
-        quickAddPoints(st.id, 10, `【成語過關】看圖猜成語：${stage.idiom}`);
-        sendDataToGoogleSheets({ action: 'updateGameProgress', studentId: st.id, passedIdioms: st.passedIdioms.join(',') });
-      }
-      document.getElementById('successIdiomTitle').textContent = stage.idiom;
-      document.getElementById('successIdiomMeaning').textContent = stage.meaning;
-      document.getElementById('idiomVictoryTextBadge').textContent = isFirst ? "恭喜首次過關！獲得 +10 PTS！✨" : "已通關複習，熟能生巧！🌟";
-      document.getElementById('idiomSuccessBanner')?.classList.remove('hidden');
-      renderHomeIdiomBadge();
-    }
-
-    function useIdiomHint() {
-      const stage = IDIOM_STAGES[currentIdiomIndex];
-      showToast(`成語提示：${stage.hint}`, "info");
-    }
-    function useIdiomEliminate() {
-      showToast("已為你消除干擾字！", "info");
-    }
-    function skipToNextStage() {
-      currentIdiomIndex = (currentIdiomIndex + 1) % IDIOM_STAGES.length;
-      loadIdiomStage(currentIdiomIndex);
-    }
-    function loadNextIdiomStage() {
-      skipToNextStage();
-    }
-
-    function openIdiomLeaderboardModal() {
-      renderIdiomLeaderboard();
-      document.getElementById('idiomLeaderboardModal')?.classList.remove('hidden');
-    }
-    function closeIdiomLeaderboardModal() {
-      document.getElementById('idiomLeaderboardModal')?.classList.add('hidden');
-    }
-    function renderIdiomLeaderboard() {
-      const box = document.getElementById('idiomLeaderboardList');
-      if (!box) return;
-      box.innerHTML = '';
-      const list = [...students].sort((a,b) => (b.passedIdioms?.length || 0) - (a.passedIdioms?.length || 0) || b.points - a.points);
-      document.getElementById('leaderboardMaxPassed').textContent = `${list[0]?.passedIdioms?.length || 0} 關`;
-      list.forEach((st, idx) => {
-        const passed = st.passedIdioms?.length || 0;
-        const div = document.createElement('div');
-        div.className = "flex items-center justify-between p-3 bg-amber-50/60 rounded-2xl border border-amber-200 text-xs";
-        div.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="font-black text-amber-900 w-5">${idx + 1}.</span>
-            <span class="font-bold text-slate-800">${st.name}</span>
-          </div>
-          <span class="bg-amber-200 text-amber-950 px-2.5 py-0.5 rounded-full font-bold">${passed} / 20 關</span>
-        `;
-        box.appendChild(div);
-      });
-    }
-
-    function renderHomeCrosswordBadge() {
-      const st = students.find(s => s.id === currentStudentId);
-      const passed = st?.passedCrosswords?.length || 0;
-      const badge = document.getElementById('homeCrosswordBadge');
-      if (badge) badge.textContent = passed;
-    }
-
-    function openCrosswordGameModal() {
-      loadCrosswordStage(0);
-      document.getElementById('crosswordGameModal')?.classList.remove('hidden');
-    }
-    function closeCrosswordGameModal() {
-      document.getElementById('crosswordGameModal')?.classList.add('hidden');
-    }
-
-    function loadCrosswordStage(idx) {
-      currentCrosswordIndex = idx;
-      const stage = CROSSWORD_STAGES[idx];
-      document.getElementById('cwStageNum').textContent = idx + 1;
-      document.getElementById('cwStageTitle').textContent = stage.title;
-      crosswordUserAnswers = {};
-      renderCrosswordBoard(stage);
-      renderCrosswordTiles(stage);
-      document.getElementById('crosswordSuccessBanner')?.classList.add('hidden');
-    }
-
-    function renderCrosswordBoard(stage) {
-      const grid = document.getElementById('cwBoardGrid');
-      grid.style.gridTemplateColumns = `repeat(${stage.boardSize}, minmax(0, 1fr))`;
-      grid.innerHTML = '';
-      for (let r = 0; r < stage.boardSize; r++) {
-        for (let c = 0; c < stage.boardSize; c++) {
-          const item = stage.board[r][c];
-          const cell = document.createElement('div');
-          cell.className = "w-11 h-11 rounded-lg flex items-center justify-center font-black text-base transition ";
-          if (!item) {
-            cell.className += "bg-transparent";
-          } else if (item.fixed) {
-            cell.className += "bg-amber-300 text-amber-950 shadow-xs";
-            cell.textContent = item.char;
-          } else {
-            cell.className += "cw-board-cell bg-amber-100 text-slate-800 cursor-pointer border border-amber-400";
-            cell.textContent = crosswordUserAnswers[`${r}_${c}`] || "";
-            cell.onclick = () => selectCrosswordSlot(r, c, cell);
-          }
-          grid.appendChild(cell);
-        }
-      }
-    }
-
-    function selectCrosswordSlot(r, c, el) {
-      activeCrosswordCell = { r, c };
-      document.querySelectorAll('.cw-board-cell').forEach(cl => cl.classList.remove('active-focus'));
-      el.classList.add('active-focus');
-    }
-
-    function renderCrosswordTiles(stage) {
-      const box = document.getElementById('cwMahjongTilesContainer');
-      box.innerHTML = '';
-      const needed = [];
-      stage.board.forEach(row => row.forEach(cell => { if (cell && !cell.fixed) needed.push(cell.char); }));
-      const all = Array.from(new Set([...needed, ...stage.distractors])).slice(0, 16).sort(() => Math.random() - 0.5);
-      all.forEach(ch => {
-        const btn = document.createElement('button');
-        btn.className = "mahjong-tile text-white rounded-lg p-2 font-bold text-sm";
-        btn.textContent = ch;
-        btn.onclick = () => fillCrosswordChar(ch);
-        box.appendChild(btn);
-      });
-    }
-
-    function fillCrosswordChar(ch) {
-      if (!activeCrosswordCell) return showToast("請先點選棋盤上的待填空格！", "info");
-      crosswordUserAnswers[`${activeCrosswordCell.r}_${activeCrosswordCell.c}`] = ch;
-      const stage = CROSSWORD_STAGES[currentCrosswordIndex];
-      renderCrosswordBoard(stage);
-      checkCrosswordVictory(stage);
-    }
-
-    function clearCurrentFocusedSlot() {
-      if (!activeCrosswordCell) return;
-      delete crosswordUserAnswers[`${activeCrosswordCell.r}_${activeCrosswordCell.c}`];
-      renderCrosswordBoard(CROSSWORD_STAGES[currentCrosswordIndex]);
-    }
-
-    function checkCrosswordVictory(stage) {
-      let win = true;
-      for (let r = 0; r < stage.boardSize; r++) {
-        for (let c = 0; c < stage.boardSize; c++) {
-          const item = stage.board[r][c];
-          if (item && !item.fixed) {
-            if (crosswordUserAnswers[`${r}_${c}`] !== item.char) win = false;
-          }
-        }
-      }
-      if (win) {
-        const st = students.find(s => s.id === currentStudentId);
-        const isFirst = !st?.passedCrosswords?.includes(stage.id);
-        if (st && isFirst) {
-          if (!st.passedCrosswords) st.passedCrosswords = [];
-          st.passedCrosswords.push(stage.id);
-          quickAddPoints(st.id, 20, `【接龍過關】成語接龍：${stage.title}`);
-          sendDataToGoogleSheets({ action: 'updateGameProgress', studentId: st.id, passedCrosswords: st.passedCrosswords.join(',') });
-        }
-        document.getElementById('cwSuccessSummary').textContent = stage.idioms.map(i => i.text).join(' · ');
-        document.getElementById('crosswordVictoryTextBadge').textContent = isFirst ? "🎉 恭喜首次過關！獲得獎勵 +20 PTS！✨" : "🌟 已通關複習，表現優異！";
-        document.getElementById('crosswordSuccessBanner')?.classList.remove('hidden');
-        renderHomeCrosswordBadge();
-      }
-    }
-
-    function loadNextCrosswordStage() {
-      currentCrosswordIndex = (currentCrosswordIndex + 1) % CROSSWORD_STAGES.length;
-      loadCrosswordStage(currentCrosswordIndex);
-    }
-
-    function openCrosswordLeaderboardModal() {
-      renderCrosswordLeaderboard();
-      document.getElementById('crosswordLeaderboardModal')?.classList.remove('hidden');
-    }
-    function closeCrosswordLeaderboardModal() {
-      document.getElementById('crosswordLeaderboardModal')?.classList.add('hidden');
-    }
-    function renderCrosswordLeaderboard() {
-      const box = document.getElementById('crosswordLeaderboardList');
-      if (!box) return;
-      box.innerHTML = '';
-      const list = [...students].sort((a,b) => (b.passedCrosswords?.length || 0) - (a.passedCrosswords?.length || 0) || b.points - a.points);
-      document.getElementById('cwLeaderboardMaxPassed').textContent = `${list[0]?.passedCrosswords?.length || 0} 關`;
-      list.forEach((st, idx) => {
-        const div = document.createElement('div');
-        div.className = "flex items-center justify-between p-3 bg-amber-50/60 rounded-2xl border border-amber-200 text-xs";
-        div.innerHTML = `
-          <div class="flex items-center gap-2">
-            <span class="font-black text-amber-900 w-5">${idx + 1}.</span>
-            <span class="font-bold text-slate-800">${st.name}</span>
-          </div>
-          <span class="bg-amber-200 text-amber-950 px-2.5 py-0.5 rounded-full font-bold">${st.passedCrosswords?.length || 0} / 5 關</span>
-        `;
-        box.appendChild(div);
-      });
     }
 
     function exportData() {
