@@ -3,13 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>向日葵班班 · 學習存摺與親師生互動系統</title>
+  <title>向日葵班班 · 學習存摺與親師生互動系統 </title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome 圖示庫 -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <!-- QRCode.js 生成庫 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Canvas Confetti 慶祝特效庫 -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
   <style>
     @media print {
@@ -49,7 +51,7 @@
 
   <header class="no-print bg-gradient-to-r from-amber-500 via-orange-500 to-amber-600 text-white shadow-md sticky top-0 z-40">
     <div class="max-w-6xl mx-auto px-4 py-2.5 flex flex-wrap justify-between items-center gap-3">
-      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('student')">
+      <div class="flex items-center space-x-3 cursor-pointer" onclick="switchView('student'); playSound('click');">
         <div class="w-11 h-11 rounded-2xl overflow-hidden bg-white shadow-md border-2 border-white flex items-center justify-center flex-shrink-0">
           <img src="0716-1.png" alt="向日葵班班" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://placehold.co/100x100/f59e0b/ffffff?text=🌻';">
         </div>
@@ -58,7 +60,7 @@
             🌻 向日葵班班 · 學習存摺
           </h1>
           <div class="flex items-center gap-2">
-            <p class="text-xs text-amber-100 font-medium">學生個人專屬查詢 · 獎勵兌換</p>
+            <p class="text-xs text-amber-100 font-medium">音效特效版 · 獎勵兌換</p>
             <span id="syncStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-white/20 text-white transition backdrop-blur-sm">
               <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span> 連線中...
             </span>
@@ -68,24 +70,24 @@
 
       <div class="flex items-center space-x-2 text-sm">
         <div id="teacherNavControls" class="flex items-center space-x-2 bg-black/15 p-1 rounded-2xl backdrop-blur-sm border border-white/20">
-          <button id="syncNowBtn" onclick="fetchFromGoogleSheets(true)" class="px-2.5 py-1.5 rounded-xl font-medium text-amber-100 hover:text-white hover:bg-white/20 transition flex items-center gap-1.5 text-xs" title="向 Google 試算表同步最新資料">
+          <button id="syncNowBtn" onclick="fetchFromGoogleSheets(true); playSound('click');" class="px-2.5 py-1.5 rounded-xl font-medium text-amber-100 hover:text-white hover:bg-white/20 transition flex items-center gap-1.5 text-xs" title="向 Google 試算表同步最新資料">
             <i class="fa-solid fa-arrows-rotate" id="syncSpinner"></i> 同步試算表
           </button>
-          <button id="navStudentBtn" onclick="switchView('student')" class="px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 bg-white text-orange-600 shadow-sm">
+          <button id="navStudentBtn" onclick="switchView('student'); playSound('click');" class="px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 bg-white text-orange-600 shadow-sm">
             <i class="fa-solid fa-mobile-screen"></i> 學生卡片
           </button>
-          <button id="navAdminBtn" onclick="requestAdminAccess('admin')" class="px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 text-amber-100 hover:text-white hover:bg-white/20">
+          <button id="navAdminBtn" onclick="requestAdminAccess('admin'); playSound('click');" class="px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 text-amber-100 hover:text-white hover:bg-white/20">
             <i class="fa-solid fa-lock" id="adminLockIcon"></i> 教師後台
           </button>
-          <button id="navPrintBtn" onclick="requestAdminAccess('print')" class="px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 text-amber-100 hover:text-white hover:bg-white/20">
+          <button id="navPrintBtn" onclick="requestAdminAccess('print'); playSound('click');" class="px-3 py-1.5 rounded-xl font-medium transition flex items-center gap-1.5 text-amber-100 hover:text-white hover:bg-white/20">
             <i class="fa-solid fa-qrcode"></i> QR Code 列印
           </button>
-          <button id="navLogoutBtn" onclick="logoutAdmin()" class="hidden px-2.5 py-1.5 rounded-xl font-medium text-rose-200 hover:text-white hover:bg-rose-600/60 transition" title="登出後台">
+          <button id="navLogoutBtn" onclick="logoutAdmin(); playSound('click');" class="hidden px-2.5 py-1.5 rounded-xl font-medium text-rose-200 hover:text-white hover:bg-rose-600/60 transition" title="登出後台">
             <i class="fa-solid fa-right-from-bracket"></i>
           </button>
         </div>
 
-        <button id="studentRefreshBtn" onclick="fetchFromGoogleSheets(true)" class="hidden bg-white/20 hover:bg-white/30 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-white/30 shadow-sm">
+        <button id="studentRefreshBtn" onclick="fetchFromGoogleSheets(true); playSound('click');" class="hidden bg-white/20 hover:bg-white/30 text-white px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 border border-white/30 shadow-sm">
           <i class="fa-solid fa-rotate-right"></i> 重新載入
         </button>
       </div>
@@ -142,7 +144,7 @@
         <div class="relative z-10">
           <div class="flex justify-between items-center text-xs font-bold mb-2">
             <span class="text-amber-100 flex items-center gap-1"><i class="fa-solid fa-calendar-days"></i> 近期重要日程</span>
-            <button onclick="toggleHomeCalendarList()" id="toggleCalendarBtn" class="text-[11px] text-white hover:text-amber-200 underline flex items-center gap-1 font-semibold">
+            <button onclick="toggleHomeCalendarList(); playSound('click');" id="toggleCalendarBtn" class="text-[11px] text-white hover:text-amber-200 underline flex items-center gap-1 font-semibold">
               <span>查看全部事項</span> <i class="fa-solid fa-chevron-down text-[10px]" id="calendarChevron"></i>
             </button>
           </div>
@@ -156,7 +158,7 @@
         </label>
         <div class="flex gap-2">
           <select id="studentSelector" onchange="onStudentSelectChange(this.value)" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white"></select>
-          <button onclick="copyCurrentStudentUrl()" class="px-3 py-2 bg-amber-50 text-amber-700 rounded-xl text-sm font-bold hover:bg-amber-100 transition whitespace-nowrap border border-amber-200" title="複製此學生的專屬查詢網址">
+          <button onclick="copyCurrentStudentUrl(); playSound('click');" class="px-3 py-2 bg-amber-50 text-amber-700 rounded-xl text-sm font-bold hover:bg-amber-100 transition whitespace-nowrap border border-amber-200" title="複製此學生的專屬查詢網址">
             <i class="fa-solid fa-link"></i> 複製網址
           </button>
         </div>
@@ -169,7 +171,7 @@
             <span id="cardSeatNumber">座號 01 號</span>
           </div>
           
-          <div class="relative w-24 h-24 mx-auto mb-3 group cursor-pointer" onclick="openStudentAvatarModal()" title="點擊更換我的頭像或上傳照片">
+          <div class="relative w-24 h-24 mx-auto mb-3 group cursor-pointer" onclick="openStudentAvatarModal(); playSound('click');" title="點擊更換我的頭像或上傳照片">
             <div class="w-full h-full bg-white/95 backdrop-blur rounded-full p-1 shadow-md flex items-center justify-center text-4xl overflow-hidden border-2 border-white group-hover:ring-4 group-hover:ring-white/50 transition">
               <span id="cardAvatar" class="w-full h-full flex items-center justify-center">🌟</span>
             </div>
@@ -196,16 +198,16 @@
               </span>
               <div class="flex items-center gap-1.5">
                 <div class="flex items-center bg-white/90 p-0.5 rounded-full border border-amber-200 text-[10px] font-bold">
-                  <button id="genderBtnBoy" onclick="setStudentGender('boy')" class="px-2 py-0.5 rounded-full transition bg-amber-500 text-white font-bold">👦 男生</button>
-                  <button id="genderBtnGirl" onclick="setStudentGender('girl')" class="px-2 py-0.5 rounded-full transition text-slate-500 hover:text-orange-600">👧 女生</button>
+                  <button id="genderBtnBoy" onclick="setStudentGender('boy'); playSound('click');" class="px-2 py-0.5 rounded-full transition bg-amber-500 text-white font-bold">👦 男生</button>
+                  <button id="genderBtnGirl" onclick="setStudentGender('girl'); playSound('click');" class="px-2 py-0.5 rounded-full transition text-slate-500 hover:text-orange-600">👧 女生</button>
                 </div>
-                <button onclick="openEvolutionDexModal()" class="text-[11px] font-bold text-amber-800 bg-white hover:bg-amber-100 px-2.5 py-1 rounded-full border border-amber-200 transition shadow-2xs">
+                <button onclick="openEvolutionDexModal(); playSound('click');" class="text-[11px] font-bold text-amber-800 bg-white hover:bg-amber-100 px-2.5 py-1 rounded-full border border-amber-200 transition shadow-2xs">
                   <i class="fa-solid fa-book-sparkles text-amber-600"></i> 進化圖鑑
                 </button>
               </div>
             </div>
 
-            <div class="relative w-44 h-44 mx-auto my-1 flex items-center justify-center cursor-pointer group" onclick="pokeHeroCharacter()" title="點擊勇者聽聽他的冒險加油！">
+            <div class="relative w-44 h-44 mx-auto my-1 flex items-center justify-center cursor-pointer group" onclick="pokeHeroCharacter();" title="點擊勇者聽聽他的冒險加油！">
               <div class="hero-avatar-anim w-full h-full flex items-center justify-center" id="heroStagePuppet"></div>
               <div id="heroQuoteBubble" class="absolute -top-3 right-0 bg-white text-slate-800 text-[10px] font-bold px-2.5 py-1 rounded-xl shadow-md border border-amber-200 opacity-0 transition-opacity duration-300 pointer-events-none whitespace-nowrap">
                 加油！繼續累積點數！✨
@@ -254,7 +256,7 @@
 
             <div class="space-y-2 mb-3" id="smileAgentChecklist"></div>
 
-            <button type="button" id="smileRewardBtn" onclick="applySmileAgentReward()" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs rounded-2xl shadow-md transition flex items-center justify-center gap-1.5 border border-emerald-400">
+            <button type="button" id="smileRewardBtn" onclick="applySmileAgentReward();" class="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-xs rounded-2xl shadow-md transition flex items-center justify-center gap-1.5 border border-emerald-400">
               <i class="fa-solid fa-award"></i> 申請驗證領取 +10 點 (滿5次)
             </button>
           </div>
@@ -315,7 +317,7 @@
               </div>
               <div class="flex gap-2">
                 <input type="text" id="studentChatInput" required placeholder="想向老師說的話或詢問事項..." class="flex-1 bg-white border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
-                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex-shrink-0">
+                <button type="submit" onclick="playSound('click')" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-sm flex-shrink-0">
                   <i class="fa-solid fa-paper-plane"></i> 送出
                 </button>
               </div>
@@ -326,7 +328,7 @@
 
         <div class="bg-amber-50/50 border-t border-amber-100 px-6 py-3 text-center text-xs text-slate-400 flex justify-between items-center">
           <span>最後更新：<span id="cardLastUpdated">剛才</span></span>
-          <button onclick="fetchFromGoogleSheets(true)" class="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1">
+          <button onclick="fetchFromGoogleSheets(true); playSound('click');" class="text-orange-600 hover:text-orange-700 font-bold flex items-center gap-1">
             <i class="fa-solid fa-rotate text-[11px]"></i> 重新整理
           </button>
         </div>
@@ -345,42 +347,42 @@
               <i class="fa-solid fa-shield-halved"></i> 密碼保護中
             </span>
           </div>
-          <p class="text-xs text-slate-500 mt-1">向日葵班班專屬管理後台 · 歡迎詞、積分與行事曆皆會同步 Google 試算表</p>
+          <p class="text-xs text-slate-500 mt-1">向日葵班班專屬管理後台 · 音效特效與雲端試算表同步</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button onclick="fetchFromGoogleSheets(true)" class="bg-amber-50 hover:bg-amber-100 text-amber-800 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 border border-amber-200 shadow-xs">
+          <button onclick="fetchFromGoogleSheets(true); playSound('click');" class="bg-amber-50 hover:bg-amber-100 text-amber-800 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 border border-amber-200 shadow-xs">
             <i class="fa-solid fa-cloud-arrow-down"></i> 同步試算表
           </button>
-          <button onclick="openChangePasswordModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">
+          <button onclick="openChangePasswordModal(); playSound('click');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">
             <i class="fa-solid fa-key"></i> 修改密碼
           </button>
-          <button onclick="openAddStudentModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
+          <button onclick="openAddStudentModal(); playSound('click');" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
             <i class="fa-solid fa-user-plus"></i> 新增學生
           </button>
-          <button onclick="exportData()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">
+          <button onclick="exportData(); playSound('click');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">
             <i class="fa-solid fa-file-export"></i> 匯出
           </button>
-          <button onclick="document.getElementById('importFileInput').click()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">
+          <button onclick="document.getElementById('importFileInput').click(); playSound('click');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-1.5">
             <i class="fa-solid fa-file-import"></i> 匯入
           </button>
           <input type="file" id="importFileInput" onchange="importData(event)" class="hidden" accept=".json">
-          <button onclick="logoutAdmin()" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5">
+          <button onclick="logoutAdmin(); playSound('click');" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5">
             <i class="fa-solid fa-lock"></i> 鎖定登出
           </button>
         </div>
       </div>
 
       <div class="flex space-x-2 border-b border-slate-200 mb-6 overflow-x-auto">
-        <button id="adminTabStudentsBtn" onclick="switchAdminTab('students')" class="px-4 py-2.5 font-bold text-sm border-b-2 border-orange-500 text-orange-600 flex items-center gap-2 transition whitespace-nowrap">
+        <button id="adminTabStudentsBtn" onclick="switchAdminTab('students'); playSound('click');" class="px-4 py-2.5 font-bold text-sm border-b-2 border-orange-500 text-orange-600 flex items-center gap-2 transition whitespace-nowrap">
           <i class="fa-solid fa-users"></i> 學生名單與積分 (<span id="studentCountBadge">0</span>)
         </button>
-        <button id="adminTabMessagesBtn" onclick="switchAdminTab('messages')" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
+        <button id="adminTabMessagesBtn" onclick="switchAdminTab('messages'); playSound('click');" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
           <i class="fa-solid fa-comment-dots"></i> 親師生私訊信箱 <span id="unreadMessagesTotalBadge" class="hidden bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
         </button>
-        <button id="adminTabRewardsBtn" onclick="switchAdminTab('rewards')" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
+        <button id="adminTabRewardsBtn" onclick="switchAdminTab('rewards'); playSound('click');" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
           <i class="fa-solid fa-gifts"></i> 獎勵兌換設定 (<span id="rewardCountBadge">0</span>)
         </button>
-        <button id="adminTabEventsBtn" onclick="switchAdminTab('events')" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
+        <button id="adminTabEventsBtn" onclick="switchAdminTab('events'); playSound('click');" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
           <i class="fa-solid fa-calendar-days"></i> 班級行事曆 (<span id="eventCountBadge">0</span>)
         </button>
       </div>
@@ -392,13 +394,13 @@
             <input type="text" id="adminSearchInput" oninput="renderAdminTable()" placeholder="搜尋姓名,座號或學號..." class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:bg-white">
           </div>
           <div class="flex items-center gap-2 text-xs font-bold text-slate-600 flex-wrap">
-            <button onclick="openPresetsManageModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-300 transition flex items-center gap-1.5">
+            <button onclick="openPresetsManageModal(); playSound('click');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-lg border border-slate-300 transition flex items-center gap-1.5">
               <i class="fa-solid fa-gear text-amber-500"></i> 管理加扣分項目
             </button>
             <span>全班加分：</span>
-            <button onclick="quickBatchAdd('作業優良', 2)" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1.5 rounded-lg border border-emerald-200 transition">+2 作業</button>
-            <button onclick="quickBatchAdd('主動發言', 1)" class="bg-amber-50 hover:bg-amber-100 text-amber-800 px-2.5 py-1.5 rounded-lg border border-amber-200 transition">+1 發言</button>
-            <button onclick="quickBatchAdd('熱心服務', 3)" class="bg-orange-50 hover:bg-orange-100 text-orange-700 px-2.5 py-1.5 rounded-lg border border-orange-200 transition">+3 服務</button>
+            <button onclick="quickBatchAdd('作業優良', 2); playSound('coin');" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2.5 py-1.5 rounded-lg border border-emerald-200 transition">+2 作業</button>
+            <button onclick="quickBatchAdd('主動發言', 1); playSound('coin');" class="bg-amber-50 hover:bg-amber-100 text-amber-800 px-2.5 py-1.5 rounded-lg border border-amber-200 transition">+1 發言</button>
+            <button onclick="quickBatchAdd('熱心服務', 3); playSound('coin');" class="bg-orange-50 hover:bg-orange-100 text-orange-700 px-2.5 py-1.5 rounded-lg border border-orange-200 transition">+3 服務</button>
           </div>
         </div>
 
@@ -446,7 +448,7 @@
                     <p class="text-[11px] text-slate-400 truncate" id="adminChatStudentInfo">學號與目前積分</p>
                   </div>
                 </div>
-                <button onclick="markCurrentChatRead()" class="text-xs text-slate-500 hover:text-orange-600 font-semibold flex items-center gap-1">
+                <button onclick="markCurrentChatRead(); playSound('click');" class="text-xs text-slate-500 hover:text-orange-600 font-semibold flex items-center gap-1">
                   <i class="fa-solid fa-check-double"></i> 全部標為已讀
                 </button>
               </div>
@@ -459,14 +461,14 @@
             <form onsubmit="submitAdminReply(event)" class="pt-3 border-t border-slate-100">
               <div class="flex items-center gap-1.5 mb-2 overflow-x-auto pb-1 text-[11px]">
                 <span class="text-slate-400 flex-shrink-0">快速回覆：</span>
-                <button type="button" onclick="setAdminReplyPreset('好的，老師收到囉！會多加留意！')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg whitespace-nowrap">收到留意</button>
-                <button type="button" onclick="setAdminReplyPreset('今天在課堂上的表現非常棒，繼續保持！🌟')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg whitespace-nowrap">表現優秀</button>
-                <button type="button" onclick="setAdminReplyPreset('收到家長的請假說明，已為孩子登記，請安心休養！🌿')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg whitespace-nowrap">請假回覆</button>
-                <button type="button" onclick="setAdminReplyPreset('感謝家長的配合與關心，我們一起親師合作！💪')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg whitespace-nowrap">感謝配合</button>
+                <button type="button" onclick="setAdminReplyPreset('好的，老師收到囉！會多加留意！'); playSound('click');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg whitespace-nowrap">收到留意</button>
+                <button type="button" onclick="setAdminReplyPreset('今天在課堂上的表現非常棒，繼續保持！🌟'); playSound('click');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg whitespace-nowrap">表現優秀</button>
+                <button type="button" onclick="setAdminReplyPreset('收到家長的請假說明，已為孩子登記，請安心休養！🌿'); playSound('click');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg whitespace-nowrap">請假回覆</button>
+                <button type="button" onclick="setAdminReplyPreset('感謝家長的配合與關心，我們一起親師合作！💪'); playSound('click');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-0.5 rounded-lg whitespace-nowrap">感謝配合</button>
               </div>
               <div class="flex gap-2">
                 <textarea id="adminReplyInput" required rows="2" placeholder="以【🌻 向日葵班班導師】身分回覆家長與學生..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl p-2.5 text-xs focus:outline-none focus:ring-2 focus:ring-orange-500"></textarea>
-                <button type="submit" class="bg-orange-500 hover:bg-orange-600 text-white px-5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5 flex-shrink-0">
+                <button type="submit" onclick="playSound('click')" class="bg-orange-500 hover:bg-orange-600 text-white px-5 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5 flex-shrink-0">
                   <i class="fa-solid fa-reply"></i> 回覆
                 </button>
               </div>
@@ -481,7 +483,7 @@
             <h3 class="text-base font-bold text-slate-800">向日葵班班 獎勵項目清單</h3>
             <p class="text-xs text-slate-500 mt-0.5">這些獎勵會即時同步給全班學生查詢卡顯示</p>
           </div>
-          <button onclick="openAddRewardModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
+          <button onclick="openAddRewardModal(); playSound('click');" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
             <i class="fa-solid fa-plus"></i> 新增獎勵項目
           </button>
         </div>
@@ -494,7 +496,7 @@
             <h3 class="text-base font-bold text-slate-800">向日葵班班 重要行事曆設定</h3>
             <p class="text-xs text-slate-500 mt-0.5">此處設定的重要事項會在首頁自動倒數，並同步至 Google 試算表</p>
           </div>
-          <button onclick="openAddEventModal()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
+          <button onclick="openAddEventModal(); playSound('click');" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
             <i class="fa-solid fa-plus"></i> 新增行事曆事件
           </button>
         </div>
@@ -528,7 +530,7 @@
           </h3>
           <p class="text-xs text-amber-700 mt-0.5">點擊右方按鈕即可一鍵列印，剪裁後貼在學生聯絡簿或課桌上。</p>
         </div>
-        <button onclick="window.print()" class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition flex items-center gap-2">
+        <button onclick="window.print(); playSound('click');" class="bg-orange-500 hover:bg-orange-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm shadow transition flex items-center gap-2">
           <i class="fa-solid fa-print"></i> 立即列印全部小卡
         </button>
       </div>
@@ -544,14 +546,14 @@
         <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-book-sparkles text-orange-500"></i> 冒險者勇者進化圖鑑
         </h3>
-        <button onclick="closeEvolutionDexModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button onclick="closeEvolutionDexModal(); playSound('click');" class="text-slate-400 hover:text-slate-600 p-1">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
 
       <div class="flex justify-center items-center gap-2 mb-3 bg-amber-50 p-1 rounded-2xl border border-amber-200 text-xs font-bold">
-        <button id="dexTabBoy" onclick="setDexGender('boy')" class="px-4 py-1.5 rounded-xl transition bg-orange-500 text-white shadow-xs">👦 男生勇者</button>
-        <button id="dexTabGirl" onclick="setDexGender('girl')" class="px-4 py-1.5 rounded-xl transition text-amber-800 hover:text-pink-600">👧 女生天女</button>
+        <button id="dexTabBoy" onclick="setDexGender('boy'); playSound('click');" class="px-4 py-1.5 rounded-xl transition bg-orange-500 text-white shadow-xs">👦 男生勇者</button>
+        <button id="dexTabGirl" onclick="setDexGender('girl'); playSound('click');" class="px-4 py-1.5 rounded-xl transition text-amber-800 hover:text-pink-600">👧 女生天女</button>
       </div>
 
       <p class="text-xs text-slate-500 mb-4 leading-relaxed">
@@ -561,7 +563,7 @@
       <div class="space-y-3" id="evolutionDexCardsContainer"></div>
 
       <div class="pt-4 mt-4 border-t border-slate-100 text-center">
-        <button type="button" onclick="closeEvolutionDexModal()" class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition shadow-sm">
+        <button type="button" onclick="closeEvolutionDexModal(); playSound('click');" class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition shadow-sm">
           我知道了，加油衝刺！💪
         </button>
       </div>
@@ -574,7 +576,7 @@
         <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-star text-amber-500"></i> 調整點數紀錄
         </h3>
-        <button onclick="closePointModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button onclick="closePointModal(); playSound('click');" class="text-slate-400 hover:text-slate-600 p-1">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -588,7 +590,7 @@
       <div class="mb-4">
         <div class="flex justify-between items-center mb-2">
           <span class="text-xs font-bold text-slate-700">⚡ 常用加扣分項目 (點擊直接加分)：</span>
-          <button onclick="openPresetsManageModal()" class="text-[11px] text-orange-600 hover:text-orange-700 font-semibold flex items-center gap-0.5">
+          <button onclick="openPresetsManageModal(); playSound('click');" class="text-[11px] text-orange-600 hover:text-orange-700 font-semibold flex items-center gap-0.5">
             <i class="fa-solid fa-gear text-[10px]"></i> 管理項目
           </button>
         </div>
@@ -608,8 +610,8 @@
         </div>
 
         <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="closePointModal()" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition">取消</button>
-          <button type="submit" class="px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition shadow-sm">送出自訂</button>
+          <button type="button" onclick="closePointModal(); playSound('click');" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold transition">取消</button>
+          <button type="submit" onclick="playSound('coin')" class="px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition shadow-sm">送出自訂</button>
         </div>
       </form>
     </div>
@@ -621,7 +623,7 @@
         <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-sliders text-orange-500"></i> 管理常用加扣分項目
         </h3>
-        <button onclick="closePresetsManageModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button onclick="closePresetsManageModal(); playSound('click');" class="text-slate-400 hover:text-slate-600 p-1">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -637,8 +639,8 @@
           <input type="number" id="newPresetDelta" required placeholder="點數" value="1" class="col-span-1 text-center font-bold bg-white border border-slate-300 rounded-xl px-1 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
         </div>
         <div class="flex justify-between items-center pt-1">
-          <button type="button" onclick="resetDefaultPointPresets()" class="text-[11px] text-slate-400 hover:text-slate-600 underline">恢復預設值</button>
-          <button type="submit" class="px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition shadow-sm">
+          <button type="button" onclick="resetDefaultPointPresets(); playSound('click');" class="text-[11px] text-slate-400 hover:text-slate-600 underline">恢復預設值</button>
+          <button type="submit" onclick="playSound('click')" class="px-4 py-1.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold transition shadow-sm">
             <i class="fa-solid fa-plus"></i> 新增項目
           </button>
         </div>
@@ -652,7 +654,7 @@
         <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-comment-dots text-amber-500"></i> 設定向日葵班專屬勉勵詞
         </h3>
-        <button onclick="closeWelcomeMessageModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button onclick="closeWelcomeMessageModal(); playSound('click');" class="text-slate-400 hover:text-slate-600 p-1">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -663,8 +665,8 @@
           <textarea id="welcomeModalInput" rows="3" required placeholder="例如：這週在分組活動表現很棒，繼續保持積極的心情喔！" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
         </div>
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-          <button type="button" onclick="closeWelcomeMessageModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
-          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存勉勵詞</button>
+          <button type="button" onclick="closeWelcomeMessageModal(); playSound('click');" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
+          <button type="submit" onclick="playSound('click')" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存勉勵詞</button>
         </div>
       </form>
     </div>
@@ -684,8 +686,8 @@
           <input type="password" id="inputAdminPassword" required placeholder="請輸入管理密碼" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-center font-mono text-base tracking-widest focus:outline-none focus:ring-2 focus:ring-amber-500">
         </div>
         <div class="flex gap-2 pt-2">
-          <button type="button" onclick="closeAdminLoginModal()" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
-          <button type="submit" class="w-1/2 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">確認登入</button>
+          <button type="button" onclick="closeAdminLoginModal(); playSound('click');" class="w-1/2 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
+          <button type="submit" onclick="playSound('click')" class="w-1/2 py-2.5 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">確認登入</button>
         </div>
       </form>
     </div>
@@ -697,7 +699,7 @@
         <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-key text-orange-500"></i> 修改後台管理密碼
         </h3>
-        <button onclick="closeChangePasswordModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button onclick="closeChangePasswordModal(); playSound('click');" class="text-slate-400 hover:text-slate-600 p-1">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -715,8 +717,8 @@
           <input type="password" id="confirmNewPasswordInput" required placeholder="再次輸入新密碼" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
         </div>
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-          <button type="button" onclick="closeChangePasswordModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
-          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存密碼</button>
+          <button type="button" onclick="closeChangePasswordModal(); playSound('click');" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
+          <button type="submit" onclick="playSound('click')" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存密碼</button>
         </div>
       </form>
     </div>
@@ -726,7 +728,7 @@
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-5">
         <h3 id="modalTitle" class="text-lg font-bold text-slate-800">新增學生</h3>
-        <button onclick="closeStudentModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button onclick="closeStudentModal(); playSound('click');" class="text-slate-400 hover:text-slate-600 p-1">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
@@ -774,8 +776,8 @@
           <input type="number" id="inputPoints" value="0" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
         </div>
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-          <button type="button" onclick="closeStudentModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
-          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存學生</button>
+          <button type="button" onclick="closeStudentModal(); playSound('click');" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
+          <button type="submit" onclick="playSound('click')" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存學生</button>
         </div>
       </form>
     </div>
@@ -785,7 +787,7 @@
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-5">
         <h3 id="rewardModalTitle" class="text-lg font-bold text-slate-800">設定獎勵項目</h3>
-        <button onclick="closeRewardModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button onclick="closeRewardModal(); playSound('click');" class="text-slate-400 hover:text-slate-600 p-1">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
@@ -810,8 +812,8 @@
           <textarea id="rewardDescInput" rows="2" placeholder="例如: 作業可補交一次、可維持一週..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
         </div>
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-          <button type="button" onclick="closeRewardModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
-          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存獎勵</button>
+          <button type="button" onclick="closeRewardModal(); playSound('click');" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
+          <button type="submit" onclick="playSound('click')" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存獎勵</button>
         </div>
       </form>
     </div>
@@ -846,8 +848,8 @@
           即將扣除：<span id="claimDeductAmount" class="font-black text-rose-600 text-sm">0</span> 點
         </div>
         <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
-          <button type="button" onclick="closeClaimModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
-          <button type="submit" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-sm">確認核銷扣點</button>
+          <button type="button" onclick="closeClaimModal(); playSound('click');" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
+          <button type="submit" onclick="playSound('coin')" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-sm">確認核銷扣點</button>
         </div>
       </form>
     </div>
@@ -859,7 +861,7 @@
         <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
           <i class="fa-solid fa-face-smile text-orange-500"></i> 更換我的個人頭像
         </h3>
-        <button onclick="closeStudentAvatarModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button onclick="closeStudentAvatarModal(); playSound('click');" class="text-slate-400 hover:text-slate-600 p-1">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -875,25 +877,25 @@
             <i class="fa-solid fa-image text-orange-500"></i> 上傳個人照片或自拍
           </p>
           <input type="file" id="avatarUploadInput" accept="image/*" class="hidden" onchange="handleAvatarFileUpload(event)">
-          <button type="button" onclick="document.getElementById('avatarUploadInput').click()" class="w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border border-amber-200">
+          <button type="button" onclick="document.getElementById('avatarUploadInput').click(); playSound('click');" class="w-full py-2 bg-amber-50 hover:bg-amber-100 text-amber-800 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 border border-amber-200">
             <i class="fa-solid fa-upload"></i> 從相簿選取或拍照上傳
           </button>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-600 mb-1.5">或挑選一個代表自己的 Emoji：</label>
           <div class="grid grid-cols-6 gap-2 p-2 bg-slate-50 rounded-2xl border border-slate-200 text-2xl text-center">
-            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🌟')">🌟</span>
-            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🌻')">🌻</span>
-            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🚀')">🚀</span>
-            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🦄')">🦄</span>
-            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🦁')">🦁</span>
-            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🐼')">🐼</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🌟'); playSound('click');">🌟</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🌻'); playSound('click');">🌻</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🚀'); playSound('click');">🚀</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🦄'); playSound('click');">🦄</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🦁'); playSound('click');">🦁</span>
+            <span class="cursor-pointer hover:scale-125 transition p-1 hover:bg-white rounded-xl" onclick="setAvatarPreset('🐼'); playSound('click');">🐼</span>
           </div>
         </div>
       </div>
       <div class="flex justify-end gap-2 pt-4 mt-4 border-t border-slate-100">
-        <button type="button" onclick="closeStudentAvatarModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold">取消</button>
-        <button type="button" onclick="saveSelectedAvatar()" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold shadow-sm">確認儲存頭像</button>
+        <button type="button" onclick="closeStudentAvatarModal(); playSound('click');" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-semibold">取消</button>
+        <button type="button" onclick="saveSelectedAvatar(); playSound('coin');" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-xs font-bold shadow-sm">確認儲存頭像</button>
       </div>
     </div>
   </div>
@@ -902,7 +904,7 @@
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-5">
         <h3 id="eventModalTitle" class="text-lg font-bold text-slate-800">新增行事曆事件</h3>
-        <button onclick="closeEventModal()" class="text-slate-400 hover:text-slate-600 p-1">
+        <button onclick="closeEventModal(); playSound('click');" class="text-slate-400 hover:text-slate-600 p-1">
           <i class="fa-solid fa-xmark text-lg"></i>
         </button>
       </div>
@@ -934,8 +936,8 @@
           <textarea id="eventDescInput" rows="2" placeholder="例如: 請攜帶水壺與輕便雨衣..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
         </div>
         <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
-          <button type="button" onclick="closeEventModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
-          <button type="submit" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存事件</button>
+          <button type="button" onclick="closeEventModal(); playSound('click');" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
+          <button type="submit" onclick="playSound('click')" class="px-5 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-xl text-sm font-bold shadow-sm">儲存事件</button>
         </div>
       </form>
     </div>
@@ -943,8 +945,8 @@
 
   <footer class="no-print bg-white/80 backdrop-blur-sm border-t border-amber-200/60 py-4 text-center text-xs text-slate-400 mt-auto">
     <div class="max-w-6xl mx-auto px-4 flex flex-wrap justify-between items-center gap-2">
-      <p>🌻 向日葵班班 · 學習存摺積分查詢系統</p>
-      <button onclick="requestAdminAccess('admin')" class="text-slate-400 hover:text-orange-600 text-[11px] flex items-center gap-1 transition">
+      <p>🌻 向日葵班班 · 學習存摺積分查詢系統 (音效與 Canvas 彩帶特效版)</p>
+      <button onclick="requestAdminAccess('admin'); playSound('click');" class="text-slate-400 hover:text-orange-600 text-[11px] flex items-center gap-1 transition">
         <i class="fa-solid fa-lock text-[10px]"></i> 教師管理登入
       </button>
     </div>
@@ -953,6 +955,88 @@
   <script>
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxWQhC0bDnz4ITKoSGACvJeYlzDCGVOoYDMcoP3dIyAtBk5C1bpTajpj-R_xycdcBjW/exec";
     const DEFAULT_ADMIN_PASSWORD = "8888";
+
+    // 🌻 Web Audio API 音效合成引擎 (不需要載入外部音檔，支援多種趣味特效音)
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSound(type) {
+      try {
+        initAudio();
+        if (!audioCtx) return;
+        const now = audioCtx.currentTime;
+
+        if (type === 'click') {
+          // 清脆按鈕點擊音
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(300, now + 0.08);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.08);
+        } else if (type === 'coin') {
+          // 金幣加分音 (高頻雙音)
+          const osc1 = audioCtx.createOscillator();
+          const osc2 = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc1.type = 'triangle';
+          osc2.type = 'sine';
+          osc1.frequency.setValueAtTime(987.77, now); // B5
+          osc2.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc1.start(now);
+          osc2.start(now + 0.08);
+          osc1.stop(now + 0.35);
+          osc2.stop(now + 0.35);
+        } else if (type === 'levelup' || type === 'reward') {
+          // 勝利升級交響和弦
+          const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          notes.forEach((freq, idx) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + idx * 0.1);
+            gain.gain.setValueAtTime(0.2, now + idx * 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.1 + 0.3);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start(now + idx * 0.1);
+            osc.stop(now + idx * 0.1 + 0.3);
+          });
+        }
+      } catch (e) {
+        console.warn("音效播放失敗:", e);
+      }
+    }
+
+    // 🌻 Canvas 彩帶特效函式
+    function triggerConfetti() {
+      try {
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 100,
+            spread: 80,
+            origin: { y: 0.6 }
+          });
+        }
+      } catch(e) {}
+    }
 
     const DEFAULT_POINT_PRESETS = [
       { id: "P01", emoji: "🙋‍♂️", reason: "課堂優良發言", delta: 1 },
@@ -1106,21 +1190,19 @@
       document.getElementById('evolutionDexModal').classList.add('hidden');
     }
 
-    // 🌻 雲端與本地嚴格防刷分打卡渲染邏輯
     function renderSmileAgentChecklist(student) {
       const container = document.getElementById('smileAgentChecklist');
       const countEl = document.getElementById('smileAgentCount');
       if (!container || !countEl) container.innerHTML = '';
 
       if (!student.smileLogs) student.smileLogs = {};
-      const todayStr = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+      const todayStr = new Date().toISOString().slice(0, 10);
       
       if (!student.smileLogs[todayStr]) {
         student.smileLogs[todayStr] = { tasks: {}, rewardClaimed: false };
       }
       const todayLog = student.smileLogs[todayStr];
 
-      // 計算今天已完成打卡數量
       let checkedCountToday = Object.keys(todayLog.tasks).length;
       countEl.textContent = checkedCountToday;
       container.innerHTML = '';
@@ -1163,6 +1245,8 @@
     }
 
     function recordSmileAgentCheckin(taskId, taskTitle) {
+      playSound('coin');
+      triggerConfetti();
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
       if (!student) return;
       if (!student.smileLogs) student.smileLogs = {};
@@ -1182,7 +1266,6 @@
       renderStudentCard();
       showToast(`【${taskTitle}】今日打卡成功！🌱`, "success");
       
-      // 🌻 同步寫入 Google 試算表雲端防刷紀錄
       sendDataToGoogleSheets({ 
         action: 'updateSmileAgentCloud', 
         studentId: student.id, 
@@ -1193,6 +1276,8 @@
     }
 
     function applySmileAgentReward() {
+      playSound('reward');
+      triggerConfetti();
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
       if (!student) return;
       if (!student.smileLogs) student.smileLogs = {};
@@ -1219,7 +1304,6 @@
       
       showToast("🎉 恭喜通過微笑特工驗證！獲得 +10 積分獎勵！", "success");
       
-      // 🌻 同步寫入雲端防刷紀錄
       sendDataToGoogleSheets({ 
         action: 'updateSmileAgentCloud', 
         studentId: student.id, 
@@ -1253,6 +1337,7 @@
     }
 
     function onStudentSelectChange(val) {
+      playSound('click');
       currentStudentId = val;
       renderStudentCard();
     }
@@ -1311,6 +1396,8 @@
     }
 
     function pokeHeroCharacter() {
+      playSound('levelup');
+      triggerConfetti();
       const bubble = document.getElementById('heroQuoteBubble');
       if (!bubble) return;
       bubble.style.opacity = '1';
@@ -1763,22 +1850,22 @@
           <td class="py-3 px-4 font-bold text-slate-800">${st.name}</td>
           <td class="py-3 px-4 text-center">${genderBadge}</td>
           <td class="py-3 px-4"><span class="text-xs bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full font-bold">${st.role || '無幹部'}</span></td>
-          <td class="py-3 px-4 text-xs text-slate-500 max-w-[200px] truncate cursor-pointer hover:text-orange-600" onclick="openWelcomeMessageModal('${st.id}')" title="${st.welcomeMessage || ''}">${st.welcomeMessage || '點擊修改勉勵詞'}</td>
+          <td class="py-3 px-4 text-xs text-slate-500 max-w-[200px] truncate cursor-pointer hover:text-orange-600" onclick="openWelcomeMessageModal('${st.id}'); playSound('click');" title="${st.welcomeMessage || ''}">${st.welcomeMessage || '點擊修改勉勵詞'}</td>
           <td class="py-3 px-4 text-center font-black text-orange-600 text-base">${st.points}</td>
           <td class="py-3 px-4 text-center">
             <div class="inline-flex gap-1 text-xs font-bold">
-              <button onclick="quickAddPoints('${st.id}', 1, '課堂優良發言')" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg">+1</button>
-              <button onclick="quickAddPoints('${st.id}', 2, '作業優秀工整')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 px-2 py-1 rounded-lg">+2</button>
-              <button onclick="quickAddPoints('${st.id}', -1, '課堂違規扣分')" class="bg-rose-50 hover:bg-rose-100 text-rose-700 px-2 py-1 rounded-lg">-1</button>
-              <button onclick="openPointModal('${st.id}')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg">自訂</button>
+              <button onclick="quickAddPoints('${st.id}', 1, '課堂優良發言'); playSound('coin');" class="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 px-2 py-1 rounded-lg">+1</button>
+              <button onclick="quickAddPoints('${st.id}', 2, '作業優秀工整'); playSound('coin');" class="bg-amber-50 hover:bg-amber-100 text-amber-800 px-2 py-1 rounded-lg">+2</button>
+              <button onclick="quickAddPoints('${st.id}', -1, '課堂違規扣分'); playSound('click');" class="bg-rose-50 hover:bg-rose-100 text-rose-700 px-2 py-1 rounded-lg">-1</button>
+              <button onclick="openPointModal('${st.id}'); playSound('click');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded-lg">自訂</button>
             </div>
           </td>
           <td class="py-3 px-4 text-center">
-            <button onclick="openClaimModal('${st.id}')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-xl text-xs font-bold">核銷</button>
+            <button onclick="openClaimModal('${st.id}'); playSound('click');" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-xl text-xs font-bold">核銷</button>
           </td>
           <td class="py-3 px-4 text-right">
-            <button onclick="openEditStudentModal('${st.id}')" class="text-slate-600 hover:text-orange-600 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
-            <button onclick="deleteStudent('${st.id}')" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+            <button onclick="openEditStudentModal('${st.id}'); playSound('click');" class="text-slate-600 hover:text-orange-600 p-1"><i class="fa-solid fa-pen-to-square"></i></button>
+            <button onclick="deleteStudent('${st.id}'); playSound('click');" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1786,6 +1873,12 @@
     }
 
     function quickAddPoints(id, delta, reason) {
+      if (delta > 0) {
+        playSound('coin');
+        triggerConfetti();
+      } else {
+        playSound('click');
+      }
       const st = students.find(s => s.id === id);
       if (!st) return;
       st.points += delta;
@@ -1795,11 +1888,13 @@
       saveSystemData();
       renderAdminTable();
       renderStudentCard();
-      showToast(`${st.name} ${delta > 0 ? '+' + delta : delta} 點 (${reason})`, "success");
+      showToast(`${st.name} ${delta > 0 ? '+' + delta : delta} 點 (${reason})`, delta > 0 ? "success" : "error");
       sendDataToGoogleSheets({ action: 'updatePoints', id: st.id, seat: st.seat, points: st.points, reason, delta });
     }
 
     function quickBatchAdd(reason, amount) {
+      playSound('coin');
+      triggerConfetti();
       const timeStr = new Date().toLocaleString('zh-TW', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
       students.forEach(st => {
         st.points += amount;
@@ -1872,7 +1967,7 @@
             <span>${p.emoji}</span><span class="font-bold text-slate-700">${p.reason}</span>
             <span class="px-2 py-0.5 rounded-full font-bold ${p.delta > 0 ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">${p.delta > 0 ? '+' + p.delta : p.delta}</span>
           </div>
-          <button onclick="deletePresetItem(${idx})" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
+          <button onclick="deletePresetItem(${idx}); playSound('click');" class="text-rose-500 hover:text-rose-700 p-1"><i class="fa-solid fa-trash"></i></button>
         `;
         box.appendChild(div);
       });
@@ -2019,8 +2114,8 @@
             <p class="text-xs text-slate-500 mt-1">${rw.desc || '無特定規則'}</p>
           </div>
           <div class="flex justify-end gap-2 mt-4 pt-3 border-t border-slate-100">
-            <button onclick="openEditRewardModal('${rw.id}')" class="text-xs text-slate-600 hover:text-orange-600 font-bold">編輯</button>
-            <button onclick="deleteRewardItem('${rw.id}')" class="text-xs text-rose-500 hover:text-rose-700 font-bold">刪除</button>
+            <button onclick="openEditRewardModal('${rw.id}'); playSound('click');" class="text-xs text-slate-600 hover:text-orange-600 font-bold">編輯</button>
+            <button onclick="deleteRewardItem('${rw.id}'); playSound('click');" class="text-xs text-rose-500 hover:text-rose-700 font-bold">刪除</button>
           </div>
         `;
         box.appendChild(div);
@@ -2214,7 +2309,7 @@
           </div>
           ${unread > 0 ? `<span class="bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">${unread}</span>` : ''}
         `;
-        btn.onclick = () => selectAdminChatStudent(st.id);
+        btn.onclick = () => { playSound('click'); selectAdminChatStudent(st.id); };
         box.appendChild(btn);
       });
       if (currentAdminChatStudentId) selectAdminChatStudent(currentAdminChatStudentId);
@@ -2240,7 +2335,7 @@
           <div class="max-w-[80%] rounded-2xl p-2.5 text-xs ${isTeacher ? 'bg-orange-500 text-white' : 'bg-slate-100 text-slate-800'}">
             <div class="flex justify-between items-center gap-2 mb-1 text-[10px] ${isTeacher ? 'text-orange-100' : 'text-slate-400'}">
               <span>${m.sender}</span><span>${m.time}</span>
-              <button onclick="deleteMessage('${m.id}')" class="hover:text-rose-300 ml-1"><i class="fa-solid fa-trash text-[9px]"></i></button>
+              <button onclick="deleteMessage('${m.id}'); playSound('click');" class="hover:text-rose-300 ml-1"><i class="fa-solid fa-trash text-[9px]"></i></button>
             </div>
             <p class="leading-relaxed break-words">${m.content}</p>
           </div>
@@ -2336,7 +2431,7 @@
           <td class="py-3 px-4"><span class="bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full font-bold">${ev.tag}</span></td>
           <td class="py-3 px-4 text-slate-500">${ev.desc || ''}</td>
           <td class="py-3 px-4 text-right">
-            <button onclick="deleteEventItem('${ev.id}')" class="text-rose-500 hover:text-rose-700 font-bold">刪除</button>
+            <button onclick="deleteEventItem('${ev.id}'); playSound('click');" class="text-rose-500 hover:text-rose-700 font-bold">刪除</button>
           </td>
         `;
         tbody.appendChild(tr);
