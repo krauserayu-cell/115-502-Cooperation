@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>向日葵班班 · 學習存摺與親師生互動系統 </title>
+  <title>向日葵班班 · 學習存摺與親師生互動系統</title>
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- FontAwesome 圖示庫 -->
@@ -60,7 +60,7 @@
             🌻 向日葵班班 · 學習存摺
           </h1>
           <div class="flex items-center gap-2">
-            <p class="text-xs text-amber-100 font-medium">音效特效版 · 獎勵兌換</p>
+            <p class="text-xs text-amber-100 font-medium">作業追蹤 · 獎勵兌換</p>
             <span id="syncStatusBadge" class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-white/20 text-white transition backdrop-blur-sm">
               <span class="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span> 連線中...
             </span>
@@ -103,9 +103,9 @@
 
   <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6 md:p-8">
 
+    <!-- ================= 視圖 1: 學生專屬查詢頁面 (Student View) ================= -->
     <section id="studentView" class="block">
 
-      <!-- 🌻 Google 試算表連動的 YouTube 班級影片專區 (支援多影片清單選擇) -->
       <div id="classVideoContainer" class="max-w-md mx-auto mb-5 bg-slate-900 rounded-3xl overflow-hidden shadow-xl border-2 border-amber-300/60 relative">
         <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-white flex justify-between items-center text-xs font-bold gap-2">
           <span class="flex items-center gap-1.5 truncate"><i class="fa-solid fa-clapperboard text-amber-200"></i> 班級專屬影片播放區</span>
@@ -256,6 +256,23 @@
 
           </div>
 
+          <div class="mb-6 bg-gradient-to-b from-sky-50 to-indigo-50/60 rounded-3xl p-4 sm:p-5 border border-sky-200 shadow-sm">
+            <div class="flex items-center justify-between mb-3">
+              <span class="inline-flex items-center gap-1.5 text-xs font-black bg-sky-200/80 text-sky-900 px-3 py-1 rounded-full">
+                <i class="fa-solid fa-book-open text-sky-600"></i> 班級作業與任務追蹤
+              </span>
+              <span id="studentHomeworkSummary" class="text-[11px] font-bold text-sky-800 bg-white/80 px-2.5 py-1 rounded-full border border-sky-200 shadow-2xs">
+                載入中...
+              </span>
+            </div>
+
+            <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+              請隨時確認各項作業與學習任務的繳交狀況。如有「需訂正」或「未繳交」，請盡快完成並交給老師！💪
+            </p>
+
+            <div class="space-y-2 max-h-56 overflow-y-auto pr-1" id="studentHomeworkListContainer"></div>
+          </div>
+
           <div class="mb-6 bg-gradient-to-b from-emerald-50 to-teal-50/60 rounded-3xl p-4 sm:p-5 border border-emerald-200 shadow-sm">
             <div class="flex items-center justify-between mb-3">
               <span class="inline-flex items-center gap-1.5 text-xs font-black bg-emerald-200/80 text-emerald-900 px-3 py-1 rounded-full">
@@ -351,6 +368,7 @@
       </div>
     </section>
 
+    <!-- ================= 視圖 2: 教師後台管理 (Teacher Admin View) ================= -->
     <section id="adminView" class="hidden">
       <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 mb-6 flex flex-wrap justify-between items-center gap-4">
         <div>
@@ -362,7 +380,7 @@
               <i class="fa-solid fa-shield-halved"></i> 密碼保護中
             </span>
           </div>
-          <p class="text-xs text-slate-500 mt-1">向日葵班班專屬管理後台 · 支援 YouTube 影片清單與即時同步 Google 試算表</p>
+          <p class="text-xs text-slate-500 mt-1">向日葵班班專屬管理後台 · 支援作業追蹤與 Google 試算表同步</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="fetchFromGoogleSheets(true); playSound('click');" class="bg-amber-50 hover:bg-amber-100 text-amber-800 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 border border-amber-200 shadow-xs">
@@ -387,7 +405,6 @@
         </div>
       </div>
 
-      <!-- 🌻 Google 試算表連動的 YouTube 影片清單管理專區 -->
       <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-5 rounded-3xl shadow-lg border border-amber-500/40 mb-6">
         <div class="flex justify-between items-center mb-3">
           <h3 class="text-base font-bold flex items-center gap-2">
@@ -413,6 +430,9 @@
       <div class="flex space-x-2 border-b border-slate-200 mb-6 overflow-x-auto">
         <button id="adminTabStudentsBtn" onclick="switchAdminTab('students'); playSound('click');" class="px-4 py-2.5 font-bold text-sm border-b-2 border-orange-500 text-orange-600 flex items-center gap-2 transition whitespace-nowrap">
           <i class="fa-solid fa-users"></i> 學生名單與積分 (<span id="studentCountBadge">0</span>)
+        </button>
+        <button id="adminTabHomeworkBtn" onclick="switchAdminTab('homework'); playSound('click');" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-book-bookmark"></i> 作業繳交狀態追蹤 (<span id="homeworkCountBadge">0</span>)
         </button>
         <button id="adminTabMessagesBtn" onclick="switchAdminTab('messages'); playSound('click');" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
           <i class="fa-solid fa-comment-dots"></i> 親師生私訊信箱 <span id="unreadMessagesTotalBadge" class="hidden bg-rose-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
@@ -462,6 +482,22 @@
             </table>
           </div>
         </div>
+      </div>
+
+      <div id="adminTabHomework" class="hidden">
+        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 mb-6 flex flex-wrap justify-between items-center gap-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-book-bookmark text-sky-600"></i> 班級作業任務管理與審核
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">在此新增作業項目，並可直接切換全班學生的繳交狀態（已交/未交/需訂正）</p>
+          </div>
+          <button onclick="openAddHomeworkModal(); playSound('click');" class="bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 shadow-sm">
+            <i class="fa-solid fa-plus"></i> 新增班級作業
+          </button>
+        </div>
+
+        <div id="adminHomeworkManagerContainer" class="space-y-4"></div>
       </div>
 
       <div id="adminTabMessages" class="hidden">
@@ -559,6 +595,7 @@
 
     </section>
 
+    <!-- ================= 視圖 3: QR Code 批量列印 (Print / QR Codes View) ================= -->
     <section id="printView" class="hidden">
       <div class="no-print bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex flex-wrap justify-between items-center gap-4">
         <div>
@@ -577,7 +614,6 @@
 
   </main>
 
-  <!-- Modals -->
   <div id="evolutionDexModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
@@ -605,6 +641,45 @@
           我知道了，加油衝刺！💪
         </button>
       </div>
+    </div>
+  </div>
+
+  <div id="homeworkModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100">
+      <div class="flex justify-between items-center mb-5">
+        <h3 id="homeworkModalTitle" class="text-lg font-bold text-slate-800">新增班級作業</h3>
+        <button onclick="closeHomeworkModal(); playSound('click');" class="text-slate-400 hover:text-slate-600 p-1">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+      <form id="homeworkForm" onsubmit="saveHomeworkItem(event)" class="space-y-4">
+        <input type="hidden" id="editHomeworkId">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">繳交期限 *</label>
+            <input type="date" id="homeworkDueDateInput" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">科目/類型 *</label>
+            <select id="homeworkSubjectInput" required class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-sky-500">
+              <option value="國語">📖 國語作業</option>
+              <option value="數學">🔢 數學作業</option>
+              <option value="英文">🔤 英文作業</option>
+              <option value="自然">🔬 自然作業</option>
+              <option value="社會">🌍 社會作業</option>
+              <option value="其他">📌 其他任務</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">作業名稱 / 內容說明 *</label>
+          <input type="text" id="homeworkTitleInput" required placeholder="例如: 國習 L1 習寫與訂正..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500">
+        </div>
+        <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+          <button type="button" onclick="closeHomeworkModal(); playSound('click');" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-sm font-semibold">取消</button>
+          <button type="submit" onclick="playSound('click')" class="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl text-sm font-bold shadow-sm">儲存作業</button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -983,7 +1058,7 @@
 
   <footer class="no-print bg-white/80 backdrop-blur-sm border-t border-amber-200/60 py-4 text-center text-xs text-slate-400 mt-auto">
     <div class="max-w-6xl mx-auto px-4 flex flex-wrap justify-between items-center gap-2">
-      <p>🌻 向日葵班班 · 學習存摺積分查詢系統 (音效與 Canvas 彩帶特效版)</p>
+      <p>🌻 向日葵班班 · 學習存摺積分查詢系統 (作業追蹤與音效特效版)</p>
       <button onclick="requestAdminAccess('admin'); playSound('click');" class="text-slate-400 hover:text-orange-600 text-[11px] flex items-center gap-1 transition">
         <i class="fa-solid fa-lock text-[10px]"></i> 教師管理登入
       </button>
@@ -1096,6 +1171,12 @@
     let classVideos = [
       { id: "V1", title: "🌻 向日葵班班導師指定影片", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
     ];
+    let classHomeworks = [
+      { id: "HW1", title: "國語 L1 習作與生字造詞", subject: "國語", dueDate: "2026-09-05" },
+      { id: "HW2", title: "數學單元一練習卷", subject: "數學", dueDate: "2026-09-06" }
+    ];
+    let studentHomeworkStatus = {};
+
     let selectedVideoId = "";
     let pointPresets = JSON.parse(JSON.stringify(DEFAULT_POINT_PRESETS));
     let adminPassword = DEFAULT_ADMIN_PASSWORD;
@@ -1186,6 +1267,7 @@
       if (progTextEl) progTextEl.textContent = needed > 0 ? `距離升級還差 ${needed} 點` : `已晉升至最高榮譽！`;
       if (progBarEl) progBarEl.style.width = `${percent}%`;
 
+      renderStudentHomeworkList(student);
       renderSmileAgentChecklist(student);
       renderStudentRewardsList(student);
       renderStudentHistoryList(student);
@@ -1194,6 +1276,178 @@
 
       const updatedEl = document.getElementById('cardLastUpdated');
       if (updatedEl) updatedEl.textContent = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderStudentHomeworkList(student) {
+      const container = document.getElementById('studentHomeworkListContainer');
+      const summaryEl = document.getElementById('studentHomeworkSummary');
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (!classHomeworks || classHomeworks.length === 0) {
+        if (summaryEl) summaryEl.textContent = "目前無指定作業";
+        container.innerHTML = `<div class="text-xs text-slate-400 py-3 text-center">目前沒有需要繳交的作業項目！🎉</div>`;
+        return;
+      }
+
+      if (!studentHomeworkStatus[student.id]) {
+        studentHomeworkStatus[student.id] = {};
+      }
+      const stStatus = studentHomeworkStatus[student.id];
+
+      let submittedCount = 0;
+      classHomeworks.forEach(hw => {
+        const status = stStatus[hw.id] || 'missing';
+        if (status === 'submitted') submittedCount++;
+      });
+
+      if (summaryEl) summaryEl.textContent = `已完成：${submittedCount} / ${classHomeworks.length} 項`;
+
+      classHomeworks.forEach(hw => {
+        const status = stStatus[hw.id] || 'missing';
+        let badgeHTML = '';
+        if (status === 'submitted') {
+          badgeHTML = `<span class="px-2.5 py-1 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> 已繳交</span>`;
+        } else if (status === 'revise') {
+          badgeHTML = `<span class="px-2.5 py-1 rounded-full text-[11px] font-black bg-amber-100 text-amber-800 flex items-center gap-1"><i class="fa-solid fa-triangle-exclamation"></i> 需訂正</span>`;
+        } else {
+          badgeHTML = `<span class="px-2.5 py-1 rounded-full text-[11px] font-black bg-rose-100 text-rose-800 flex items-center gap-1"><i class="fa-solid fa-clock"></i> 未繳交</span>`;
+        }
+
+        const div = document.createElement('div');
+        div.className = "bg-white p-3 rounded-2xl border border-sky-100 shadow-2xs flex items-center justify-between gap-2";
+        div.innerHTML = `
+          <div class="truncate mr-2">
+            <div class="flex items-center gap-1.5 mb-0.5">
+              <span class="text-[10px] font-bold bg-sky-100 text-sky-800 px-2 py-0.5 rounded">${hw.subject || '作業'}</span>
+              <span class="text-[10px] text-slate-400">期限: ${hw.dueDate || '未定'}</span>
+            </div>
+            <p class="font-bold text-xs text-slate-800 truncate">${hw.title}</p>
+          </div>
+          <div class="flex-shrink-0">${badgeHTML}</div>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function renderAdminHomeworkManager() {
+      const container = document.getElementById('adminHomeworkManagerContainer');
+      const badge = document.getElementById('homeworkCountBadge');
+      if (badge) badge.textContent = classHomeworks.length;
+      if (!container) return;
+      container.innerHTML = '';
+
+      if (!classHomeworks || classHomeworks.length === 0) {
+        container.innerHTML = `
+          <div class="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-400 text-xs">
+            目前尚無任何作業項目，請點擊上方按鈕新增！
+          </div>
+        `;
+        return;
+      }
+
+      classHomeworks.forEach(hw => {
+        const card = document.createElement('div');
+        card.className = "bg-white p-4 rounded-3xl border border-slate-200 shadow-sm";
+        
+        let studentsRowsHTML = '';
+        students.sort((a,b) => a.seat - b.seat).forEach(st => {
+          if (!studentHomeworkStatus[st.id]) studentHomeworkStatus[st.id] = {};
+          const stStatus = studentHomeworkStatus[st.id][hw.id] || 'missing';
+
+          studentsRowsHTML += `
+            <div class="flex items-center justify-between py-1.5 px-3 rounded-xl hover:bg-slate-50 transition text-xs border-b border-slate-100 last:border-b-0">
+              <span class="font-bold text-slate-700">#${String(st.seat).padStart(2,'0')} ${st.name}</span>
+              <div class="flex items-center gap-1 text-[11px] font-bold">
+                <button type="button" onclick="updateStudentHomeworkStatus('${st.id}', '${hw.id}', 'submitted'); playSound('click');" 
+                  class="px-2.5 py-1 rounded-lg transition ${stStatus === 'submitted' ? 'bg-emerald-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-emerald-50'}">已交</button>
+                <button type="button" onclick="updateStudentHomeworkStatus('${st.id}', '${hw.id}', 'revise'); playSound('click');" 
+                  class="px-2.5 py-1 rounded-lg transition ${stStatus === 'revise' ? 'bg-amber-500 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-amber-50'}">訂正</button>
+                <button type="button" onclick="updateStudentHomeworkStatus('${st.id}', '${hw.id}', 'missing'); playSound('click');" 
+                  class="px-2.5 py-1 rounded-lg transition ${stStatus === 'missing' ? 'bg-rose-500 text-white shadow-xs' : 'bg-slate-100 text-slate-600 hover:bg-rose-50'}">未交</button>
+              </div>
+            </div>
+          `;
+        });
+
+        card.innerHTML = `
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-3 pb-3 border-b border-slate-100">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="bg-sky-100 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded">${hw.subject}</span>
+                <span class="text-xs text-slate-400">期限：${hw.dueDate}</span>
+              </div>
+              <h4 class="font-black text-slate-800 text-sm">${hw.title}</h4>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="batchCompleteHomework('${hw.id}'); playSound('coin');" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl transition shadow-2xs flex items-center gap-1">
+                <i class="fa-solid fa-check-double"></i> 一鍵全班已交
+              </button>
+              <button onclick="deleteHomeworkItem('${hw.id}'); playSound('click');" class="text-xs text-rose-500 hover:text-rose-700 font-bold px-3 py-1.5 rounded-xl bg-rose-50 transition">
+                <i class="fa-solid fa-trash"></i> 刪除
+              </button>
+            </div>
+          </div>
+          <div class="bg-slate-50/70 rounded-2xl p-2 border border-slate-200 max-h-60 overflow-y-auto space-y-1">
+            ${studentsRowsHTML}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function batchCompleteHomework(homeworkId) {
+      triggerConfetti();
+      students.forEach(st => {
+        if (!studentHomeworkStatus[st.id]) studentHomeworkStatus[st.id] = {};
+        studentHomeworkStatus[st.id][homeworkId] = 'submitted';
+        sendDataToGoogleSheets({ action: 'saveHomeworkStatus', studentId: st.id, homeworkId, status: 'submitted' });
+      });
+      saveSystemData();
+      renderAdminHomeworkManager();
+      renderStudentCard();
+      showToast("🎉 已將全班學生該項作業一鍵設為「已繳交」！", "success");
+    }
+
+    function updateStudentHomeworkStatus(studentId, homeworkId, status) {
+      if (!studentHomeworkStatus[studentId]) studentHomeworkStatus[studentId] = {};
+      studentHomeworkStatus[studentId][homeworkId] = status;
+      saveSystemData();
+      renderAdminHomeworkManager();
+      renderStudentCard();
+      showToast("作業狀態已更新！", "success");
+      sendDataToGoogleSheets({ action: 'saveHomeworkStatus', studentId, homeworkId, status });
+    }
+
+    function openAddHomeworkModal() {
+      document.getElementById('homeworkDueDateInput').value = new Date().toISOString().slice(0, 10);
+      document.getElementById('homeworkTitleInput').value = "";
+      document.getElementById('homeworkModal')?.classList.remove('hidden');
+    }
+    function closeHomeworkModal() {
+      document.getElementById('homeworkModal')?.classList.add('hidden');
+    }
+    function saveHomeworkItem(e) {
+      e.preventDefault();
+      const dueDate = document.getElementById('homeworkDueDateInput').value;
+      const subject = document.getElementById('homeworkSubjectInput').value;
+      const title = document.getElementById('homeworkTitleInput').value.trim();
+      const newHw = { id: `HW_${Date.now()}`, dueDate, subject, title };
+      classHomeworks.push(newHw);
+      saveSystemData();
+      closeHomeworkModal();
+      renderAdminHomeworkManager();
+      renderStudentCard();
+      showToast("已成功新增班級作業！", "success");
+      sendDataToGoogleSheets({ action: 'saveHomeworks', homeworks: classHomeworks });
+    }
+    function deleteHomeworkItem(id) {
+      classHomeworks = classHomeworks.filter(h => h.id !== id);
+      saveSystemData();
+      renderAdminHomeworkManager();
+      renderStudentCard();
+      showToast("已刪除該筆作業", "info");
+      sendDataToGoogleSheets({ action: 'saveHomeworks', homeworks: classHomeworks });
     }
 
     function renderYouTubePlayer() {
@@ -1233,7 +1487,6 @@
         videoId = rawUrl.trim();
       }
 
-      // 🌻 雙重防護：本機 file:// 模式或 iframe 嵌入攔截時提供一鍵前往觀看按鈕
       if (window.location.protocol === 'file:') {
         box.innerHTML = `
           <div class="flex flex-col items-center justify-center p-6 text-center">
@@ -1477,6 +1730,7 @@
       updateStudentSelector();
       renderStudentCard();
       renderAdminTable();
+      renderAdminHomeworkManager();
       renderRewardsManager();
       renderAdminEventsTable();
       renderHomeCountdown();
@@ -1660,6 +1914,8 @@
           classVideos = data.videos;
           if (!selectedVideoId && classVideos.length > 0) selectedVideoId = classVideos[0].id;
         }
+        if (data && Array.isArray(data.homeworks) && data.homeworks.length > 0) classHomeworks = data.homeworks;
+        if (data && data.homeworkStatus) studentHomeworkStatus = data.homeworkStatus;
 
         saveSystemData();
         refreshAllViews();
@@ -1701,6 +1957,10 @@
           classVideos = JSON.parse(v);
           if (classVideos.length > 0) selectedVideoId = classVideos[0].id;
         }
+        const hw = localStorage.getItem('class_points_homeworks');
+        if (hw) classHomeworks = JSON.parse(hw);
+        const hws = localStorage.getItem('class_points_homework_status');
+        if (hws) studentHomeworkStatus = JSON.parse(hws);
       } catch (e) {
         console.warn("載入本地暫存失敗:", e);
       }
@@ -1715,6 +1975,8 @@
         localStorage.setItem('class_points_presets', JSON.stringify(pointPresets));
         localStorage.setItem('class_points_pwd', adminPassword);
         localStorage.setItem('class_points_videos', JSON.stringify(classVideos));
+        localStorage.setItem('class_points_homeworks', JSON.stringify(classHomeworks));
+        localStorage.setItem('class_points_homework_status', JSON.stringify(studentHomeworkStatus));
       } catch (e) {
         console.warn("LocalStorage 寫入限制:", e);
       }
@@ -1900,6 +2162,7 @@
         if (adminView) adminView.classList.remove('hidden');
         if (navAdmin) navAdmin.className = "px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 bg-white text-orange-600 shadow-sm";
         renderAdminTable();
+        renderAdminHomeworkManager();
         renderRewardsManager();
         renderAdminEventsTable();
         renderAdminChatStudentList();
@@ -1984,7 +2247,7 @@
     }
 
     function switchAdminTab(tab) {
-      ['students', 'messages', 'rewards', 'events'].forEach(t => {
+      ['students', 'homework', 'messages', 'rewards', 'events'].forEach(t => {
         const el = document.getElementById(`adminTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
         const btn = document.getElementById(`adminTab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`);
         if (el) el.classList.toggle('hidden', t !== tab);
@@ -1995,6 +2258,7 @@
         }
       });
       if (tab === 'students') renderAdminTable();
+      if (tab === 'homework') renderAdminHomeworkManager();
       if (tab === 'messages') renderAdminChatStudentList();
       if (tab === 'rewards') renderRewardsManager();
       if (tab === 'events') renderAdminEventsTable();
@@ -2676,7 +2940,7 @@
 
     function exportData() {
       const data = {
-        students, rewards, classEvents, messages, classVideos, pointPresets, adminPassword,
+        students, rewards, classEvents, messages, classVideos, classHomeworks, studentHomeworkStatus, pointPresets, adminPassword,
         exportDate: new Date().toISOString()
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -2701,6 +2965,8 @@
           if (parsed.classEvents) classEvents = parsed.classEvents;
           if (parsed.messages) messages = parsed.messages;
           if (parsed.classVideos) classVideos = parsed.classVideos;
+          if (parsed.classHomeworks) classHomeworks = parsed.classHomeworks;
+          if (parsed.studentHomeworkStatus) studentHomeworkStatus = parsed.studentHomeworkStatus;
           if (parsed.pointPresets) pointPresets = parsed.pointPresets;
           saveSystemData();
           refreshAllViews();
