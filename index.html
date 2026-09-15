@@ -103,8 +103,24 @@
 
   <main class="flex-grow max-w-6xl w-full mx-auto p-4 sm:p-6 md:p-8">
 
-    <!-- ================= 視圖 1: 學生專屬查詢頁面 (Student View) ================= -->
     <section id="studentView" class="block">
+
+      <!-- 🌻 Google 試算表連動的 YouTube 班級影片專區 (支援多影片清單選擇) -->
+      <div id="classVideoContainer" class="max-w-md mx-auto mb-5 bg-slate-900 rounded-3xl overflow-hidden shadow-xl border-2 border-amber-300/60 relative">
+        <div class="bg-gradient-to-r from-amber-500 to-orange-500 px-4 py-2.5 text-white flex justify-between items-center text-xs font-bold gap-2">
+          <span class="flex items-center gap-1.5 truncate"><i class="fa-solid fa-clapperboard text-amber-200"></i> 班級專屬影片播放區</span>
+          <div class="flex items-center gap-1.5 flex-shrink-0">
+            <select id="studentVideoSelector" onchange="onStudentVideoSelectChange(this.value)" class="bg-black/30 text-white text-[11px] rounded-lg px-2 py-1 border border-white/30 focus:outline-none">
+              <!-- 動態載入影片清單 -->
+            </select>
+          </div>
+        </div>
+        <div class="relative w-full aspect-video bg-black flex items-center justify-center">
+          <div id="youtubePlayerBox" class="w-full h-full flex flex-col items-center justify-center p-4 text-center">
+            <!-- 動態載入 iframe 或 安全前往按鈕 -->
+          </div>
+        </div>
+      </div>
 
       <div class="max-w-md mx-auto mb-4 bg-white rounded-3xl overflow-hidden shadow-lg border border-amber-200/80 transition hover:shadow-xl">
         <div class="relative w-full aspect-square max-h-72 bg-gradient-to-b from-amber-100 to-amber-50 flex items-center justify-center overflow-hidden">
@@ -335,7 +351,6 @@
       </div>
     </section>
 
-    <!-- ================= 視圖 2: 教師後台管理 (Teacher Admin View) ================= -->
     <section id="adminView" class="hidden">
       <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 mb-6 flex flex-wrap justify-between items-center gap-4">
         <div>
@@ -347,7 +362,7 @@
               <i class="fa-solid fa-shield-halved"></i> 密碼保護中
             </span>
           </div>
-          <p class="text-xs text-slate-500 mt-1">向日葵班班專屬管理後台 · 音效特效與雲端試算表同步</p>
+          <p class="text-xs text-slate-500 mt-1">向日葵班班專屬管理後台 · 支援 YouTube 影片清單與即時同步 Google 試算表</p>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button onclick="fetchFromGoogleSheets(true); playSound('click');" class="bg-amber-50 hover:bg-amber-100 text-amber-800 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5 border border-amber-200 shadow-xs">
@@ -369,6 +384,29 @@
           <button onclick="logoutAdmin(); playSound('click');" class="bg-rose-50 hover:bg-rose-100 text-rose-600 px-3 py-2 rounded-xl text-sm font-bold transition flex items-center gap-1.5">
             <i class="fa-solid fa-lock"></i> 鎖定登出
           </button>
+        </div>
+      </div>
+
+      <!-- 🌻 Google 試算表連動的 YouTube 影片清單管理專區 -->
+      <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white p-5 rounded-3xl shadow-lg border border-amber-500/40 mb-6">
+        <div class="flex justify-between items-center mb-3">
+          <h3 class="text-base font-bold flex items-center gap-2">
+            <i class="fa-brands fa-youtube text-red-500"></i> 管理 YouTube 班級影片清單
+          </h3>
+          <span class="text-[11px] bg-white/20 px-2.5 py-0.5 rounded-full text-amber-200">同步至 Google 試算表</span>
+        </div>
+        <p class="text-xs text-slate-300 mb-4">老師可在此新增多部影片，學生在首頁即可自行從下拉選單切換播放觀看！</p>
+        
+        <form onsubmit="addNewClassVideo(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+          <input type="text" id="adminVideoTitleInput" required placeholder="影片標題 (例如: 晨間音樂、品格動畫)..." class="bg-slate-800 border border-slate-600 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-400">
+          <input type="text" id="adminVideoUrlInput" required placeholder="YouTube 網址或影片 ID..." class="bg-slate-800 border border-slate-600 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:ring-2 focus:ring-amber-400">
+          <button type="submit" onclick="playSound('click')" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-xl font-bold text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+            <i class="fa-solid fa-plus"></i> 新增至班級影片庫
+          </button>
+        </form>
+
+        <div class="bg-slate-800/80 rounded-2xl p-3 border border-slate-700 max-h-48 overflow-y-auto">
+          <div id="adminVideosListContainer" class="space-y-2"></div>
         </div>
       </div>
 
@@ -521,7 +559,6 @@
 
     </section>
 
-    <!-- ================= 視圖 3: QR Code 批量列印 (Print / QR Codes View) ================= -->
     <section id="printView" class="hidden">
       <div class="no-print bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6 flex flex-wrap justify-between items-center gap-4">
         <div>
@@ -540,6 +577,7 @@
 
   </main>
 
+  <!-- Modals -->
   <div id="evolutionDexModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
@@ -956,7 +994,6 @@
     const GAS_API_URL = "https://script.google.com/macros/s/AKfycbxWQhC0bDnz4ITKoSGACvJeYlzDCGVOoYDMcoP3dIyAtBk5C1bpTajpj-R_xycdcBjW/exec";
     const DEFAULT_ADMIN_PASSWORD = "8888";
 
-    // 🌻 Web Audio API 音效合成引擎 (不需要載入外部音檔，支援多種趣味特效音)
     let audioCtx = null;
     function initAudio() {
       if (!audioCtx) {
@@ -974,7 +1011,6 @@
         const now = audioCtx.currentTime;
 
         if (type === 'click') {
-          // 清脆按鈕點擊音
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.type = 'sine';
@@ -987,14 +1023,13 @@
           osc.start(now);
           osc.stop(now + 0.08);
         } else if (type === 'coin') {
-          // 金幣加分音 (高頻雙音)
           const osc1 = audioCtx.createOscillator();
           const osc2 = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc1.type = 'triangle';
           osc2.type = 'sine';
-          osc1.frequency.setValueAtTime(987.77, now); // B5
-          osc2.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+          osc1.frequency.setValueAtTime(987.77, now);
+          osc2.frequency.setValueAtTime(1318.51, now + 0.08);
           gain.gain.setValueAtTime(0.2, now);
           gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
           osc1.connect(gain);
@@ -1005,8 +1040,7 @@
           osc1.stop(now + 0.35);
           osc2.stop(now + 0.35);
         } else if (type === 'levelup' || type === 'reward') {
-          // 勝利升級交響和弦
-          const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+          const notes = [523.25, 659.25, 783.99, 1046.50];
           notes.forEach((freq, idx) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -1025,7 +1059,6 @@
       }
     }
 
-    // 🌻 Canvas 彩帶特效函式
     function triggerConfetti() {
       try {
         if (typeof confetti === 'function') {
@@ -1060,6 +1093,10 @@
     let rewards = [];
     let classEvents = [];
     let messages = [];
+    let classVideos = [
+      { id: "V1", title: "🌻 向日葵班班導師指定影片", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }
+    ];
+    let selectedVideoId = "";
     let pointPresets = JSON.parse(JSON.stringify(DEFAULT_POINT_PRESETS));
     let adminPassword = DEFAULT_ADMIN_PASSWORD;
     let currentStudentId = null;
@@ -1153,9 +1190,132 @@
       renderStudentRewardsList(student);
       renderStudentHistoryList(student);
       renderStudentChatMessages(student);
+      renderYouTubePlayer();
 
       const updatedEl = document.getElementById('cardLastUpdated');
       if (updatedEl) updatedEl.textContent = new Date().toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderYouTubePlayer() {
+      const box = document.getElementById('youtubePlayerBox');
+      const sel = document.getElementById('studentVideoSelector');
+      if (!box) return;
+
+      if (!classVideos || classVideos.length === 0) {
+        classVideos = [{ id: "V1", title: "🌻 向日葵班班導師指定影片", url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ" }];
+      }
+
+      if (sel) {
+        sel.innerHTML = '';
+        classVideos.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.id;
+          opt.textContent = v.title;
+          if (v.id === selectedVideoId || (!selectedVideoId && v === classVideos[0])) {
+            opt.selected = true;
+            if (!selectedVideoId) selectedVideoId = v.id;
+          }
+          sel.appendChild(opt);
+        });
+      }
+
+      const currentVid = classVideos.find(v => v.id === selectedVideoId) || classVideos[0];
+      let rawUrl = currentVid.url || "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
+      let videoId = "dQw4w9WgXcQ";
+
+      if (rawUrl.includes('embed/')) {
+        videoId = rawUrl.split('embed/')[1].split('?')[0];
+      } else if (rawUrl.includes('youtu.be/')) {
+        videoId = rawUrl.split('youtu.be/')[1].split('?')[0];
+      } else if (rawUrl.includes('watch?v=')) {
+        videoId = rawUrl.split('watch?v=')[1].split('&')[0];
+      } else {
+        videoId = rawUrl.trim();
+      }
+
+      // 🌻 雙重防護：本機 file:// 模式或 iframe 嵌入攔截時提供一鍵前往觀看按鈕
+      if (window.location.protocol === 'file:') {
+        box.innerHTML = `
+          <div class="flex flex-col items-center justify-center p-6 text-center">
+            <div class="w-12 h-12 bg-red-600 rounded-2xl flex items-center justify-center text-white text-xl mb-2 shadow-md">
+              <i class="fa-brands fa-youtube"></i>
+            </div>
+            <h4 class="text-white font-bold text-sm mb-1">${currentVid.title}</h4>
+            <p class="text-slate-400 text-[11px] mb-3">由於本機安全協定（file://），請點擊下方按鈕觀看：</p>
+            <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank" rel="noopener noreferrer" 
+               class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-md">
+              <i class="fa-solid fa-play"></i> 開啟 YouTube 觀看影片
+            </a>
+          </div>
+        `;
+      } else {
+        const embedUrl = `https://www.youtube-nocookie.com/embed/${videoId}?autoplay=1&mute=1&enablejsapi=1&playsinline=1&rel=0`;
+        box.innerHTML = `<iframe src="${embedUrl}" referrerpolicy="strict-origin-when-cross-origin" class="w-full h-full border-0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      }
+    }
+
+    function onStudentVideoSelectChange(vid) {
+      playSound('click');
+      selectedVideoId = vid;
+      renderYouTubePlayer();
+    }
+
+    function renderAdminVideosList() {
+      const container = document.getElementById('adminVideosListContainer');
+      if (!container) return;
+      container.innerHTML = '';
+      if (!classVideos || classVideos.length === 0) {
+        container.innerHTML = `<div class="text-xs text-slate-400 text-center py-2">目前尚無班級影片</div>`;
+        return;
+      }
+      classVideos.forEach(v => {
+        const div = document.createElement('div');
+        div.className = "flex items-center justify-between bg-slate-900 p-2.5 rounded-xl border border-slate-700 text-xs";
+        div.innerHTML = `
+          <div class="truncate mr-2">
+            <p class="font-bold text-white truncate"><i class="fa-brands fa-youtube text-red-500 mr-1"></i> ${v.title}</p>
+            <p class="text-[10px] text-slate-400 truncate">${v.url}</p>
+          </div>
+          <button onclick="deleteClassVideo('${v.id}'); playSound('click');" class="text-rose-400 hover:text-rose-300 p-1 flex-shrink-0" title="刪除影片">
+            <i class="fa-solid fa-trash"></i>
+          </button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function addNewClassVideo(e) {
+      e.preventDefault();
+      const titleInput = document.getElementById('adminVideoTitleInput');
+      const urlInput = document.getElementById('adminVideoUrlInput');
+      const title = titleInput.value.trim();
+      const url = urlInput.value.trim();
+      if (!title || !url) return;
+
+      const newVid = { id: `V_${Date.now()}`, title, url };
+      classVideos.push(newVid);
+      if (!selectedVideoId) selectedVideoId = newVid.id;
+
+      titleInput.value = '';
+      urlInput.value = '';
+
+      saveSystemData();
+      renderAdminVideosList();
+      renderYouTubePlayer();
+      showToast("已成功新增班級 YouTube 影片！🎬", "success");
+      sendDataToGoogleSheets({ action: 'saveVideos', videos: classVideos });
+    }
+
+    function deleteClassVideo(id) {
+      classVideos = classVideos.filter(v => v.id !== id);
+      if (classVideos.length > 0 && selectedVideoId === id) {
+        selectedVideoId = classVideos[0].id;
+      }
+      saveSystemData();
+      renderAdminVideosList();
+      renderYouTubePlayer();
+      showToast("已刪除該筆影片", "info");
+      sendDataToGoogleSheets({ action: 'saveVideos', videos: classVideos });
     }
 
     function updateGenderUIButtons(gender) {
@@ -1321,6 +1481,8 @@
       renderAdminEventsTable();
       renderHomeCountdown();
       renderQRCards();
+      renderAdminVideosList();
+      renderYouTubePlayer();
     }
 
     function updateStudentSelector() {
@@ -1494,6 +1656,10 @@
         if (data && Array.isArray(data.rewards) && data.rewards.length > 0) rewards = data.rewards;
         if (data && Array.isArray(data.events) && data.events.length > 0) classEvents = data.events;
         if (data && Array.isArray(data.messages)) messages = data.messages;
+        if (data && Array.isArray(data.videos) && data.videos.length > 0) {
+          classVideos = data.videos;
+          if (!selectedVideoId && classVideos.length > 0) selectedVideoId = classVideos[0].id;
+        }
 
         saveSystemData();
         refreshAllViews();
@@ -1530,6 +1696,11 @@
         if (p) pointPresets = JSON.parse(p);
         const pwd = localStorage.getItem('class_points_pwd');
         if (pwd) adminPassword = pwd;
+        const v = localStorage.getItem('class_points_videos');
+        if (v) {
+          classVideos = JSON.parse(v);
+          if (classVideos.length > 0) selectedVideoId = classVideos[0].id;
+        }
       } catch (e) {
         console.warn("載入本地暫存失敗:", e);
       }
@@ -1543,6 +1714,7 @@
         localStorage.setItem('class_points_messages', JSON.stringify(messages));
         localStorage.setItem('class_points_presets', JSON.stringify(pointPresets));
         localStorage.setItem('class_points_pwd', adminPassword);
+        localStorage.setItem('class_points_videos', JSON.stringify(classVideos));
       } catch (e) {
         console.warn("LocalStorage 寫入限制:", e);
       }
@@ -1731,6 +1903,7 @@
         renderRewardsManager();
         renderAdminEventsTable();
         renderAdminChatStudentList();
+        renderAdminVideosList();
       } else if (viewName === 'print') {
         if (!isAdminAuthenticated) {
           requestAdminAccess('print');
@@ -2503,7 +2676,7 @@
 
     function exportData() {
       const data = {
-        students, rewards, classEvents, messages, pointPresets, adminPassword,
+        students, rewards, classEvents, messages, classVideos, pointPresets, adminPassword,
         exportDate: new Date().toISOString()
       };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
@@ -2527,6 +2700,7 @@
           if (parsed.rewards) rewards = parsed.rewards;
           if (parsed.classEvents) classEvents = parsed.classEvents;
           if (parsed.messages) messages = parsed.messages;
+          if (parsed.classVideos) classVideos = parsed.classVideos;
           if (parsed.pointPresets) pointPresets = parsed.pointPresets;
           saveSystemData();
           refreshAllViews();
