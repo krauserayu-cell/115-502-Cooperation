@@ -968,6 +968,32 @@
     </div>
   </div>
 
+  <div id="homeworkAlertModal" class="no-print fixed inset-0 bg-slate-900/65 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-2 border-amber-300 transform transition-all animate-bounce-short">
+      <div class="text-center mb-4">
+        <div class="w-14 h-14 bg-gradient-to-tr from-amber-500 to-rose-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-2 text-2xl shadow-md">
+          <i class="fa-solid fa-bell-exclamation" id="hwAlertIcon"></i>
+        </div>
+        <h3 class="text-lg font-black text-slate-800 flex items-center justify-center gap-1.5" id="hwAlertTitle">
+          📢 作業繳交與訂正提醒
+        </h3>
+        <p class="text-xs text-slate-500 mt-1" id="hwAlertSubtitle">
+          嗨！請注意以下尚未完成的作業，記得盡快交給老師喔！
+        </p>
+      </div>
+
+      <div class="max-h-60 overflow-y-auto space-y-2 pr-1 mb-4" id="hwAlertListContainer">
+        <!-- 動態列出未繳交或需訂正的作業 -->
+      </div>
+
+      <div class="pt-3 border-t border-slate-100 flex gap-2">
+        <button type="button" onclick="closeHomeworkAlertModal(); playSound('click');" class="w-full py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-xl text-xs font-bold transition shadow-md flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-check"></i> 我知道了，我會趕快完成！💪
+        </button>
+      </div>
+    </div>
+  </div>
+
   <div id="avatarModal" class="no-print fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
     <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100">
       <div class="flex justify-between items-center mb-4">
@@ -1187,7 +1213,7 @@
     let isStudentPersonalMode = false;
     let isHomeCalendarExpanded = false;
     let tempSelectedAvatar = '🌟';
-
+    let hasShownHomeworkAlert = false;
     function renderStudentCard() {
       const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase()) || students[0];
       if (!student) return;
@@ -1820,6 +1846,72 @@
       setTimeout(() => { bubble.style.opacity = '0'; }, 2000);
     }
 
+    function checkAndShowHomeworkAlert(student) {
+      if (!student || hasShownHomeworkAlert) return;
+      if (!classHomeworks || classHomeworks.length === 0) return;
+
+      const stStatus = (studentHomeworkStatus && studentHomeworkStatus[student.id]) ? studentHomeworkStatus[student.id] : {};
+      const urgentHomeworks = [];
+
+      classHomeworks.forEach(hw => {
+        const st = stStatus[hw.id] || 'missing';
+        if (st === 'missing' || st === 'revise') {
+          urgentHomeworks.push({
+            title: hw.title,
+            subject: hw.subject || '作業',
+            dueDate: hw.dueDate || '儘速繳交',
+            status: st
+          });
+        }
+      });
+
+      if (urgentHomeworks.length === 0) return; // 全部已交就不打擾
+
+      const modal = document.getElementById('homeworkAlertModal');
+      const listContainer = document.getElementById('hwAlertListContainer');
+      const subtitle = document.getElementById('hwAlertSubtitle');
+      if (!modal || !listContainer) return;
+
+      hasShownHomeworkAlert = true;
+      if (subtitle) {
+        subtitle.innerHTML = `親愛的 <strong class="text-orange-600">${student.name}</strong>，您有 <strong class="text-rose-600">${urgentHomeworks.length}</strong> 項作業尚未繳交或需訂正！`;
+      }
+
+      listContainer.innerHTML = '';
+      urgentHomeworks.forEach(item => {
+        const isRevise = item.status === 'revise';
+        const itemDiv = document.createElement('div');
+        itemDiv.className = `p-3 rounded-2xl border flex items-center justify-between gap-2 shadow-2xs ${
+          isRevise ? 'bg-amber-50 border-amber-200' : 'bg-rose-50 border-rose-200'
+        }`;
+        itemDiv.innerHTML = `
+          <div class="truncate mr-2">
+            <div class="flex items-center gap-1.5 mb-1">
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded ${isRevise ? 'bg-amber-200 text-amber-900' : 'bg-rose-200 text-rose-900'}">${item.subject}</span>
+              <span class="text-[10px] text-slate-500 font-mono"><i class="fa-regular fa-clock"></i> 期限: ${item.dueDate}</span>
+            </div>
+            <p class="font-bold text-xs text-slate-800 truncate">${item.title}</p>
+          </div>
+          <div class="flex-shrink-0">
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-black flex items-center gap-1 ${
+              isRevise ? 'bg-amber-500 text-white' : 'bg-rose-500 text-white'
+            }">
+              <i class="fa-solid ${isRevise ? 'fa-pen-to-square' : 'fa-circle-exclamation'}"></i> ${isRevise ? '需訂正' : '未繳交'}
+            </span>
+          </div>
+        `;
+        listContainer.appendChild(itemDiv);
+      });
+
+      modal.classList.remove('hidden');
+      playSound('coin');
+    }
+
+    function closeHomeworkAlertModal() {
+      const modal = document.getElementById('homeworkAlertModal');
+      if (modal) modal.classList.add('hidden');
+    }
+
     function initApp() {
       loadSystemData();
       try {
@@ -1840,7 +1932,16 @@
         if (students.length > 0) currentStudentId = students[0].id;
       }
       refreshAllViews();
-      setTimeout(() => { fetchFromGoogleSheets(false); }, 400);
+      setTimeout(() => { 
+        fetchFromGoogleSheets(false).then(() => {
+          if (isStudentPersonalMode && currentStudentId) {
+            const currentStudent = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
+            if (currentStudent) {
+              checkAndShowHomeworkAlert(currentStudent);
+            }
+          }
+        }); 
+      }, 400);
     }
 
     if (document.readyState === 'loading') {
@@ -1919,6 +2020,13 @@
 
         saveSystemData();
         refreshAllViews();
+
+        if (isStudentPersonalMode && currentStudentId) {
+          const currentStudent = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase());
+          if (currentStudent) {
+            checkAndShowHomeworkAlert(currentStudent);
+          }
+        }
 
         if (statusBadge) {
           statusBadge.className = "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500 text-white shadow-sm";
