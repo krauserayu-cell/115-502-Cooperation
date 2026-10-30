@@ -2400,6 +2400,21 @@
         console.warn("LocalStorage 寫入限制:", e);
       }
     }
+
+    // 🌻 跨網域向 Google Apps Script 發送資料函式 (含防阻擋機制)
+    async function sendDataToGoogleSheets(payload) {
+      try {
+        await fetch(GAS_API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify(payload)
+        });
+      } catch (e) {
+        console.warn("POST 發送略過或網路異常:", e);
+      }
+    }
+
     // 🌻 Google Drive 資料夾式相簿呈現
     function renderAlbumFolders() {
       const foldersBox = document.getElementById('studentFoldersContainer');
