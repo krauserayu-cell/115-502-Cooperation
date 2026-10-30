@@ -2801,38 +2801,113 @@
           if (idMatch && idMatch[1]) fileId = idMatch[1];
         }
         if (fileId) {
-          return `https://drive.google.com/uc?export=view&id=${fileId}`;
+          return `https://lh3.googleusercontent.com/d/${fileId}=w1000`;
         }
       }
       return url;
     }
 
-    function renderStudentPhotoGrid() {
-      const container = document.getElementById('studentPhotoGridContainer');
+    // 🌻 Google Drive 資料夾式相簿呈現
+    function renderAlbumFolders() {
+      const foldersBox = document.getElementById('studentFoldersContainer');
+      const photosBox = document.getElementById('studentPhotosInFolderContainer');
       const badge = document.getElementById('studentPhotoCountBadge');
-      if (badge) badge.textContent = `${classPhotos.length} 張照片`;
-      if (!container) return;
-      container.innerHTML = '';
+      const breadcrumbSep = document.getElementById('breadcrumbFolderSeparator');
+      const breadcrumbName = document.getElementById('breadcrumbFolderName');
 
-      if (!classPhotos || classPhotos.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-xs text-slate-400 py-4 text-center">目前尚無班級活動相片，敬請期待！🌻</div>`;
+      if (!foldersBox || !photosBox) return;
+
+      if (currentViewingFolderId) {
+        foldersBox.classList.add('hidden');
+        photosBox.classList.remove('hidden');
         return;
       }
 
-      classPhotos.forEach(p => {
-        const imgUrl = formatDriveImageUrl(p.url);
-        const div = document.createElement('div');
-        div.className = "group relative rounded-2xl overflow-hidden bg-slate-100 border border-rose-100 shadow-2xs aspect-square cursor-pointer transform hover:scale-[1.02] transition";
-        div.onclick = () => openPhotoLightbox(p);
-        div.innerHTML = `
-          <img src="${imgUrl}" alt="${p.title}" class="w-full h-full object-cover group-hover:opacity-95 transition" onerror="this.onerror=null; this.src='https://placehold.co/400x400/fda4af/ffffff?text=📸+Photo';">
-          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-2 text-white">
-            <p class="text-xs font-black truncate">${p.title}</p>
-            <p class="text-[10px] text-rose-200 font-mono">${p.date || ''}</p>
+      foldersBox.classList.remove('hidden');
+      photosBox.classList.add('hidden');
+      if (breadcrumbSep) breadcrumbSep.classList.add('hidden');
+      if (breadcrumbName) breadcrumbName.classList.add('hidden');
+
+      if (badge) badge.textContent = `${photoFolders.length} 個資料夾`;
+      foldersBox.innerHTML = '';
+
+      if (!photoFolders || photoFolders.length === 0) {
+        foldersBox.innerHTML = `<div class="col-span-full text-xs text-slate-400 py-4 text-center">目前尚無活動資料夾</div>`;
+        return;
+      }
+
+      photoFolders.forEach(folder => {
+        const cover = formatDriveImageUrl(folder.coverUrl);
+        const card = document.createElement('div');
+        card.className = "group bg-white rounded-2xl p-2.5 border border-rose-100 shadow-2xs hover:shadow-md transition cursor-pointer transform hover:-translate-y-0.5";
+        card.onclick = () => { playSound('click'); openFolderView(folder.id); };
+        
+        card.innerHTML = `
+          <div class="w-full aspect-[4/3] rounded-xl overflow-hidden bg-rose-50 mb-2 relative">
+            <img src="${cover}" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.onerror=null; this.src='https://placehold.co/400x300/fecdd3/ffffff?text=📁';">
+            <div class="absolute top-2 left-2 bg-black/60 text-white text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 backdrop-blur-xs">
+              <i class="fa-solid fa-folder text-amber-300"></i> ${folder.photoCount || 0} 張
+            </div>
           </div>
+          <h4 class="font-black text-slate-800 text-xs truncate">${folder.name}</h4>
+          <p class="text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
+            <i class="fa-solid fa-folder-open text-rose-400"></i> 點擊進入查看
+          </p>
         `;
-        container.appendChild(div);
+        foldersBox.appendChild(card);
       });
+    }
+
+    function openFolderView(folderId) {
+      currentViewingFolderId = folderId;
+      const folder = photoFolders.find(f => f.id === folderId) || { name: "活動資料夾" };
+
+      const breadcrumbSep = document.getElementById('breadcrumbFolderSeparator');
+      const breadcrumbName = document.getElementById('breadcrumbFolderName');
+      if (breadcrumbSep) breadcrumbSep.classList.remove('hidden');
+      if (breadcrumbName) {
+        breadcrumbName.textContent = folder.name;
+        breadcrumbName.classList.remove('hidden');
+      }
+
+      const grid = document.getElementById('folderPhotosGrid');
+      const countText = document.getElementById('folderPhotoCountText');
+      if (!grid) return;
+      grid.innerHTML = '';
+
+      const photosInFolder = classPhotos.filter(p => p.folderId === folderId || (!p.folderId && folderId === 'root'));
+
+      if (countText) countText.textContent = `共 ${photosInFolder.length} 張照片`;
+
+      if (photosInFolder.length === 0) {
+        grid.innerHTML = `<div class="col-span-full text-xs text-slate-400 py-8 text-center bg-white rounded-2xl border border-rose-100">此資料夾內目前尚無照片，歡迎點選上方按鈕上傳！📸</div>`;
+      } else {
+        photosInFolder.forEach(p => {
+          const imgUrl = formatDriveImageUrl(p.url);
+          const div = document.createElement('div');
+          div.className = "group relative rounded-2xl overflow-hidden bg-slate-100 border border-rose-100 shadow-2xs aspect-square cursor-pointer transform hover:scale-[1.02] transition";
+          div.onclick = () => openPhotoLightbox(p);
+          div.innerHTML = `
+            <img src="${imgUrl}" alt="${p.title}" referrerpolicy="no-referrer" class="w-full h-full object-cover group-hover:opacity-95 transition" onerror="this.onerror=null; this.src='https://placehold.co/400x400/fda4af/ffffff?text=📸+Photo';">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition flex flex-col justify-end p-2 text-white">
+              <p class="text-xs font-black truncate">${p.title}</p>
+              <p class="text-[10px] text-rose-200 font-mono">${p.date || ''}</p>
+            </div>
+          `;
+          grid.appendChild(div);
+        });
+      }
+
+      renderAlbumFolders();
+    }
+
+    function navBackToFolders() {
+      currentViewingFolderId = null;
+      renderAlbumFolders();
+    }
+
+    function renderStudentPhotoGrid() {
+      renderAlbumFolders();
     }
 
     function openPhotoLightbox(photo) {
