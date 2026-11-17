@@ -278,6 +278,26 @@
           <div id="studentExamResultBlock" class="hidden mb-6 bg-gradient-to-b from-purple-50 to-fuchsia-50/60 rounded-3xl p-4 sm:p-5 border border-purple-200 shadow-sm">
           </div>
 
+          <!-- 🌻 學生端：平時測驗成績追蹤區塊 -->
+          <div class="mb-6 bg-gradient-to-b from-teal-50 to-emerald-50/60 rounded-3xl p-4 sm:p-5 border border-teal-200 shadow-sm">
+            <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+              <span class="inline-flex items-center gap-1.5 text-xs font-black bg-teal-200/80 text-teal-900 px-3 py-1 rounded-full">
+                <i class="fa-solid fa-pen-clip text-teal-700"></i> 平時測驗成績紀錄
+              </span>
+              <div class="flex gap-1 text-[11px] font-bold bg-white p-0.5 rounded-full border border-teal-200 shadow-2xs">
+                <button type="button" onclick="filterStudentQuizzes('all')" id="stuQuizTab_all" class="px-2.5 py-0.5 rounded-full bg-teal-600 text-white transition">全部</button>
+                <button type="button" onclick="filterStudentQuizzes('國語')" id="stuQuizTab_國語" class="px-2.5 py-0.5 rounded-full text-slate-600 hover:text-teal-700 transition">國語</button>
+                <button type="button" onclick="filterStudentQuizzes('數學')" id="stuQuizTab_數學" class="px-2.5 py-0.5 rounded-full text-slate-600 hover:text-teal-700 transition">數學</button>
+                <button type="button" onclick="filterStudentQuizzes('自然')" id="stuQuizTab_自然" class="px-2.5 py-0.5 rounded-full text-slate-600 hover:text-teal-700 transition">自然</button>
+              </div>
+            </div>
+            <div id="studentQuizSummary" class="text-[11px] text-teal-800 font-bold mb-2.5 bg-white/80 px-3 py-1.5 rounded-xl border border-teal-100 flex justify-between items-center">
+              <span>目前顯示：全部科目</span>
+              <span id="studentQuizAvgText">平均：--</span>
+            </div>
+            <div id="studentQuizListContainer" class="space-y-2 max-h-64 overflow-y-auto pr-1"></div>
+          </div>
+
           <!-- 🌻 學生端 班級生活相簿（Google Drive 資料夾分類風格） -->
           <div class="mb-6 bg-gradient-to-b from-rose-50 to-amber-50/60 rounded-3xl p-4 sm:p-5 border border-rose-200 shadow-sm">
             <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
@@ -482,6 +502,9 @@
         <button id="adminTabHomeworkBtn" onclick="switchAdminTab('homework'); playSound('click');" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
           <i class="fa-solid fa-book-bookmark"></i> 作業繳交狀態追蹤 (<span id="homeworkCountBadge">0</span>)
         </button>
+        <button id="adminTabQuizzesBtn" onclick="switchAdminTab('quizzes'); playSound('click');" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
+          <i class="fa-solid fa-file-pen"></i> 平時考成績登錄 (<span id="quizCountBadge">0</span>)
+        </button>
         <button id="adminTabPhotosBtn" onclick="switchAdminTab('photos'); playSound('click');" class="px-4 py-2.5 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 transition whitespace-nowrap">
           <i class="fa-solid fa-images"></i> 班級相簿管理 (<span id="photoCountBadge">0</span>)
         </button>
@@ -548,6 +571,38 @@
           </button>
         </div>
         <div id="adminHomeworkManagerContainer" class="space-y-4"></div>
+      </div>
+
+      <!-- 🌻 新增：教師後台 平時考成績登錄分頁 -->
+      <div id="adminTabQuizzes" class="hidden">
+        <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-200 mb-6">
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+            <div>
+              <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                <i class="fa-solid fa-file-pen text-teal-600"></i> 新增平時測驗與全班快速登分
+              </h3>
+              <p class="text-xs text-slate-500 mt-0.5">新增國語、數學等平時測驗後，直接在下方表格輸入全班分數並點擊「儲存全班成績至雲端」即可同步</p>
+            </div>
+          </div>
+          <form onsubmit="addNewClassQuiz(event)" class="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2 border-t border-slate-100">
+            <select id="newQuizSubject" required class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <option value="國語">📘 國語</option>
+              <option value="數學">📐 數學</option>
+              <option value="自然">🔬 自然</option>
+              <option value="社會">🌍 社會</option>
+              <option value="英語">🔤 英語</option>
+            </select>
+            <input type="text" id="newQuizTitle" required placeholder="測驗名稱 (如：第7課聽寫、單元4平時卷)" class="sm:col-span-2 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <div class="flex gap-2">
+              <input type="date" id="newQuizDate" required class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-2 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-teal-500">
+              <button type="submit" onclick="playSound('click')" class="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap shadow-sm transition flex items-center gap-1">
+                <i class="fa-solid fa-plus"></i> 建立測驗
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <div id="adminQuizManagerContainer" class="space-y-4"></div>
       </div>
 
       <!-- 🌻 新增：教師後台 班級相簿管理分頁 -->
@@ -1392,6 +1447,12 @@
     let studentHomeworkStatus = {};
     let examConfig = { isOpen: false, examTitle: "期中評量" };
     let examMap = {};
+    let classQuizzes = [
+      { id: "QZ1", subject: "國語", title: "國語第七課圈詞測驗", date: "2026-11-10" },
+      { id: "QZ2", subject: "數學", title: "數學第四單元平時卷", date: "2026-11-12" }
+    ];
+    let studentQuizScores = {};
+    let currentStudentQuizFilter = 'all';
 
     let selectedVideoId = "";
     let pointPresets = JSON.parse(JSON.stringify(DEFAULT_POINT_PRESETS));
@@ -1606,6 +1667,7 @@
 
       renderStudentHomeworkList(student);
       renderStudentExamResult(student);
+      renderStudentQuizList(student);
       renderStudentPhotoGrid();
       updateExamToggleBtnUI();
       renderSmileAgentChecklist(student);
@@ -1727,6 +1789,200 @@
         btnText.textContent = "成績未開放";
         btnIcon.className = "fa-solid fa-eye-slash text-purple-400";
       }
+    }
+
+    function filterStudentQuizzes(subject) {
+      playSound('click');
+      currentStudentQuizFilter = subject;
+      ['all', '國語', '數學', '自然'].forEach(tab => {
+        const btn = document.getElementById(`stuQuizTab_${tab}`);
+        if (btn) {
+          btn.className = (tab === subject)
+            ? "px-2.5 py-0.5 rounded-full bg-teal-600 text-white transition"
+            : "px-2.5 py-0.5 rounded-full text-slate-600 hover:text-teal-700 transition";
+        }
+      });
+      const student = students.find(s => String(s.id).toLowerCase() === String(currentStudentId).toLowerCase()) || students[0];
+      if (student) renderStudentQuizList(student);
+    }
+
+    function renderStudentQuizList(student) {
+      const container = document.getElementById('studentQuizListContainer');
+      const avgTextEl = document.getElementById('studentQuizAvgText');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const filtered = (classQuizzes || []).filter(q => currentStudentQuizFilter === 'all' || q.subject === currentStudentQuizFilter);
+      if (filtered.length === 0) {
+        if (avgTextEl) avgTextEl.textContent = "平均：--";
+        container.innerHTML = `<div class="text-xs text-slate-400 py-4 text-center bg-white/60 rounded-2xl border border-teal-100">目前尚無平時測驗紀錄 📝</div>`;
+        return;
+      }
+
+      const validNums = [];
+
+      filtered.slice().reverse().forEach(q => {
+        const qMap = studentQuizScores[q.id] || {};
+        const rec = qMap[student.id] || qMap[String(student.id).toLowerCase()] || qMap[String(student.seat)] || { score: '', status: 'none' };
+        const hasScore = rec.score !== undefined && rec.score !== null && String(rec.score).trim() !== '';
+        const numScore = Number(rec.score);
+        if (hasScore && !isNaN(numScore)) validNums.push(numScore);
+
+        let scoreBadge = `<span class="text-xs text-slate-400 font-bold bg-slate-100 px-2.5 py-1 rounded-xl">待公布</span>`;
+        if (hasScore) {
+          let colorClass = "text-teal-700 bg-teal-50 border-teal-200";
+          if (numScore === 100) colorClass = "text-amber-700 bg-amber-100 border-amber-300";
+          else if (numScore >= 90) colorClass = "text-emerald-700 bg-emerald-50 border-emerald-200";
+          else if (numScore < 60) colorClass = "text-rose-700 bg-rose-100 border-rose-300";
+          scoreBadge = `<span class="px-3 py-1 rounded-xl text-sm font-black border ${colorClass}">${numScore === 100 ? '👑 ' : ''}${rec.score} 分</span>`;
+        }
+
+        let statusBadge = '';
+        if (rec.status === 'revise') {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-500 text-white"><i class="fa-solid fa-pen-to-square"></i> 需訂正</span>`;
+        } else if (rec.status === 'done') {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500 text-white"><i class="fa-solid fa-check"></i> 已訂正</span>`;
+        }
+
+        const item = document.createElement('div');
+        item.className = "bg-white p-3 rounded-2xl border border-teal-100 shadow-2xs flex items-center justify-between gap-2";
+        item.innerHTML = `
+          <div class="truncate mr-2">
+            <div class="flex items-center gap-1.5 mb-0.5 flex-wrap">
+              <span class="text-[10px] font-bold bg-teal-100 text-teal-800 px-2 py-0.5 rounded">${q.subject}</span>
+              <span class="text-[10px] text-slate-400 font-mono">${q.date || ''}</span>
+              ${statusBadge}
+            </div>
+            <p class="font-bold text-xs text-slate-800 truncate">${q.title}</p>
+          </div>
+          <div class="flex-shrink-0">${scoreBadge}</div>
+        `;
+        container.appendChild(item);
+      });
+
+      if (avgTextEl) {
+        if (validNums.length > 0) {
+          const avg = (validNums.reduce((a, b) => a + b, 0) / validNums.length).toFixed(1);
+          avgTextEl.innerHTML = `已考 ${validNums.length} 次 · 平均：<strong class="text-teal-700">${avg}</strong> 分`;
+        } else {
+          avgTextEl.textContent = "平均：尚未登錄";
+        }
+      }
+    }
+
+    function addNewClassQuiz(e) {
+      e.preventDefault();
+      const subject = document.getElementById('newQuizSubject').value;
+      const title = document.getElementById('newQuizTitle').value.trim();
+      const date = document.getElementById('newQuizDate').value;
+      if (!title) return;
+
+      const newQuiz = { id: `QZ_${Date.now()}`, subject, title, date };
+      classQuizzes.push(newQuiz);
+      document.getElementById('newQuizTitle').value = '';
+      saveSystemData();
+      renderAdminQuizzesManager();
+      renderStudentCard();
+      sendDataToGoogleSheets({ action: 'saveQuizzes', quizzes: classQuizzes });
+      showToast(`已建立平時測驗：【${subject}】${title}`, "success");
+    }
+
+    function renderAdminQuizzesManager() {
+      const container = document.getElementById('adminQuizManagerContainer');
+      const badge = document.getElementById('quizCountBadge');
+      if (badge) badge.textContent = classQuizzes.length;
+      if (!container) return;
+      container.innerHTML = '';
+
+      const dateInput = document.getElementById('newQuizDate');
+      if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0, 10);
+
+      if (!classQuizzes || classQuizzes.length === 0) {
+        container.innerHTML = `<div class="bg-white p-8 rounded-3xl border border-slate-200 text-center text-slate-400 text-xs">目前尚無平時考項目，請從上方建立第一個測驗！</div>`;
+        return;
+      }
+
+      classQuizzes.slice().reverse().forEach(q => {
+        if (!studentQuizScores[q.id]) studentQuizScores[q.id] = {};
+        const qMap = studentQuizScores[q.id];
+
+        let rowsHTML = '';
+        students.sort((a,b) => a.seat - b.seat).forEach(st => {
+          const rec = qMap[st.id] || qMap[String(st.id).toLowerCase()] || qMap[String(st.seat)] || { score: '', status: 'none' };
+          rowsHTML += `
+            <div class="flex items-center justify-between py-1.5 px-3 rounded-xl hover:bg-white border-b border-slate-200/60 last:border-b-0 text-xs transition">
+              <span class="font-bold text-slate-700 truncate mr-2">#${String(st.seat).padStart(2,'0')} ${st.name}</span>
+              <div class="flex items-center gap-1.5 flex-shrink-0">
+                <input type="number" min="0" max="100" placeholder="分數" value="${rec.score !== undefined ? rec.score : ''}"
+                  oninput="updateLocalQuizScore('${q.id}', '${st.id}', this.value, null)"
+                  class="w-16 bg-white border border-slate-300 rounded-lg px-2 py-1 text-center font-black text-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                <select onchange="updateLocalQuizScore('${q.id}', '${st.id}', null, this.value)"
+                  class="bg-white border border-slate-200 rounded-lg px-1.5 py-1 text-[11px] font-bold text-slate-600 focus:outline-none focus:ring-2 focus:ring-teal-500">
+                  <option value="none" ${rec.status === 'none' ? 'selected' : ''}>正常</option>
+                  <option value="revise" ${rec.status === 'revise' ? 'selected' : ''}>⚠️ 需訂正</option>
+                  <option value="done" ${rec.status === 'done' ? 'selected' : ''}>✅ 已訂正</option>
+                </select>
+              </div>
+            </div>
+          `;
+        });
+
+        const card = document.createElement('div');
+        card.className = "bg-white p-5 rounded-3xl border border-slate-200 shadow-sm";
+        card.innerHTML = `
+          <div class="flex flex-wrap justify-between items-center gap-2 mb-3 pb-3 border-b border-slate-100">
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="bg-teal-100 text-teal-800 text-[10px] font-bold px-2 py-0.5 rounded">${q.subject}</span>
+                <span class="text-xs text-slate-400 font-mono">測驗日期：${q.date || '未定'}</span>
+              </div>
+              <h4 class="font-black text-slate-800 text-sm">${q.title}</h4>
+            </div>
+            <div class="flex items-center gap-2">
+              <button onclick="syncQuizScoresToCloud('${q.id}'); playSound('coin');" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-sm flex items-center gap-1.5">
+                <i class="fa-solid fa-cloud-arrow-up"></i> 儲存全班成績至雲端
+              </button>
+              <button onclick="deleteClassQuiz('${q.id}'); playSound('click');" class="text-xs text-rose-500 hover:text-rose-700 font-bold px-3 py-2 rounded-xl bg-rose-50 transition">
+                <i class="fa-solid fa-trash"></i> 刪除
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 bg-slate-50/80 p-2.5 rounded-2xl border border-slate-200 max-h-80 overflow-y-auto">
+            ${rowsHTML}
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function updateLocalQuizScore(quizId, studentId, newScore, newStatus) {
+      if (!studentQuizScores[quizId]) studentQuizScores[quizId] = {};
+      if (!studentQuizScores[quizId][studentId]) {
+        const prev = studentQuizScores[quizId][String(studentId).toLowerCase()] || { score: '', status: 'none' };
+        studentQuizScores[quizId][studentId] = { ...prev };
+      }
+      if (newScore !== null) studentQuizScores[quizId][studentId].score = newScore;
+      if (newStatus !== null) studentQuizScores[quizId][studentId].status = newStatus;
+      saveSystemData();
+      renderStudentCard();
+    }
+
+    function syncQuizScoresToCloud(quizId) {
+      triggerConfetti();
+      const scoresMap = studentQuizScores[quizId] || {};
+      saveSystemData();
+      sendDataToGoogleSheets({ action: 'saveQuizScores', quizId: quizId, scoresMap: scoresMap });
+      showToast("🎉 全班平時考成績已同步儲存至 Google 試算表！", "success");
+    }
+
+    function deleteClassQuiz(quizId) {
+      classQuizzes = classQuizzes.filter(q => q.id !== quizId);
+      delete studentQuizScores[quizId];
+      saveSystemData();
+      renderAdminQuizzesManager();
+      renderStudentCard();
+      sendDataToGoogleSheets({ action: 'saveQuizzes', quizzes: classQuizzes });
+      showToast("已刪除該次平時測驗", "info");
     }
 
     function renderStudentHomeworkList(student) {
@@ -1856,6 +2112,7 @@
       });
       saveSystemData();
       renderAdminHomeworkManager();
+      renderAdminQuizzesManager();
       renderStudentCard();
       showToast("🎉 已將全班學生該項作業一鍵設為「已繳交」！", "success");
     }
@@ -1865,6 +2122,7 @@
       studentHomeworkStatus[studentId][homeworkId] = status;
       saveSystemData();
       renderAdminHomeworkManager();
+      renderAdminQuizzesManager();
       renderStudentCard();
       showToast("作業狀態已更新！", "success");
       sendDataToGoogleSheets({ action: 'saveHomeworkStatus', studentId, homeworkId, status });
@@ -1888,6 +2146,7 @@
       saveSystemData();
       closeHomeworkModal();
       renderAdminHomeworkManager();
+      renderAdminQuizzesManager();
       renderStudentCard();
       showToast("已成功新增班級作業！", "success");
       sendDataToGoogleSheets({ action: 'saveHomeworks', homeworks: classHomeworks });
@@ -1896,6 +2155,7 @@
       classHomeworks = classHomeworks.filter(h => h.id !== id);
       saveSystemData();
       renderAdminHomeworkManager();
+      renderAdminQuizzesManager();
       renderStudentCard();
       showToast("已刪除該筆作業", "info");
       sendDataToGoogleSheets({ action: 'saveHomeworks', homeworks: classHomeworks });
@@ -2182,6 +2442,7 @@
       renderStudentCard();
       renderAdminTable();
       renderAdminHomeworkManager();
+      renderAdminQuizzesManager();
       renderRewardsManager();
       renderAdminEventsTable();
       renderHomeCountdown();
@@ -2446,6 +2707,8 @@
         if (data && Array.isArray(data.photos) && data.photos.length > 0) classPhotos = data.photos;
         if (data && data.examConfig) examConfig = data.examConfig;
         if (data && data.examMap) examMap = data.examMap;
+        if (data && Array.isArray(data.quizzes) && data.quizzes.length > 0) classQuizzes = data.quizzes;
+        if (data && data.quizScores) studentQuizScores = data.quizScores;
 
         saveSystemData();
         refreshAllViews();
@@ -2506,6 +2769,10 @@
         if (ec) examConfig = JSON.parse(ec);
         const em = localStorage.getItem('class_points_exam_map');
         if (em) examMap = JSON.parse(em);
+        const qz = localStorage.getItem('class_points_quizzes');
+        if (qz) classQuizzes = JSON.parse(qz);
+        const qzs = localStorage.getItem('class_points_quiz_scores');
+        if (qzs) studentQuizScores = JSON.parse(qzs);
       } catch (e) {
         console.warn("載入本地暫存失敗:", e);
       }
@@ -2526,6 +2793,8 @@
         localStorage.setItem('class_points_photos', JSON.stringify(classPhotos));
         localStorage.setItem('class_points_exam_config', JSON.stringify(examConfig));
         localStorage.setItem('class_points_exam_map', JSON.stringify(examMap));
+        localStorage.setItem('class_points_quizzes', JSON.stringify(classQuizzes));
+        localStorage.setItem('class_points_quiz_scores', JSON.stringify(studentQuizScores));
       } catch (e) {
         console.warn("LocalStorage 寫入限制:", e);
       }
@@ -2816,6 +3085,7 @@
         if (navAdmin) navAdmin.className = "px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 bg-white text-orange-600 shadow-sm";
         renderAdminTable();
         renderAdminHomeworkManager();
+      renderAdminQuizzesManager();
         renderRewardsManager();
         renderAdminEventsTable();
         renderAdminChatStudentList();
@@ -2900,7 +3170,7 @@
     }
 
     function switchAdminTab(tab) {
-      ['students', 'homework', 'photos', 'messages', 'rewards', 'events'].forEach(t => {
+      ['students', 'homework', 'quizzes', 'photos', 'messages', 'rewards', 'events'].forEach(t => {
         const el = document.getElementById(`adminTab${t.charAt(0).toUpperCase() + t.slice(1)}`);
         const btn = document.getElementById(`adminTab${t.charAt(0).toUpperCase() + t.slice(1)}Btn`);
         if (el) el.classList.toggle('hidden', t !== tab);
@@ -2912,6 +3182,8 @@
       });
       if (tab === 'students') renderAdminTable();
       if (tab === 'homework') renderAdminHomeworkManager();
+      renderAdminQuizzesManager();
+      if (tab === 'quizzes') renderAdminQuizzesManager();
       if (tab === 'photos') renderAdminPhotosManager();
       if (tab === 'messages') renderAdminChatStudentList();
       if (tab === 'rewards') renderRewardsManager();
@@ -3143,6 +3415,7 @@
       renderStudentCard();
       renderAdminTable();
       renderAdminHomeworkManager();
+      renderAdminQuizzesManager();
       renderAdminPhotosManager();
       renderRewardsManager();
       renderAdminEventsTable();
